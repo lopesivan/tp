@@ -1,0 +1,49 @@
+#!/bin/bash
+# vi:set nu nowrap:
+# cmd.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: cmd.sh
+#        Date: Mon 03 Aug 2009 04:28:06 AM BRT
+# Description:
+#
+#
+
+# ----------------------------------------------------------------------------
+
+rm *.jpg
+
+cp original/*.jpg .
+for f in *.jpg; do mv "$f" 00$((i++))_image_1024x768.jpg; done
+for f in *.jpg; do convert -resize 1024x768 "$f" "$f";    done
+
+identify *.jpg| grep -v 'JPEG 1024x768' | sed 's/\[.*$//'| xargs rm
+
+img="$(ls *jpg)"
+
+_n=`ls *.jpg |wc -l`
+_c=20
+
+arrId=(
+	$( seq $((_c*_n)) | nl  -i1  -nrz  -s'.jpg@'  -v1  -w4| sed 's/@.*$//')
+)
+
+i=0
+for f in *.jpg; do
+	for tm in `seq $_c`; do
+		echo cp $f ${arrId[i++]}
+		cp $f ${arrId[i++]}
+	done
+done
+
+rm $img
+
+ls *.jpg| nl  -i1  -nrz  -s'_image.jpg@'  -v1  -w3| sed -r 's/(.*)@(.*)/mv \2 \1/'| sh
+
+# ----------------------------------------------------------------------------
+exit 0

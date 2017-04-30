@@ -1,0 +1,4 @@
+#! /bin/bash
+TARGET=/workspace/icsl/developer/cpp/book/deitel/workspace/bash
+source ${TARGET}/util
+table $1 $2 $3

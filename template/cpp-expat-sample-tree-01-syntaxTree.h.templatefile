@@ -1,0 +1,3 @@
+// simple handlers
+void startElement(void *data, const char *el, const char **attr);
+void endElement  (void *data, const char *name);

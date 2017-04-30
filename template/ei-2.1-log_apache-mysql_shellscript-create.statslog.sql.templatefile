@@ -1,0 +1,24 @@
+create table statslog
+(
+	stats_id   int unsigned not null auto_increment,
+	ip         varchar(25),
+	accesstime datetime,
+	themethod  varchar(10),
+	thetype    varchar(25),
+	thecode    char(3),
+	thebytes   int,
+	theref     varchar(250),
+	browser    varchar(250),
+
+	primary key (stats_id)
+)
+
+-- bb4325ad.virtua.com.br - - [18/Nov/2010:01:25:55 -0200] "GET /html/streamingvideo/iphone/stream_cell_4x3_150k.m3u8 HTTP/1.0" 200 1205 "-" "Twisted PageGetter"
+-- ip         = $ip
+-- accesstime = $accesstime
+-- themethod  = $themethod
+-- thetype    = $thetype
+-- thecode    = $thecode
+-- thebytes   = $thebytes
+-- theref     = $theref
+-- browser    = $browser

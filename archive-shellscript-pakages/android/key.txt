@@ -1,0 +1,11 @@
+     pass1=L@@8gduzulfaht8qvy8m87vqz2laiy5uip
+     pass2=L@@8gduzulfaht8qvy8m87vqz2laiy5uip
+     pass1=android
+     pass2=android
+FirstName=Ivan
+ LastName=Lopes
+     corp=apptechcorp
+ keystore=apptechcorp.com.keystore
+storepass=android
+  keypass=android
+    alias=apptechcorp.com

@@ -1,0 +1,25 @@
+From the SDK’s tools directory, run adb shell. In the
+prompt run the following:
+
+# su
+# mount -o rw,remount -t yaffs2 /dev/block/mtdblock4 /system
+# chmod 777 /system (Or any subdirectory you want to push to inside system)
+# exit
+adb push
+
+and eventually you should restore the original directory permissions by:
+# chmod 755 /system (Or any subdirectory you modified permissions to)
+
+Make sure you knew the mount point for system by running #
+# cat /proc/mtd
+dev: size erasesize name
+mtd0: 00500000 00020000 "boot"
+mtd1: 04000000 00020000 "cache"
+mtd2: 00500000 00020000 "recovery"
+mtd3: 00060000 00020000 "splash"
+mtd4: 0f500000 00020000 "system"
+mtd5: 002c0000 00020000 "lgdrm"
+mtd6: 08b80000 00020000 "userdata"
+mtd7: 00080000 00020000 "usd"
+mtd8: 005a0000 00020000 "pkg"
+mtd9: 1cfc0000 00020000 ""

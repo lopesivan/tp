@@ -1,0 +1,17 @@
+echo -e "GET / HTTP/1.0\n" | tee -a log.out >&5
+cat <&5 >>log.in
+
+
+
+
+# FD 5 is the real socket; FD 6 and 7 are the new ones that the script will
+# have to read from and write to in order for the logging to work
+mkfifo fifo.in fifo.out
+tee log.input <&5 > fifo.in &
+tee log.output < fifo.out >&5 &
+exec 6<fifo.in 7>fifo.out
+
+# continue with the rest of the script, reading from FD 6, writing to FD 7
+echo "Nybble me, Byte me, Unsigned long int me!" >&7
+read junk <&6
+#...

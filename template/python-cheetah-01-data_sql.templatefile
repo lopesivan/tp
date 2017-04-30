@@ -1,0 +1,5 @@
+BEGIN TRANSACTION;
+#for $d in $data:
+INSERT INTO "mytable" VALUES($d[0],$d[1]);
+#end for
+COMMIT;

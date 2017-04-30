@@ -1,0 +1,238 @@
+#include <cassert>
+#include <string>
+#include <algorithm>
+#include <cstring>				 // std::strlen
+#include "ice_string.h"
+
+void test_basic_functionality ()
+{
+    ice::string m;
+    assert (*m.c_str () == '\0');
+    assert (m.empty () == true);
+    assert (m.size () == 0);
+
+    m = "ab";
+    assert (strlen (m.c_str ()) == m.size ());
+    assert (m.size () == 2);
+    assert (m.empty () == false);
+    assert (strcmp (m.c_str (), "ab") == 0);
+    assert (m == "ab");
+    assert (m.substr (1,1) == "b");
+    assert (m.substr (0,1) == "a");
+    assert (m.substr (0,2) == "ab");
+    assert (m.substr (0,3) == "ab");
+
+    assert (strlen (m.c_str ()) == 2);
+    assert (m.size () == 2);
+
+    m += "ba";
+    assert (m == "abba");
+    assert (m.substr (1,1) == "b");
+    assert (m.substr (0,1) == "a");
+    assert (m.substr (0,2) == "ab");
+    assert (m.substr (1,2) == "bb");
+    assert (m.substr (1,3) == "bba");
+    assert (m.substr (2,2) == "ba");
+    assert (m.substr (3,1) == "a");
+
+    // check ignore overflow, same as in std::string
+    assert (m.substr (0,200) == "abba");
+
+    // should throw out_of_range
+
+    try
+    {
+        ice::string ().substr (1,0);
+        assert (false);
+    }
+    catch (const std::out_of_range&)
+    {
+    }
+
+    ice::string m2 = m;
+
+    assert (m2 == m);
+    assert (m2.size () == 4);
+    assert (m.size () == 4);
+
+    ice::string m3 (m);
+    assert (m3 == m);
+    assert (m3.size () == 4);
+    assert (m.size () == 4);
+
+    ice::string m4 ("akkabakka");
+    assert (m4 == "akkabakka");
+    assert (m4.size () == 9);
+
+    m4 = m;						 // operator= (const string&)
+    // unique buffers
+    assert (m4.c_str () != m.c_str ());
+    assert (m4 == "abba");		 // same content
+
+    const char *p = "akka";
+    m4 = p;						 // operator= (const char*)
+    assert (m4.c_str () != p);	 // unique buffer
+    assert (m4 == "akka");		 // same content
+
+    m4 += "bakka";
+    assert (m4 == "akkabakka");
+
+    m4 += m4.c_str () + 4;		 // overlapping memory
+    assert (m4 == "akkabakkabakka");
+
+    ice::string m5;
+    m5 = m4 + "bonka";			 // friend operator+ (string, string)
+    assert (m5 == "akkabakkabakkabonka");
+
+    m5 = "bonka" + m4;			 // friend operator+ (string, string)
+    assert (m5 == "bonkaakkabakkabakka");
+
+    m5 = ice::string ("abba") + " disco";
+    assert (m5 == "abba disco");
+
+    m5 = "ab" + ice::string ("cd") + "ef";
+    assert (m5 == "abcdef");
+
+    assert (m5[0] == 'a');
+    assert (m5[1] == 'b');
+    assert (m5[2] == 'c');
+    assert (m5[3] == 'd');
+    assert (m5[4] == 'e');
+    assert (m5[5] == 'f');
+    assert (m5[6] == '\0');
+    assert (m5[0] == m5.at (0));
+    assert (m5.at (0) == 'a');
+
+    try
+    {
+        m5.at (7);
+        assert (false);
+    }
+    catch (const std::out_of_range&)
+    {
+    }
+
+    m5.clear ();
+
+    assert (m5.empty () == true);
+
+    ice::string m6 = "hello";
+    m6 = (m6.c_str () + 1);		 // overlapping assignment
+    assert (!strcmp (m6.c_str (), "ello"));
+
+    m6 += (m6.c_str () + 1);		 // overlaping append
+    assert (!strcmp (m6.c_str (), "ellollo"));
+
+    ice::string m7 = "123456789";
+    // erase beginning
+    assert (m7.erase (0, 2) == "3456789");
+    // erase end
+    assert (m7.erase (5, 2) == "34567");
+    // erase middle
+    assert (m7.erase (1, 3) == "37");
+    // no effect
+    assert (m7.erase (0, 0) == "37");
+    assert (m7.erase (1, 0) == "37");
+    assert (m7.erase (2, 0) == "37");
+    assert (m7.erase (1, 1) == "3");
+
+    try
+    {
+        m7.erase (200, 100) == "46";
+        assert (false);
+    }
+    catch (const std::out_of_range&)
+    {
+    }
+
+    m7 = "hello";
+
+    // overflow
+    assert (m7.erase (1, 200) == "h");
+}
+
+void test_compatibility ()
+{
+    const char* str = "goonigogo";
+    const size_t len = std::strlen (str);
+    std::string s = str;
+    ice::string  m = str;
+
+    assert (s == m.c_str ());
+
+    for ( size_t x=0; x < len; ++x )
+        for ( size_t y=0; y < len*2; ++y )
+        {
+            fprintf (stderr, "substr (%ld,%ld) ", x, y);
+            assert (s.substr (x,y) == m.substr (x,y).c_str ());
+        }
+
+    fprintf (stderr, "\n");
+
+    for ( size_t x=0; x < len; ++x )
+        for ( size_t y=0; y < len*2; ++y )
+        {
+            s = str;
+            m = str;
+            fprintf (stderr, "erase (%ld,%ld) ", x, y);
+            assert (s.erase (x,y) == m.erase (x,y).c_str ());
+        }
+
+    fprintf (stderr, "\n");
+
+    s = str;
+    m = str;
+
+    for ( size_t x=0; x < len; ++x )
+    {
+        fprintf (stderr, "at (%ld) ", x);
+        assert (s.at (x) == m.at (x));
+
+        fprintf (stderr, "[%ld] ", x);
+        assert (s[x] == m[x]);
+    }
+
+    fprintf (stderr, "\n");
+
+    for ( size_t x=0; x < len; ++x )
+        for ( size_t y=0; y < len*2; ++y )
+        {
+            s = str;
+            m = str;
+            fprintf (stderr, "+=substr (%ld,%ld) ", x, y);
+            s += s.substr (x,y);
+            m += m.substr (x,y);
+            assert (s == m.c_str ());
+        }
+
+    fprintf (stderr, "\n");
+
+    for ( size_t x=0; x < len; ++x )
+        for ( size_t y=0; y < len*2; ++y )
+        {
+            s = str;
+            m = str;
+            fprintf (stderr, "+substr (%ld,%ld) ", x, y);
+            s = "abc" + s.substr (x,y);
+            m = "abc" + m.substr (x,y);
+            assert (s == m.c_str ());
+        }
+
+    fprintf (stderr, "\n");
+}
+
+int main ()
+
+try
+{
+    test_basic_functionality ();
+    test_compatibility ();
+    printf ("\ntests ok\n");
+    return 0;
+}
+
+catch (const std::exception& e)
+{
+    fprintf (stderr, "error: %s\n", e.what ());
+    throw;
+}

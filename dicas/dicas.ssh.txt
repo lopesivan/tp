@@ -1,0 +1,11 @@
+* no clien faco:
+ssh-keygen -b 4096 -t rsa
+cd /home/ivan/.ssh
+scp id_rsa.pub developer@servidor:id_rsa-cliente
+
+* agora me conecto com o servidor e faco:
+ssh developer@servidor
+cat id_rsa-cliente >> .ssh/authorized_keys
+
+# faz tudo ...
+ssh-copy-id carlinhos2

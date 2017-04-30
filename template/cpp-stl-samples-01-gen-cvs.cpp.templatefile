@@ -1,0 +1,62 @@
+#include <fstream>				 //para ofstream
+#include <iostream>				 //para cerr
+#include <iterator>				 //para ostream_iterator
+#include <vector>
+#include <string>
+
+#define DELIMITADOR ";"
+
+using namespace std;
+
+int main ()
+{
+    typedef vector< vector<string> > vvs;
+    vvs csv (3);
+
+    //preenchendo
+    vector<string> v;
+    v[0] = "'Murilo Adriano'";
+    v[1] = "'muriloufg (at)gmail (dot)com'";
+    v[2] = "8888-8888";
+    v[3] = "'murilo.wordpress.com'";
+    csv[0] = v;
+
+    vector<string> v2 (4);
+    v2[0] = "'Outra Pessoa'";
+    v2[1] = "'outoemail (at)outrohost (dot)com'";
+    v2[2] = "9999-9999";
+    v2[3] = "'website.com'";
+    csv[1] = v2;
+
+    vector<string> v3 (4);
+    v3[0] = "'Foo Bar'";
+    v3[1] = "'foo (at)bar (dot)com'";
+    v3[2] = "0000-0000";
+    v3[3] = "'foobar.com'";
+    csv[2] = v3;
+
+    //tenta abrir o arquivo
+    ofstream arquivo ("planilha.csv");
+
+    if (arquivo.is_open ())
+    {
+        vvs::iterator it;
+
+        for (it = csv.begin (); it != csv.end (); it++)
+        {
+            //escreve os elementos de cada item do vetor no arquivo
+            copy ((*it).begin (), (*it).end (),
+                  ostream_iterator<string> (arquivo, DELIMITADOR));
+
+            //quebra uma linha
+            arquivo << '\n';
+        }
+
+        arquivo.close ();		 // fecha o arquivo
+    }
+    else
+    {
+        //se no foi possvel abrir o arquivo
+        cerr << "Falha ao abrir o arquivo\n" << endl;
+    }
+}

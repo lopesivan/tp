@@ -1,0 +1,37 @@
+
+If any of you are using Ubuntu this is a pretty nice way to manage multiple ruby interpreters.
+
+It has the advantage of managing the manpages, ri, and irb as “slaves”, so they change when a new interpreter is selected.
+
+here’s the code:
+
+# become root
+su
+
+# make sure the packages are installed for 1.8 & 1.9 aptitude install -s  ~n^ruby1.[89]$ ~n^irb1.[89]$ ~n^ri1.[89]
+
+# install ruby1.8 & friends with priority 500
+# so this will be the default “auto” choice
+update-alternatives –install /usr/bin/ruby ruby /usr/bin/ruby1.8 500 \
+–slave   /usr/share/man/man1/ruby.1.gz ruby.1.gz \
+/usr/share/man/man1/ruby.1.8.gz \
+–slave   /usr/bin/ri ri /usr/bin/ri1.8 \
+–slave   /usr/bin/irb irb /usr/bin/irb1.8
+
+# install ruby1.9 & friends with priority 400
+update-alternatives –install /usr/bin/ruby ruby /usr/bin/ruby1.9 400 \
+–slave   /usr/share/man/man1/ruby.1.gz ruby.1.gz \
+/usr/share/man/man1/ruby.1.9.gz \
+–slave   /usr/bin/ri ri /usr/bin/ri1.9 \
+–slave   /usr/bin/irb irb /usr/bin/irb1.9
+
+# choose your interpreter
+# changes symlinks for /usr/bin/ruby ,
+# /usr/bin/irb, /usr/bin/ri and man (1) ruby
+update-alternatives –config ruby
+
+for those with additional interpreters in say /usr/local/bin, other Debian variants, or managing other tools, vary as required.
+
+% man update-alternatives
+
+hope wrapping didn’t mangle it too much, and that someone finds this useful

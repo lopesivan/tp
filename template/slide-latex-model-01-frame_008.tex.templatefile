@@ -1,0 +1,25 @@
+\begin{frame}[fragile=singleslide]{Templates, I}
+\begin{block}{Setup}
+\tiny
+\begin{verbatim}
+%\documentclass[11pt]{beamer}
+\documentclass[dvips,11pt]{beamer}
+%\documentclass[handout,dvips,11pt,gray]{beamer}
+
+% Setup appearance:
+
+%\usetheme{Darmstadt}
+%\usetheme{Frankfurt}
+%\usetheme{Warsaw}
+\usetheme[secheader]{Boadilla}
+%\setbeameroption{hide notes}
+%\setbeameroption{show notes}
+%\setbeameroption{show only notes}
+\usefonttheme[onlylarge]{structurebold}
+\setbeamerfont*{frametitle}{size=\normalsize,series=\bfseries}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{note page}[plain]
+\end{verbatim}
+\end{block}
+\note<1>{Change options depending on needs.}
+\end{frame}

@@ -1,0 +1,345 @@
+
+Gerenciando ambientes virtuais e pacotes python de forma fácil
+
+   Bem, eu estou devendo há um tempo um post sobre integração entre a
+   Python C/API e a Ruby C/API, mas esse post vai ficar no forno mais um
+   tempinho, porque eu tive um insight maneiro e quero compartilhar.
+
+   Ontem eu estava dando uma olhada no [9]virtualenvwrapper, por
+   recomendação do [10]Hugo Maia Vieira e aproveitei pra fazer umas
+   brincadeirinhas com ele junto ao [11]pip.
+   Vou explicar a idéia de cada projeto envolvido nessa brincadeira e
+   mostrar como criar uma maneira simples de usar ambientes virtuais
+   personalizados e gerenciar pacotes [12]Python (python packages).
+
+pip
+
+   pip significa "pip install [Python] packages", ou seja, é um instalador
+   de pacotes Python. O instalador de pacotes que já está padronizado
+   entre os pythonistas é o [13]easy_install, eu sei. Porém, quem nunca
+   teve problemas com o easy_install? Quem nunca teve problemas pra
+   desinstalar um pacote? Oh shit! Como assim o easy_install não
+   desinstala? A maneira de "desinstalar" pacotes no easy_install é dizer
+   que o pacote é multiversionado, e ele ainda reside no sistema mesmo
+   assim. O que eu costumava fazer era ir lá na pasta onde ficavam meus
+   pacotes python e remover os arquivos e remover a entrada do
+   easy-install.pth (que guarda as referências do caminhos dos pacotes).
+   Eu até criei um [14]easy_uninstall pra remover meus pacotes :-).
+
+   Esse ano eu estou participando do [15]Google Summer of Code e vou
+   trabalhar no [16]pip! Muito provavelmente vou blogar (num futuro
+   próximo) sobre o pip e o que eu ando fazendo nele e o que eu tenho
+   aprendido com o pessoal do projeto. Vai ser uma grande oportunidade pra
+   mim e vou tentar aproveitar o máximo.
+
+   O objetivo do [17]pip é ser um substituto do [18]easy_install, mas com
+   muito mais funcionalidades. Vou citar algumas coisas que o pip faz,
+   pondo o nome do comando no cabeçalho.
+
+pip install
+
+   O nome já diz tudo: instala algum pacote (ou alguns).
+   $ pip install PACOTE_DESEJADO
+
+pip uninstall
+
+   Uma coisa básica é que o pip desinstala pacotes! Que maravilha, não? O
+   easy_install não faz nem isso!
+    $ pip uninstall PACOTE_DESEJADO
+
+pip freeze
+
+   A idéia é que você às vezes precisa saber quais pacotes você tem
+   instalado no sistema, e o comando freeze lista todos os pacotes
+   instalados no python em que o pip foi rodado.
+$ pip freeze
+
+pip bundle
+
+   O pip consegue criar bundles. Bundles são pacotes que contém vários
+   pacotes. A idéia é criar um pacotão com tudo necessário pra instalar um
+   software - dependências e etc. Ano passado eu trabalhei em um sistema
+   que ia ser implantado em Angola e no local que ia ser instalado o
+   sistema não havia conexão de internet boa (era 56k) e não era garantido
+   de chegar lá em Angola e conseguir usar a internet. O que a minha
+   equipe fez foi criar um pacotão com todas dependências de sistema e
+   outro pacotão com todas as dependências dos pacotes python. Os meus
+   amigos [19]Diego Manhães e [20]Vanderson Mota ficaram responsáveis por
+   isso, e eu garanto que não foi trivial.
+   Usando o pip essa tarefa se torna fácil, porque é possível criar um
+   pybundle com os pacotes (e suas respectivas dependências). Por exemplo:
+$ pip bundle pycukes.pybundle pycukes
+
+   E para instalar no sistema (sem a necessidade de uma conexão de
+   internet), basta levar o arquivo pycukes.pybundle num pendrive ou dvd e
+   fazer:
+$ pip install pycukes.pybundle
+
+   E nesse caso todas as dependências serão instaladas junto ao pycukes.
+
+pip search
+
+   Sabe aquele dia que um apt-cache search salva a sua vida? Então, o pip
+   também tem um comando search que pode salvar você! É como se você
+   tivesse ido ao [21]PyPI e digitado alguma coisa no campo de busca e
+   clicado no botão Search. Você pode ver os nomes dos pacotes e as
+   descrições dos mesmos.
+$ pip search TERMO_DA_BUSCA
+
+virtualenv
+
+   O virtualenv cria ambientes virtuais pra você usar um interpretador
+   Python sem ser o do sistema. Quem nunca bagunçou o Python do sistema
+   quando quis fazer alguma brincadeira? Então, o [22]virtualenv veio pra
+   solucionar esse e outros problemas. Você não precisa mais de ser
+   superusuário pra instalar pacotes. Você pode ter quantos
+   interpretadores python você quiser, e cada um deles pode ter pacotes
+   diferentes. Ou seja, você consegue isolar um ambiente pra instalar e
+   usar pacotes python.
+   Criar um ambiente virtual é muito simples:
+$ virtualenv meu_ambiente
+
+   Porém, pra usar algum ambiente virtual é necessário ativar esse
+   ambiente. Você pode fazer da seguinte forma:
+$ source CAMINHO/PARA/meu_ambiente/bin/activate
+ou
+$ . CAMINHO/PARA/meu_ambiente/bin/activate
+
+   Após isso você verá que que o texto do seu terminal foi modificado
+   (variável de ambiente $PS1), e lá tem o nome do seu ambiente entre
+   parênteses. Agora você pode instalar o que quiser ali e apagar o que
+   quiser! Fazer qualquer tipo de experimento.
+   O único problema nessa abordagem é que você ainda aproveita os pacotes
+   instalados no python do sistema. A maneira de solucionar isso é dizendo
+   que você quer criar um ambiente virtual que não tem nenhum pacote
+   aproveitado do sistema:
+$ virtualenv --no-site-packages meu_ambiente
+
+   Imagina que você criou um ambiente virtual e quer usar o pip nele, você
+   só precisa USAR! O virtualenv já vem com o pip instalado. Mas caso você
+   queira atualizar o pip, faça um:
+$ pip install -U pip
+
+   Sempre que você quiser sair do ambiente virtual, chame o deactivate:
+$ deactivate
+
+   E voltará ao ambiente normal.
+   Agora você já pode ser feliz com seus pacotes python e fazer o
+   experimento que quiser, e ter quantos ambientes virtuais (isolados)
+   você quiser. Bom, não?!
+
+virtualenvwrapper
+
+   Quem já está acostumado a usar o [23]virtualenv sabe que é um saco ter
+   que lembrar os caminhos dos ambientes e ficar dando source no caminho
+   do activate. Outra coisa chata é quando você precisa ir pra pasta de
+   site-packages do ambiente virtual. Pensando nessas coisinhas enjoadas
+   um cara pegou e criou um script que adiciona várias funcionalidades ao
+   virtualenv, o [24]virtualenvwrapper. A instalação do virtualenvwrapper
+   é simples:
+$ pip install virtualenvwrapper
+
+   Porém, ainda não dá pra sair usando. Você precisa carregar o script
+   (virtualenvwrapper.sh) sempre que quiser usar os recursos do
+   virtualenvwrapper. No fim das contas é melhor adicionar ao seu
+   ~/.bashrc. Depois de instalar o virtualenvwrapper com o pip ou
+   easy_install (eu usei o python do sistema), faça:
+$ echo "source `which virtualenvwrapper.sh`" >> ~/.bashrc
+$ mkdir ~/.virtualenvs
+
+   E você criará uma pasta (a padrão) pra armazenar os ambientes virtuais
+   e sempre terá os comandos do virtualenvwrapper disponíveis.
+   Depois de reiniciar o terminal, você já pode usar o virtualenvwrapper!
+   Digite:
+$ workon
+
+   E você provavelmente vai ver uma linha em branco, porque você ainda não
+   tem nenhum ambiente virtual criado com o virtualenvwrapper.
+
+mkvirtualenv
+
+   O comando mkvirtualenv cria um ambiente virtual baseado no nome que
+   você passar, e você pode passar os mesmos parâmetros que são passados
+   ao virtualenv.
+$ mkvirtualenv --no-site-packages meu_ambiente
+
+   Quando você digitar o comando acima criará um ambiente virtual com nome
+   de meu_ambiente, que não compartilha pacotes com o python do sistema e
+   irá automaticamente ativar o ambiente.
+
+rmvirtualenv
+
+   Quando não houver mais interesse em usar um ambiente virtual, ele pode
+   ser apagado com o comando rmvirtualenv. É necessário estar com o
+   ambiente em questão desativado - caso esteja ativado use o deactivate.
+$ rmvirtualenv meu_ambiente
+
+workon
+
+   O comando workon quando chamado sem parâmetros mostra todos os
+   ambientes virtuais existentes. Mas quando chamado com o nome do
+   ambiente virtual, ativa o ambiente e executa os hooks (caso existam).
+$ workon # lista os ambientes virtuais
+$ workon meu_ambiente # ativa o ambiente virtual meu_ambiente
+
+cdvirtualenv
+
+   Muda o diretório atual para o diretório do ambiente virtual. Por
+   exemplo, você está na pasta /tmp e quer ir pra pasta do ambiente
+   meu_ambiente:
+(meu_ambiente)hugo@hugo-laptop:/tmp$ pwd
+/tmp
+(meu_ambiente)hugo@hugo-laptop:/tmp$ cdvirtualenv
+(meu_ambiente)hugo@hugo-laptop:~/.virtualenvs/meu_ambiente $ pwd
+/home/hugo/.virtualenvs/meu_ambiente
+
+cdsitepackages
+
+   O comando cdsitepackages muda do diretório atual para o diretório de
+   site-packages do ambiente virtual.
+$ cdsitepackages
+
+lssitepackages
+
+   O comando lssitepackages faz um ls na pasta site-packages.
+$ lssitepackages
+
+cpvirtualenv
+
+   Quando houver necessidade de clonar um ambiente virtual, seja porque
+   você precisa basear-se nos pacotes já instalados ou por qualquer outro
+   motivo, use o cpvirtualenv.
+$ cpvirtualenv meu_ambiente meu_ambiente_clonado
+
+Hooks
+
+   Hooks são scripts que são ativados antes, depois ou durante o
+   acontecimento de um evento. Por exemplo, no [25]Git você pode criar um
+   script pra que após cada push executado no repositório diga ao servidor
+   de integração contínua pra rodar o build.
+   No virtualenvwrapper existem hooks também, com a mesma idéia. A
+   documentação do virtualenvwrapper documenta os hooks na área de
+   [26]Per-User Customization. Vou explicar apenas dois deles, o
+   postactivate e o mpostmkvirtualenv.
+
+postactivate
+
+   É um shell script que você deve colocar na sua
+   $WORKON_HOME/postactivate - no nosso caso $WORKON_HOME será
+   ~/.virtualenvs. O caso abaixo muda o diretório corrente para o
+   diretório PASTA sempre que algum ambiente virtual for ativado:
+$ echo 'cd PASTA_QUALQUER' >> $WORKON_HOME/postactivate
+
+postmkvirtualenv
+
+   Uma das dicas que o Doug Hellmann, o autor do virtualenvwrapper, dá na
+   documentação é que às vezes você precisa instalar alguns pacotes pra
+   ter seu ambiente virtual pronto pra usar. Eu fiz isso. Sempre que eu
+   crio um ambiente virtual alguns pacotes são instalados. No meu caso eu
+   ainda fiz mais, eu adicionei um link pra um pacote python que é
+   instalado junto ao Ubuntu (no caso o GTK e o Cairo, pra eu usar o
+   pynotify no ambiente virtual).
+   Vamos fazer um caso simples: atualizar o pip, instalar o ipython e o
+   nosetests.
+$ echo 'pip install -U pip' >> $WORKON_HOME/postmkvirtualenv
+$ echo 'pip install ipython nose' >> $WORKON_HOME/postmkvirtualenv
+
+   Agora sempre que um ambiente virtual for criado ele atualizará o pip do
+   ambiente virtual e instalará no mesmo ambiente o pacote ipython e nose.
+
+Peon
+
+   Imagine que você quer executar algum comando sempre que algum arquivo
+   for modificado num determinado diretório. Como faz? Bem, você pode
+   criar um script que cria um checksum baseado no somatório do tamanho de
+   cada arquivo e na data de modificação. Bem, é assim que todo mundo faz.
+   O Jeff Winkler teve a idéia de fazer um [27]script que ficava
+   procurando por mudanças em arquivos terminados em .py e quando havia
+   modificação, rodava o nosetests. Ele chamou o script de [28]nosy.
+   O Bernardo Heynemann acabou pegando a idéia do Jeff e criando o
+   [29]peon, que busca recursivamente por modificações em arquivos
+   terminados em .py e usa o pynotify pra mostrar um alerta, caso o
+   comando passado retorne algum status code diferente de zero.
+   Pra instalar o [30]peon você pode baixar o projeto no github, cloná-lo
+   ou instalá-lo através do arquivo compactado gerado pelo github:
+$ git clone http://github.com/heynemann/peon.git
+$ cd peon
+$ pip install .
+ou
+$ pip install http://github.com/heynemann/peon/zipball/master
+
+   Para usar o peon é super simples, basta chamá-lo passando o comando que
+   você quer que seja executado quando alguma modificação for feita. No
+   meu caso, eu queria que o peon rodasse um script que fazia build e
+   rodava os testes de um projeto, e caso houvesse alguma falha ou erro no
+   script de build, mostrasse a notificação com o pynotify. No meu caso
+   era um Makefile que o peon rodava. Era basicamente:
+$ peon make
+
+O meu problema
+
+   O pynotify é um pacote instalado pelo Ubuntu, sob o pacote do GTK e
+   quando eu criava um ambiente virtual totalmente isolado
+   (--no-site-packages) eu não tinha acesso ao GTK e nem ao Cairo
+   (dependência) e assim, não tinha como usar o pynotify pra exibir os
+   alertas.
+
+A minha solução
+
+   A primeira coisa é que eu precisava instalar o peon sempre que eu
+   criasse um ambiente virtual. Fiz isso usando o postmkvirtualenv. Outra
+   coisa que eu acabei fazendo foi criar um link simbólico dentro dos meus
+   site-packages apontando pro GTK e pro Cairo. A solução que eu cheguei
+   foi usar o postmkvirtualenv pra criar os links simbólicos e adicionar
+   às entradas devidas no easy-install.pth.
+   Ok, falei um monte de coisas. Mas... e aí, como eu faço isso? A
+   primeira coisa é instalar o peon. Uma das features do github é que ele
+   oferece download dos repositórios de forma compactada. Assim, pra
+   instalar o peon basta um:
+$ echo 'pip install http://github.com/heynemann/peon/zipball/master' >>\
+> $WORKON_HOME/postmkvirtualenv
+
+   Agora a parte complicada é fazer os links simbólicos e adicionar as
+   entradas no easy-install.pth.
+$ echo "
+> cwd=`pwd`
+> cdsitepackages
+> ln -s /usr/lib/pymodules/python2.6/gtk-2.0 .
+> ln -s /usr/lib/pymodules/python2.6/cairo .
+> sed -i '1a ./gtk-2.0' easy-install.pth
+> sed -i '1a ./cairo' easy-install.pth
+> cd $cwd
+> " >> $WORKON_HOME/postmkvirtualenv
+
+   A primeira linha, cwd=`pwd`, e a última, cd $cwd foram adicionadas pra
+   ser possível voltar pro diretório atual depois de executar o hook.
+   Agora já é possível usar o peon com ambientes virtuais sem problemas!
+
+   Faça o teste ;-)
+
+O meu objetivo com isso
+
+   No fim das contas eu acabei criando um postmkvirtualenv que instala
+   alguns pacotes, inclusive o peon, e cria os links simbólicos. Eu sempre
+   crio os links e instalo o peon porque o meu objetivo com os ambientes
+   virtuais é ter um ambiente virtual pra cada projeto que eu contribuo,
+   assim, cada projeto é totalmente isolado do outro e eu tenho um alerta
+   caso os testes não sejam executados com sucesso em algum momento.
+
+Observações
+
+   Tudo que eu falei aqui está relacionado a Python 2.x. Todos os lugares
+   onde o pip foi usado apenas pra fazer instalação de pacotes do PyPI, o
+   easy_install poderia ter sido usado (apesar de desencorajado!).
+
+Referências
+
+   A documentação do [31]pip tem bastante informação e o pessoal
+   (inclusive eu) está sempre online no #pip na freenode.
+   Há um post excelente pra quem quer ver o [32]virtualenvwrapper na
+   prática:
+   [33]http://mathematism.com/2009/jul/30/presentation-pip-and-virtualenv/
+
+   Nesse mesmo post há um screencast muito interessante também!
+
+   Até o próximo post ;-)

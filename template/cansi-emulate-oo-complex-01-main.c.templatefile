@@ -1,0 +1,214 @@
+/* vi:set nu ts=4 sts=4 sw=4 tw=78 nowrap:
+ * $Id:$
+ * Federal University of Rio de Janeiro
+ *      Author: Ivan carlos da Silva Lopes
+ *        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+ *     License:
+ *    Language: C ansi
+ *        File: |;n|
+ *        Date: 2007 01:49:26
+ * Description:
+ * SPML - Signal Processing Math Library by Ivan Carlos Da Silva Lopes
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#include "types.h"
+#include "complex.h"
+
+/* --------------------------- local Prototype ---------------------------- */
+
+static void complex_equations(const Complex_operations *);
+
+static void print_complex(const Complex);
+
+/* ------------------------------------------------------------------------- */
+
+/*****************************************************************************
+ *                                                                           *
+ * -------------------------- complex_equations ---------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+static void complex_equations(const Complex_operations *operation) {
+
+	Complex          (*add)(Complex, Complex);
+	Complex          (*sub)(Complex, Complex);
+	Complex          (*mul)(Complex, Complex);
+	Complex          (*div)(Complex, Complex);
+	Complex          (*sqrt)(Complex);
+	Complex          (*conjugate)(Complex);
+	Complex          (*set)(Real, Real);
+	Complex          (*real_mul)(Real, Complex);
+	Real             (*abs)(Complex);
+
+	add = operation->add;
+	sub = operation->sub;
+	mul = operation->mul;
+	div = operation->div;
+	sqrt = operation->sqrt;
+	conjugate = operation->conjugate;
+	set = operation->set;
+	real_mul = operation->real_mul;
+	abs = operation->abs;
+
+	return;
+}
+
+/*****************************************************************************
+ *                                                                           *
+ *  ---------------------------- print_complex ----------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+static void print_complex(const Complex z) {
+
+    fprintf(stdout, "Re(z) = " real_fmt " ", z.real );
+
+    fprintf(stdout, "Im(z) = " real_fmt "\n", z.imaginary );
+
+    return;
+
+}
+
+/*****************************************************************************
+ *                                                                           *
+ *  --------------------------------- main --------------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+int main(void) {
+
+/*****************************************************************************
+ *                                                                           *
+ * Good Construction                                                         *
+ *                                                                           *
+ *****************************************************************************/
+
+    Complex z,
+            z1,
+            z2;
+
+    Complex_operations *operation;
+
+	Complex    (*add)(Complex, Complex);
+
+/*****************************************************************************
+ *                                                                           *
+ * Start operations                                                          *
+ *                                                                           *
+ *****************************************************************************/
+
+    operation = new_complex_operations();
+
+	/* z1 = 2 + 4i */
+    z1.real = 2; z1.imaginary = 4;
+
+	/* z2 = 3 + 5i */
+    z2.real = 3; z2.imaginary = 5;
+
+/*****************************************************************************
+ *                                                                           *
+ * show result of operations.                                                *
+ *                                                                           *
+ *****************************************************************************/
+
+    /* add */
+
+    z = operation->add(z1, z2);
+
+    print_complex(z);
+
+/* ------------------------------------------------------------------------- */
+
+    /* sub */
+
+    z = operation->sub(z1, z2);
+
+    print_complex(z);
+/* ------------------------------------------------------------------------- */
+
+    /* return method */
+
+    print_complex(operation->sub(z1, z2));
+/* ------------------------------------------------------------------------- */
+
+    /* mul */
+    z = operation->mul(z1, z2);
+
+    print_complex(z);
+/* ------------------------------------------------------------------------- */
+
+    /* div */
+
+    z = operation->div(z1, z2);
+
+    print_complex(z);
+/* ------------------------------------------------------------------------- */
+
+    /* square */
+
+    z = operation->sqrt(z1);
+
+    print_complex(z);
+
+    z = operation->sqrt(z2);
+
+    print_complex(z);
+
+/* ------------------------------------------------------------------------- */
+
+    /* conjugate */
+
+    z = operation->conjugate(z1);
+
+    print_complex(z);
+
+    z = operation->conjugate(z2);
+
+    print_complex(z);
+/* ------------------------------------------------------------------------- */
+
+    /* set */
+
+    z = operation->set(1.2, 3.4);
+
+    print_complex(z);
+/* ------------------------------------------------------------------------- */
+
+    /* real * z  */
+
+    z = operation->real_mul(2.4, z1);
+
+    print_complex(z);
+
+    z = operation->real_mul(2.0, z2);
+
+    print_complex(z);
+/* ------------------------------------------------------------------------- */
+
+    /* abs(z) */
+
+    fprintf(stdout, "ABS(z1) = " real_fmt "\n", operation->abs(z1) );
+
+    fprintf(stdout, "ABS(z2) = " real_fmt "\n", operation->abs(z2) );
+
+/* ------------------------------------------------------------------------- */
+
+	add = operation->add;
+
+    z = add(z1, z2);
+
+	print_complex(z);
+
+/* ------------------------------------------------------------------------- */
+
+	complex_equations(operation);
+
+ 	free(operation);
+
+	return 0;
+
+}

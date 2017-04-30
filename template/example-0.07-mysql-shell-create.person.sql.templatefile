@@ -1,0 +1,15 @@
+create table person
+(
+	id smallint unsigned not null auto_increment,
+    name char(60) not null,
+    primary key (id)
+);
+
+create table shirt
+(
+	id smallint unsigned not null auto_increment,
+	style enum('t-shirt', 'polo', 'dress') not null,
+	color enum('red', 'blue', 'orange', 'white', 'black') not null,
+	owner smallint unsigned not null references person(id),
+	primary key (id)
+);

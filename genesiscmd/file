@@ -1,0 +1,4 @@
+Input redirection can be useful if you have written a program which expects
+input from the terminal and you want to provide it from a file. In the
+following example, myprog, which was written to read standard input and write
+standard output, is redirected to read myin and write myout.

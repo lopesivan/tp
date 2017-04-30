@@ -1,0 +1,33 @@
+color="rgb(255,255,0)"
+convert -respect-parenthesis \( -size 100x100 xc:"$color" \) \
+-background white -fill black -font Helvetica -pointsize 10 \
+label:"$color" -gravity south -append show:
+
+color="rgb(255,255,0)"
+convert -respect-parenthesis \( -size 100x100 xc:"$color" \) \
+-background white -fill black -font Helvetica -pointsize 10 \
+label:"$color" -gravity south -append miff:- | convert - show:
+
+color="rgb(255,255,0)"
+convert -respect-parenthesis \( -size 100x100 xc:"$color" \) \
+-background white -fill black -font Helvetica -pointsize 10 \
+label:"$color" -gravity south -append miff:- | display -
+
+color="rgb(255,255,0)"
+convert -respect-parenthesis \( -size 100x100 xc:"$color" \) \
+-background white -fill black -font Helvetica -pointsize 10 \
+label:"$color" -gravity south -append tmp.png | convert tmp.png show:
+
+and even just
+
+convert tmp.png show:
+
+
+Is this just a Mac issue with X11 or does it flicker on Linux, too? If so, any explanation or way to avoid the flickering.
+
+P.S. Found that adding -type truecolor eliminated the flickering
+
+color="rgb(255,255,0)"
+convert -respect-parenthesis \( -size 100x100 xc:"$color" \) \
+-background white -fill black -font Helvetica -pointsize 10 \
+label:"$color" -gravity south -append -type truecolor show:

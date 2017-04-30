@@ -1,0 +1,6 @@
+page: http://en.wikipedia.org/wiki/Printf
+
+printf("size of s : %zu\n", strlen(s));
+
+size_t size = 20;
+printf("size of s : %zu\n", size);

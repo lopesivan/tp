@@ -1,0 +1,26 @@
+#ifndef MATHOPERATOR_H
+#define MATHOPERATOR_H
+
+#include "Term.h"
+
+class MathOperator : public Term {
+
+public:
+	virtual float getValue() = 0;
+
+	Term *getLeft ()  { return left; }
+	Term *getRight() { return right; }
+
+	void setLeft (Term *new_left)  { left  = new_left;  }
+	void setRight(Term *new_right) { right = new_right; }
+
+	inline MathOperator(Term *t) : Term(t) { left = NULL; right = NULL;   }
+	inline ~MathOperator()                 { delete(left); delete(right); }
+
+protected:
+	Term *left;
+	Term *right;
+
+};
+
+#endif

@@ -1,0 +1,7 @@
+\begin{frame}{Sample Inclusion of External Graphic}
+\begin{center}
+\includegraphics[width=0.59\textwidth,angle=-90]{./img/PIC1}
+\end{center}
+\note<1>[item]{Scaling width to full textwidth may move the graphic off the page.  This may be an iterative process 
+to get it to look right.}
+\end{frame}

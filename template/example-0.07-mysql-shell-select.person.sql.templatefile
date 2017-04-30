@@ -1,0 +1,12 @@
+-- main table
+select * from person;
+
+select * from shirt;
+
+--
+select s.*
+	from person p inner join shirt s
+   	on s.owner = p.id
+		where p.name like 'lilliana%'
+   			and s.color <> 'white';
+

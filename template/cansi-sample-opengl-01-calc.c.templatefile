@@ -1,0 +1,348 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <GL/glut.h>
+
+char atual[20], antigo[20];
+int operacao = 0;
+
+void arit(int op);
+
+void limpa() {
+  atual[0] = 0;
+  antigo[0] = 0;
+  operacao = 0;
+  glutPostRedisplay();
+}
+
+void digito(char c) {
+	char tmp[2];
+
+	if (c=='.' && strchr(atual,'.')!=NULL)
+		return;
+
+	tmp[0] = c;
+        tmp[1] = 0;
+	strcat(atual,tmp);
+	glutPostRedisplay();
+}
+
+void oper_igual() {
+	arit(1);
+	strcpy(atual,antigo);
+	operacao = 0;
+        glutPostRedisplay();
+}
+
+void arit(int op) {
+  double a,b;
+
+  if (operacao != 0) {
+     a = atof(antigo);
+     b = atof(atual);
+     switch(operacao) {
+	case 1: a += b; break;
+	case 2: a -= b; break;
+	case 3: a *= b; break;
+	case 4: a /= b; break;
+     }
+     sprintf(antigo,"%.6g",a);
+  } else {
+     strcpy(antigo,atual);
+  }
+
+  atual[0] = 0;
+
+  operacao = op;
+  glutPostRedisplay();
+}
+
+void reshape(int w,int h) {
+  glViewport(0,0,w,h);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(0.0,w,h,0,-10,10);
+  /*glOrtho(0.0,500.0,500.0,0,-10,10);*/
+}
+
+void aceso(int x) {
+  if (x) glColor3d(1.0,1.0,0.1); else glColor3d(0.4,0.4,0.5);
+}
+
+void segmento() {
+  glBegin(GL_POLYGON);
+  glVertex2i(3,2);
+  glVertex2i(5,0);
+  glVertex2i(12,0);
+  glVertex2i(14,2);
+  glVertex2i(12,4);
+  glVertex2i(5,4);
+  glEnd();
+}
+
+void digito_led(char c, int x, int y, int ponto) {
+
+  char *htopo  = "02356789E";
+  char *hmeio  = "-2345689E";
+  char *hbaixo = "0235689E";
+  char *ve1 = "045689E";
+  char *ve2 = "0268E";
+  char *vd1 = "01234789";
+  char *vd2 = "013456789";
+
+  glPushMatrix();
+  glTranslatef(x,y,0);
+  aceso(strchr(htopo, c)!=NULL);
+  segmento();
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(x,y,0);
+  glTranslatef(0,15,0);
+  aceso(strchr(hmeio, c)!=NULL);
+  segmento();
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(x,y,0);
+  glTranslatef(0,30,0);
+  aceso(strchr(hbaixo, c)!=NULL);
+  segmento();
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(x,y,0);
+  glTranslatef(3,0,0);
+  glRotatef(90,0,0,1);
+  aceso(strchr(ve1, c)!=NULL);
+  segmento();
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(x,y,0);
+  glTranslatef(3,0,0);
+  glTranslatef(0,15,0);
+  glRotatef(90,0,0,1);
+  aceso(strchr(ve2, c)!=NULL);
+  segmento();
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(x,y,0);
+  glTranslatef(18,0,0);
+  glRotatef(90,0,0,1);
+  aceso(strchr(vd1, c)!=NULL);
+  segmento();
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(x,y,0);
+  glTranslatef(18,15,0);
+  glRotatef(90,0,0,1);
+  aceso(strchr(vd2, c)!=NULL);
+  segmento();
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(x,y,0);
+  glTranslatef(18,30,0);
+  glScalef(0.33,1.0,1.0);
+  aceso(ponto);
+  segmento();
+  glPopMatrix();
+}
+
+void exibe(char *s, int x, int y) {
+	char *p;
+	char tmp[20],aux[20];
+
+	strcpy(tmp,s);
+	while(strlen(tmp) < 11) {
+		memmove(tmp+1,tmp,strlen(tmp)+1);
+		tmp[0]=' ';
+	}
+	if (tmp[10]==' ') { tmp[10]='0'; }
+
+	if (strchr(tmp,'.')) {
+		aux[0] = ' ';
+		aux[1] = 0;
+		strcat(aux,tmp);
+		strcpy(tmp,aux);
+	}
+
+	for(p=tmp;*p!=0;p++,x+=24) {
+		digito_led(*p, x,y, p[1]=='.');
+		if ( p[1]== '.' ) { ++p; }
+	}
+}
+
+void botao(char *texto, int x,int y,int w,int h) {
+	char *p;
+
+	glBegin(GL_QUADS);
+	glColor3f(1.0,1.0,1.0);
+	glVertex2i(x,y);
+	glVertex2i(x+w,y);
+	glVertex2i(x+w,y+h);
+	glVertex2i(x,y+h);
+	glEnd();
+
+	glBegin(GL_LINE_LOOP);
+	glColor3f(0.0,0.0,0.0);
+	glVertex2i(x,y);
+	glVertex2i(x+w,y);
+	glVertex2i(x+w,y+h);
+	glVertex2i(x,y+h);
+	glEnd();
+
+	glRasterPos2i(x+5,y+13);
+	glColor3f(0.0,0.0,0.0);
+	
+	for(p=texto;*p!=0;p++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, (int)(*p));
+
+}
+
+void display() {
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glColor3f(1.0,0.6,0.6);
+	glBegin(GL_QUADS);
+	glVertex2i(0,0);
+	glVertex2i(300,0);
+	glColor3f(0.5,0.0,0.0);
+	glVertex2i(300,300);
+	glVertex2i(0,300);
+
+	glColor3f(0.5,0.5,0.6);
+	glVertex2i(10,10);
+	glVertex2i(290,10);
+	glVertex2i(290,60);
+	glVertex2i(10,60);
+
+	glEnd();
+
+	if (strlen(atual)==0)
+	   exibe(antigo,15,15);
+	else
+	   exibe(atual,15,15);
+
+	botao("7",10,70,30,20);
+	botao("8",50,70,30,20);
+	botao("9",90,70,30,20);
+	botao("/",130,70,30,20);
+	botao("C",170,70,30,20);
+
+	botao("4",10,100,30,20);
+	botao("5",50,100,30,20);
+	botao("6",90,100,30,20);
+	botao("X",130,100,30,20);
+
+	botao("1",10,130,30,20);
+	botao("2",50,130,30,20);
+	botao("3",90,130,30,20);
+	botao("-",130,130,30,20);
+
+	botao("0",10,160,30,20);
+	botao(".",50,160,30,20);
+	botao("=",90,160,30,20);
+	botao("+",130,160,30,20);
+
+	glutSwapBuffers();
+}
+
+int dentro(int px,int py,int x,int y,int w,int h) {
+  return(px >= x && px < x+w && py >= y && py < y+h);
+}
+
+void mouse(int b,int s,int x,int y) {
+
+	if (b==GLUT_LEFT_BUTTON && s==GLUT_DOWN) {
+
+		if (dentro(x,y,10,70,30,20)) digito('7');
+		if (dentro(x,y,50,70,30,20)) digito('8');
+		if (dentro(x,y,90,70,30,20)) digito('9');
+
+		if (dentro(x,y,10,100,30,20)) digito('4');
+		if (dentro(x,y,50,100,30,20)) digito('5');
+		if (dentro(x,y,90,100,30,20)) digito('6');
+
+		if (dentro(x,y,10,130,30,20)) digito('1');
+		if (dentro(x,y,50,130,30,20)) digito('2');
+		if (dentro(x,y,90,130,30,20)) digito('3');
+
+		if (dentro(x,y,10,160,30,20)) digito('0');
+		if (dentro(x,y,50,160,30,20)) digito('.');
+		if (dentro(x,y,90,160,30,20)) oper_igual();
+		if (dentro(x,y,130,160,30,20)) arit(1);
+		if (dentro(x,y,130,130,30,20)) arit(2);
+		if (dentro(x,y,130,100,30,20)) arit(3);
+		if (dentro(x,y,130,70,30,20)) arit(4);
+		if (dentro(x,y,170,70,30,20)) limpa();
+
+	}
+
+}
+
+void teclado(unsigned char c, int x,int y) {
+
+	switch(c) {
+		case '0'...'9':
+		case '.':
+			digito(c);
+			break;
+		case '=':
+			oper_igual();
+			break;
+		case '+':
+			arit(1);
+			break;
+		case '-':
+			arit(2);
+			break;
+		case '*':
+		case 'x':
+		case 'X':
+			arit(3);
+			break;
+		case '/':
+			arit(4);
+			break;
+		case 'c':
+		case 'C':
+			limpa();
+			break;
+		case 'q':
+		case 'Q':
+			exit(0);
+	}
+
+}
+
+int main(int argc, char **argv) {
+
+	atual[0]=0;
+	antigo[0]=0;
+
+	glutInit(&argc,argv);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+	glutInitWindowSize(300,300);
+	glutCreateWindow("Calc 102");
+	
+	glClearColor(0.0,0.0,0.0,0.0);
+	glShadeModel(GL_SMOOTH);
+	reshape(300,300);
+
+	glutReshapeFunc(&reshape);
+	glutDisplayFunc(&display);
+	glutMouseFunc(&mouse);
+	glutKeyboardFunc(&teclado);
+
+	glutMainLoop();
+
+	return 0;
+}

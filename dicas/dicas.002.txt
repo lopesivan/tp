@@ -1,0 +1,172 @@
+Configurando um squid como proxy transparente
+@=@=@002
+@
+@
+Este tutorial não pretende ser um guia completo para uma configuração avançada
+de Squid, ele apenas vai mostrar como fazer algumas configurações simples mas
+que permitirão que se tenha um servidor atuando como gateway de uma rede
+fazendo cache de http.
+
+Algumas convenções usadas neste tutorial:
+
+Sempre que uma linha começar com um “#”, significa que ela contém um (ou
+mais)
+comando(s) e que ela deverá ser executada como usuário root.
+
+Sempre que uma linha começar com um “$”, significa que ela contém um (ou
+mais)
+comando(s) e que ela deverá ser executada como qualquer usuário, comum ou
+root.
+
+O que é um servidor proxy ?
+
+Podemos resumir o significado de servidor proxy como uma espécie de “cache
+comunitário”, onde toda página que um usuário visualizar ficará armazenada e
+quando outro (ou o mesmo) usuário requisitar a mesma página, ela não será
+trazida da Internet novamente, simplesmente será lida do disco e entregue,
+economizando tráfego de rede (isso se a página não tiver sido modificada na
+origem, caso isto tenha acontecido, ela será trazida da Internet novamente).
+Um proxy pode, além disso, fazer o controle de conteúdo, barrando o acesso a
+certos sites, por exemplo.
+
+O que é o Squid ?
+
+Squid nada mais é que um software para servidor proxy que vem na maioria das
+distribuições Linux.
+
+Como sei se o Squid está instalado na minha máquina ?
+
+Se seu Linux for RedHat ou equivalente (Fedora, Conectiva, etc), digite num
+terminal:
+
+$rpm -q squid
+
+Se a resposta for algo do tipo: squid-2.4.STABLE7-4 significa que você tem o
+Squid instalado na sua máquina.
+
+Se a resposta for algo do tipo: package squid is not installed significa que
+você não tem o Squid instalado na sua máquina e terá que instalá-lo.
+
+Não tenho Squid instalado na máquina, como instalar ?
+
+Para RedHat ou equivalente, o meio mais fácil é acessar http://rpmfind.net,
+fazer uma busca por “squid”, encontrar a versão disponível para sua
+distribuição, baixar e executar:
+#rpm -ivh squid*
+
+(para um RedHat 8.0, o download direto é
+ftp://rpmfind.net/linux/redhat/8.0/en/os/i386/RedHat/RPMS/squid-2.4.STABLE7-4.i386.rpm)
+
+Neste passo, pode acontecer do sistema reclamar da falta de algum pacote,
+neste caso, copie o nome de cada arquivo que foi reclamado, volte ao
+rpmfind.net e faça uma busca por este arquivo, baixe o pacote rpm que o
+contém,
+instale e refaça este passo até que não tenhamos mais pendências.
+
+Para facilitar a vida, pode usar o apt (http://apt.freshrpms.net).
+Com ele instalado, simplesmente execute:
+#apt-get update
+#apt-get install squid
+
+Com isto, você terá a última versão do squid instalada no seu sistema e
+todas
+as dependências terão sido resolvidas “automagicamente” :)
+
+Como configurar minha máquina para atuar como gateway da rede ?
+
+A primeira coisa a fazer, é permitir que todos os pacotes possam ser
+reencaminhados (forward de pacotes) pela máquina:
+
+#echo 1 > /proc/sys/net/ipv4/ip_forward Ou, numa maneira mais “elegante”:
+#sysctl -w net.ipv4.ip_forward=1
+
+Após um boot, esta configuração se perde, para torná-la permanente, coloque
+este comando para ser executado após cada boot (pode colocar, por exemplo, no
+final do /etc/rc.d/rc.local) ou, numa maneira mais “elegante”, edite
+/etc/sysctl.conf e procure por “net.ipv4.ip_forward = 0″, substitua o “0″ por
+“1″ e esta alteração já estará permanente. Após isto, configure o gateway das
+estações para apontar para o IP desta máquina. Se as estações navegarem
+normalmente, seu gateway está funcionando :)
+
+Como configurar o Squid ?
+
+A configuração do Squid, por padrão é toda feita dentro do arquivo
+/etc/squid/squid.conf. Tudo o que for exemplificado nesta seção estará neste
+arquivo.
+As principais alterações a serem feitas para o Squid atuar como proxy
+transparente, são:
+
+Descomentar (eu digitar) as linhas (no arquivo original, do RedHat 8, estão
+próximas a linha 1680 do squid.conf. Para se deslocar até esta linha, no
+“vi”, digite “:1680″ no modo de comandos.):
+httpd_accel_port 80
+httpd_accel_host virtual
+httpd_accel_uses_host_header on
+httpd_accel_with_proxy on
+
+Além disso, é bom colocarmos alguma segurança no proxy, algo para evitar que
+pessoas de outras redes acessem nosso servidor, consumindo nossa banda.
+Próximo a linha 1460 estão definidas as “acls” (Access Control List). Nelas
+definimos algumas regras que posteriormente serão usadas para liberar ou
+bloquear acesso.
+Ex:
+acl minharede src 192.168.0.0/255.255.255.0
+acl minhamaquina src 192.168.0.1/255.255.255.255
+acl umsite dstdomain .sitequalquer.com.br
+
+Aqui criamos três acls, uma para a rede, outra para uma máquina e por
+último,
+uma para um site qualquer.
+Usamos o comando “http_access” para negar ou permitir o acesso a uma rede.
+Por padrão, o Squid já vem com uma acl para todas as redes do mundo
+(acl all src 0.0.0.0/0.0.0.0) e nega o acesso desta rede ao nosso proxy
+(http_access deny all).
+Vamos supor que na nossa rede (acl minharede), todo mundo pode navegar em
+qualquer site, exceto em “sitequalquer.com.br”, mas uma máquina desta rede
+(acl minhamaquina) poderá navegar em qualquer site, inclusive em
+sitequalquer.com.br.
+Teríamos que colocar as regras da seguinte maneira:
+http_access allow minhamaquina
+http_access deny umsite
+http_access allow minharede
+http_access deny all
+Observe que “deny all” sempre terá que ser por último.
+O Squid por padrão, vai seguindo as regras uma a uma, até encontrar uma
+regra
+que satisfaça sua condição, aí ele permite ou não o acesso, dependendo do
+que
+foi colocado em http_access.
+Por exemplo, se eu estiver na máquina com IP 192.168.0.1 e quiser acessar
+qualquer site, o Squid irá ler a primeira regra e verá que este IP pertence
+a acl “minhamaquina” e existe uma regra “allow minhamaquina”, então ele
+permitirá o acesso a qualquer site.
+Se eu estivesse numa máquina com IP 192.168.0.2 e quisesse acessar um site
+A,
+o Squid irá ler a primeira regra e verá que esta máquina não pertence a
+“minhamaquina”, lerá a segunda regra e verá que o site A não tem o domínio
+de
+destino (dstdomain) igual a “sitequalquer.com.br”, então por fim irá ler a
+última regra e verá que este IP pertence a “minharede” e que ele está
+autorizado (allow) a navegar.
+Se esta mesma máquina tentasse acessar “sitequalquer.com.br”, o Squid iria
+bloquear o acesso na segunda regra, pois existe um “deny umsite”.
+Se qualquer máquina fora da rede 192.168.0.0/24 tentasse acessar este proxy,
+o acesso seria negado devido a última regra ser “deny all”.
+
+Como configurar o sistema para fazer Proxy transparente ?
+
+Tendo configurados o Squid e o reencaminhamento de pacotes, precisamos apenas
+fazer com que todos os pacotes que chegam ao gateway pela porta 80 sejam
+redirecionados para a porta 3128 (a porta padrão do Squid). Para isto, vamos
+usar uma regra de firewall extremamente simples:
+
+#iptables -t nat -A PREROUTING -i eth0 -p tcp –dport 80 -j REDIRECT
+–to-port 3128
+
+Esta regra simplesmente faz com que todo o tráfego da porta 80 (http padrão) e
+que vier pela interface eth0, seja redirecionado para o Squid (porta 3128).
+
+Para deixar esta regra permanente, adicione no final de /etc/rc.d/rc.local (ou
+crie um /etc/rc.d/rc.firewall, adicione todas as regras de firewall que tiver
+nele e adicione apenas uma chamada a este arquivo em /etc/rc.d/rc.local, na
+prática terá o mesmo efeito, mas ficará muito mais “legível” :)

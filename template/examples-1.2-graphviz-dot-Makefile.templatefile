@@ -1,0 +1,67 @@
+dots     = c1.dot c2.dot l1.dot
+EXT      = .ps .png .gif
+#EXT     = .ps .svg .svgz .fig .mif .hpgl .pcl .png .gif .dia .imap .cmapx
+
+.SUFFIXES:                  # Delete the default suffixes
+.SUFFIXES: .dot $(EXT)      # Define our suffix list
+
+DOT      = dot
+DOTFLAGS = -o
+TAR      = @echo tar
+TARFLAGS = cvzf
+
+targets  = $(dots:.dot=)
+
+include rules.mk
+
+all:    $(targets)
+
+#
+# ============================================================================
+# |TARGETS|
+
+c1:     $(addprefix c1, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+c2:     $(addprefix c2, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+l1:     $(addprefix l1, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+l2:     $(addprefix l2, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+l3:     $(addprefix l3, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+l4:     $(addprefix l4, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+l5:     $(addprefix l5, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+l6:     $(addprefix l6, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+l7:     $(addprefix l7, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+l8:     $(addprefix l8, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+l9:     $(addprefix l9, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+l10:    $(addprefix l10, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+#
+# ============================================================================
+#
+
+clean:
+	/bin/rm -rf $(addprefix *, $(EXT))
+# END OF FILE
+#
+

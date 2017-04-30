@@ -1,0 +1,299 @@
+\documentclass[dvips,a4paper]{article}
+\usepackage[latin9]{inputenc}%
+\usepackage[T1]{fontenc}
+\usepackage[bmargin=2cm,tmargin=2cm]{geometry}
+%
+\usepackage{pstricks,pst-node,pst-grad,url}
+\usepackage{pst-diffraction}
+\let\PSTfileversion\fileversion
+\let\PSTfiledate\filedate
+%
+\usepackage{ccfonts}
+\usepackage[euler-digits]{eulervm}
+\usepackage[scaled=0.85]{luximono}
+\def\UrlFont{\small\ttfamily}
+\makeatletter
+\def\verbatim@font{\small\normalfont\ttfamily}
+\makeatother
+\usepackage{prettyref}
+\usepackage{fancyhdr}
+\usepackage{frenchle}
+
+\pagestyle{fancy}
+\def\Lcs#1{{\ttfamily\textbackslash #1}}
+\lfoot{\small\ttfamily\jobname.tex}
+\cfoot{Documentation}
+\rfoot{\thepage}
+\lhead{PSTricks}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\newcommand{\PS}{PostScript}
+\newcommand\CMD[1]{\texttt{\textbackslash#1}}
+\makeatother
+\usepackage{framed}
+\definecolor{shadecolor}{cmyk}{0.2,0,0,0}
+\SpecialCoor
+
+\title{\texttt{pst-diffraction}\\[6pt]
+Diffraction \`a l'infini
+par une fente rectangulaire, \\
+deux fentes rectangulaires,\\
+un trou circulaire, \\
+deux trous circulaires,\\
+un trou triangulaire.\\[1cm]
+---\\[10pt]
+{\normalsize v. \PSTfileversion (\PSTfiledate)}}
+\author{%
+    \tabular[t]{c}Manuel Luque\\[3pt]
+    \url{ml@PSTricks.de}
+    \endtabular   \and
+    \tabular[t]{c}Herbert Vo\ss\thanks{%
+%    Thanks to Julien Cubizolles}%
+     Merci à Julien Cubizolles}%
+    \\[3pt]
+    \url{hv@PSTricks.de}\endtabular%
+}
+\date{\today}
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\clearpage
+\section{Présentation et Montage}
+\begin{center}
+\begin{pspicture}(0,-3)(12,3)
+\pnode(0,0){S}   \pnode(4,1){L'1}  \pnode(4,-1){L'2}  \pnode(6,1){E'1}   \pnode(6,-1){E'2}
+\pnode(6,0.5){E1}\pnode(6,-0.5){E2}\pnode(8.5,1.5){L1}\pnode(8.5,0.5){L2}\pnode(11.5,1.25){P}
+% lentille L'
+\pscustom[fillstyle=gradient,linecolor=blue,gradend=white]{%
+  \code{0.5 0.83333 scale}
+  \psarc(4,0){4.176}{-16.699}{16.699}
+  \psarc(12,0){4.176}{163.30}{196.699}}
+% lentille L
+\pscustom[fillstyle=gradient,linecolor=blue,gradend=white]{%
+  \code{1 1.5 scale}
+  \psarc(4.5,0){4.176}{-16.699}{16.699}
+  \psarc(12.5,0){4.176}{163.30}{196.699}}
+\pspolygon[linestyle=none,fillstyle=vlines,
+    hatchcolor=yellow](S)(L'1)(E'1)(E1)(L1)(P)(L2)(E2)(E'2)(L'2)
+\uput[90](4,1){$L'$}\uput[90](8.5,2){$L$}
+\psdot(S)\uput[180](S){S}
+\psline(S)(12,0)\psline[linewidth=2\pslinewidth](6,2)(6,0.5)\psline[linewidth=2\pslinewidth](6,-2)(6,-0.5)
+\psline[linestyle=dashed](6,0.5)(6,-0.5)\psline(11.5,-3)(11.5,3)\psline(S)(L'1)(E'1)\psline(S)(L'2)(E'2)
+\uput[0](P){P}
+\psline(E1)(L1)(P)\psline(E2)(L2)(P)\psline[linestyle=dashed](8.5,0)(P)
+\rput(8.5,0){\psarc{->}(0,0){1.5}{0}{!1.25 3 atan}\uput[0](1.5;15){$\theta$}}
+\uput[-90](10,0){$f$}\uput[0](6,2){E}\uput[135](6,0){T}\uput[45](11.5,0){O}
+\end{pspicture}
+\end{center}
+Ceci est la reproduction de montage
+proposé par Henri \textsc{Bouasse} dans son livre sur la
+diffraction, page 25, publié aux éditions Delagrave en 1\,925. Les commentaires dont il accompagne ce
+schéma sont les suivants :\newline
+\begin{shaded}
+« Une source ponctuelle unique S, très éloignée ou placée dans le plan focal
+principal de la lentille collimatrice $L'$, fournit un faisceau cylindrique
+unique de rayons. On le reçoit sur le plan~E, percé d'un trou~T dont la
+forme caractérise le phénomène étudié.
+Au-delà de l'écran~E la lumière est diffractée \textit{une infinité de
+directions}, ou si l'on veut suivant une infinité de faisceaux
+cylindriques.
+Les rayons diffractés dans chaque direction sont concentrés aux divers points
+du plan focal image d'une lunette accommodée sur l'infini, où ils forment la
+\textit{figure de diffraction} : d'où le nom de \textit{phénomène à
+l'infini}. De chaque faisceau cylindrique diffracté, l'objectif~L de la
+lunette donne une image au point~P de son plan focal principal.
+[\ldots]Au point P correspond un faisceau cylindrique antérieur à l'objectif
+qui fait avec l'axe optique l'angle $\theta$ tel que :
+$\overline{OP}=f\tan\theta\approx\theta$
+»
+\end{shaded}
+
+Ces quelques commandes réalisées avec \texttt{PSTricks} permettent d'obtenir
+les figures de diffraction \textit{à l'infini}, en lumière monochromatique,
+d'un trou rectangulaire, d'un trou circulaire, de deux trous circulaires et
+d'un trou triangulaire.
+
+Les dimensions des ouvertures sont bien sûr paramétrables, ainsi que le
+choix de la longueur d'onde : la couleur s'adapte automatiquement, et des
+divers paramètres du montage.
+
+Il y a trois commandes, l'une pour les ouvertures rectangulaires, l'autre
+pour les ouvertures circulaires et la dernière pour une ouverture
+triangulaire.
+\begin{verbatim}
+\psdiffractionRectangle[<liste de paramètres>]
+\psdiffractionCircular[<liste de paramètres>]
+\psdiffractionTriangle[<liste de paramètres>]
+\end{verbatim}
+Nous allons passer en revue ces différentes commandes et leurs paramètres.
+\section{La couleur de la radiation}
+La longueur d'onde est définie par le paramètres \texttt{[lambda=632]} (si
+l'on veut du rouge  de longueur d'onde~:~ $\lambda=632$~nm), cette valeur est donc en~nm. La
+conversion de la longueur d'onde dans le système \texttt{rgb} est une adaptation en
+postscript de celle qu'on trouve sur~:
+\url{http://www.physics.sfasu.edu/astro/color.html}.
+
+
+
+\section{Diffraction par une ouverture rectangulaire}
+
+\begin{center}
+\begin{pspicture}(-2,-1)(2,1.5)
+\psframe(-0.5,-1)(0.5,1)
+\pcline{<->}(-0.5,1.1)(0.5,1.1)
+\Aput{$a$}
+\pcline{<->}(0.6,1)(0.6,-1)
+\Aput{$h=k\times a$}
+\end{pspicture}
+\end{center}
+On donnera la largeur de la fente \texttt{[a]} et le paramètre \texttt{[k]}
+qui déterminera la hauteur de la fente $h=k\times a$. On choisira aussi la
+distance focale de la lentille \texttt{[a]}, la résolution du tracé par la dimension du
+\texttt{[pixel]}. On pourra jouer sur le contraste pour rendre les franges
+éloignées un peu plus visibles avec \texttt{[contrast]}et éventuellement, obtenir un tracé en niveaux de
+gris en négatif inverse avec \texttt{[colorMode=0]} ou
+negativ avec \texttt{[colorMode=1]} ou cmyk couleur avec \texttt{[colorMode=2]} ou
+rgb avec \texttt{[colorMode=3]}.
+
+Par défaut les paramètres ont les valeurs suivantes :
+\begin{itemize}
+  \item \texttt{[a=0.2e-3]} en m ;
+  \item \texttt{[k=1]} ;
+  \item \texttt{[f=5]} en m ;
+  \item \texttt{[lambda=650]} en nm ;
+  \item \texttt{[pixel=0.5]} ;
+  \item \texttt{[contrast=38]}, valeur maximale  ;
+  \item \texttt{[colorMode=3]}.
+\end{itemize}
+
+\begin{center}
+\begin{pspicture}(-4,-4)(4,4)
+\psdiffractionRectangle[f=2.5]
+\uput[270](0,-3.5){$\backslash$\texttt{psdiffractionRectangle[f=2.5]}}
+\end{pspicture}
+\end{center}
+\begin{center}
+\begin{pspicture}(-2,-4.5)(2,4.5)
+\psdiffractionRectangle[a=0.5e-3,k=0.5,f=4,pixel=0.5,colorMode=0]
+\uput[270](0,-4.5){$\backslash$\texttt{psdiffractionRectangle[a=0.5e-3,k=0.5,f=4,colorMode=0]}}
+\end{pspicture}
+\end{center}
+\begin{center}
+\begin{pspicture}(-4,-2.5)(4,3)
+\psdiffractionRectangle[a=0.5e-3,k=2,f=10,lambda=515,colorMode=1]
+\uput[270](0,-2){$\backslash$\texttt{psdiffractionRectangle[a=0.5e-3,k=2,f=10,lambda=515,colorMode=1]}}
+\end{pspicture}
+\end{center}
+\begin{center}
+\begin{pspicture}(-4,-1)(4,1)
+\psdiffractionRectangle[a=0.5e-3,k=20,f=10,pixel=0.5,lambda=450]
+\uput[270](0,-0.5){$\backslash$\texttt{psdiffractionRectangle[a=0.5e-3,k=20,f=10,lambda=450]}}
+\end{pspicture}
+\end{center}
+\section{Diffraction par deux fentes parallèles identiques}
+\begin{shaded}
+Cette superbe simulation est une contribution de Julien \textsc{Cubizolles}.
+\end{shaded}
+Il est aussi possible de représenter la figure de diffraction d'un
+système de deux fentes parallèles identiques décalées sur l'axe $x$. On
+utilise pour cela l'option \texttt{[twoSlit]} (désactivée par défaut),
+la distance entre les fentes étant réglée par le paramètre $s$, égal à
+$\texttt{12e-3}\,\mathrm{m}$ par défaut. Les paramètre des fentes sont ceux de l'ouverture rectangulaire (voir le paragraphe précédent).
+\begin{center}
+\begin{pspicture}(-4,-1)(4,1)
+\psdiffractionRectangle[a=0.5e-3,k=10,f=10,pixel=0.5,lambda=650,twoSlit,s=2e-3]
+\uput[270](0,-0.5){$\backslash
+$\texttt{psdiffractionRectangle[a=0.5e-3,k=10,f=10,pixel=0.5,lambda=650,twoSlit,s=2e-3]}}
+\end{pspicture}
+\end{center}
+\clearpage
+\section{Diffraction par une ouverture circulaire}
+On donnera le rayon du trou : \texttt{[r=1e-3]}, $r=1$ mm par défaut. Les
+variations de l'intensité sont superposées à la figure de diffraction dans
+le premier quadrant (le maximum au centre a été écrêté).
+\begin{center}
+\begin{pspicture}(-5,-5)(5,5)
+\psdiffractionCircular[r=0.5e-3,f=10,pixel=0.5,lambda=520]
+\uput[270](0,-5){$\backslash$\texttt{psdiffractionCircular[r=0.5e-3,f=10,lambda=520]}}
+\end{pspicture}
+\end{center}
+
+
+\section{Diffraction par deux trous circulaires}
+Les deux trous sont identiques, outre le rayon commun des trous on fixera la
+demi-distance entre les centres des deux trous avec : \texttt{[d]} et pour
+ce cas de figure on activera l'option \texttt{[twoHole]}. On notera que
+les temps de calculs d'allongent\ldots
+\begin{center}
+\begin{pspicture}(-5,-5)(5,4)
+\psdiffractionCircular[r=0.5e-3,f=10,d=3e-3,lambda=515,twoHole]
+\uput[270](0,-4){$\backslash$\texttt{psdiffractionCircular[r=0.5e-3,f=10,d=3e-3,lambda=515,twoHole]}}
+\end{pspicture}
+\end{center}
+\begin{center}
+\begin{pspicture}(-6,-6)(6,6)
+\psdiffractionCircular[r=0.5e-3,f=10,d=2e-3,lambda=700,twoHole,colorMode=0]
+\uput[270](0,-5){$\backslash$\texttt{psdiffractionCircular[r=0.5e-3,f=10,d=2e-3,lambda=700,twoHole,colorMode=0]}}
+\end{pspicture}
+\end{center}
+Le cas limite d'obtention de franges se vérifie avec $\displaystyle d
+=\frac{a}{1.22}$. Voir~:
+
+\url{http://www.unice.fr\DeptPhys\optique\optique.html}.
+\begin{center}
+\begin{pspicture}(-5,-6)(5,5)
+\psdiffractionCircular[r=0.5e-3,f=10,d=4.1e-4,lambda=632,twoHole]
+\uput[270](0,-5){$\backslash$\texttt{psdiffractionCircular[r=0.5e-3,f=10,d=4.1e-4,lambda=632,twoHole]}}
+\end{pspicture}
+\end{center}
+
+\section{Diffraction par un trou triangulaire équilatéral}
+Le triangle équilatéral est défini par sa hauteur \texttt{[h]} en m. Pour le
+triangle, on peut obtenir la figure en niveaux de gris avec l'option
+\texttt{[noColor=true]}. L'étude théorique de cette diffraction a été faite par
+\textsc{Airy}, on la trouve dans le livre d'Henri \textsc{Bouasse} sur la
+diffraction, pages 114 et 115.
+
+\begin{center}
+\begin{pspicture}(-1,-1)(1,1)
+\pspolygon*(0,0)(1;150)(1;210)
+\pcline{|-|}(-0.732,-1)(0,-1)
+\Aput{$h$}
+\end{pspicture}
+
+\vspace{1cm}
+$\backslash$\texttt{psdiffractionTriangle[f=10,h=1e-3,contrast=38,colorMode=]}
+
+\makebox[\linewidth]{%
+\begin{pspicture}(-3,-3)(3,3)
+\psdiffractionTriangle[f=10,h=1e-3,lambda=515,contrast=38]
+\uput[270](0,-2.5){default color mode (>1)}
+\end{pspicture}
+%
+\begin{pspicture}(-3,-3)(3,3)
+\psdiffractionTriangle[f=10,h=1e-3,colorMode=1,contrast=38,lambda=515]
+\uput[270](0,-2.5){\texttt{colorMode=1}}
+\end{pspicture}
+%
+\begin{pspicture}(-3,-3)(3,3)
+\psdiffractionTriangle[f=10,h=1e-3,colorMode=0,contrast=38,lambda=515]
+\uput[270](0,-2.5){\texttt{colorMode=0}}
+\end{pspicture}}
+
+\end{center}
+
+
+%\section{Credits}
+
+
+\bgroup
+\nocite{*}
+\raggedright
+\bibliographystyle{plain}
+\bibliography{pst-diffraction-doc}
+\egroup
+
+
+\end{document}

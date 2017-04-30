@@ -1,0 +1,25 @@
+#include <stdio.h>
+#include <string.h>
+
+int
+main (void)
+{
+
+	int is_ok;
+
+	printf ( "Enter password (will not be echoed) for %s:",
+		 "mobt.txt" );
+
+	if ( argc == 5 ) {
+
+		is_ok = strcmp(argv[1], "password");
+
+		if ( is_ok == 0 )
+			printf ("%s\n", "Operation Authorized");
+		else
+			printf ( "Encrypted file:  CRC failed in %s (password incorrect ?)",
+				 "moby.txt" );
+	}
+
+	return 0;
+}

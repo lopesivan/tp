@@ -1,0 +1,4 @@
+table    = statslog
+database = ilogdb
+pass     = 12345
+user     = ivan

@@ -1,0 +1,100 @@
+#include <iostream>
+
+using std::cout;
+
+class Teste
+{
+    char tipo;
+    int valorInt;
+    char valorChar;
+    double valorDouble;
+
+public:
+    Teste (const Teste& t)
+    {
+        tipo = t.getTipo ();
+        valorInt = t.getValorInt ();
+        valorChar = t.getValorChar ();
+        valorDouble = t.getValorDouble ();
+    }
+
+    Teste (char v)
+    {
+        tipo = 'c';
+        valorInt = 0;
+        valorChar = v;
+        valorDouble = 0;
+    }
+
+    Teste (int v)
+    {
+        tipo = 'i';
+        valorInt = v;
+        valorChar = 0;
+        valorDouble = 0;
+    }
+
+    Teste (double v)
+    {
+        tipo = 'd';
+        valorInt = 0;
+        valorChar = 0;
+        valorDouble = v;
+    }
+
+    char getValorChar () const
+    {
+        return valorChar;
+    };
+
+    int getValorInt () const
+    {
+        return valorInt;
+    };
+
+    double getValorDouble () const
+    {
+        return valorDouble;
+    };
+
+    char getTipo () const
+    {
+        return tipo;
+    };
+
+    void imprimeValor () const
+    {
+        if (tipo == 'c')
+            cout << valorChar;
+        else
+            if (tipo == 'd')
+                cout << valorDouble;
+            else
+                cout << valorInt;
+
+        cout << '\n';
+    };
+
+    ~Teste () {};
+
+};
+
+int main ()
+{
+    Teste a = 1;
+    Teste b = 'm';
+    Teste c = 3.1417;
+    Teste d = (Teste)2;
+    Teste e = a;
+    Teste f (100);
+    Teste g = static_cast<Teste> ('a');
+
+    a.imprimeValor ();
+    b.imprimeValor ();
+    c.imprimeValor ();
+    d.imprimeValor ();
+    e.imprimeValor ();
+    f.imprimeValor ();
+    g.imprimeValor ();
+
+}

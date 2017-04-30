@@ -1,0 +1,28 @@
+#!/bin/bash
+# vi:set nu nowrap:
+# sendkey.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: sendkey.sh
+#        Date: Thu 13 May 2010 05:21:09 AM BRT
+# Description:
+#
+#
+
+# connect
+_ip_=146.164.34.132
+user=telemedia
+pass=carlos
+
+# ----------------------------------------------------------------------------
+
+./scp_put_file.expect       $_ip_ $user $pass
+./ssh_cmd_on_server.expect  $_ip_ $user $pass
+# ----------------------------------------------------------------------------
+
+exit 0

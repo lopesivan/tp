@@ -1,0 +1,22 @@
+
+n="ivan"
+t="homem"
+c="mamiferos"
+
+xml = <<-node
+	<name>#{n}</name>
+	<type>#{t}</type>
+	<class>#{c}</class>
+node
+
+puts <<-NODE
+<root>#{xml}</root>
+NODE
+
+
+puts <<BEGIN + xml + <<END
+<root>
+BEGIN
+</root>
+END
+

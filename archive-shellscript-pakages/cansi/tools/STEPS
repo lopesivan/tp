@@ -1,0 +1,59 @@
+gera o arquivo de tags C++
+ctags -R --c++-kinds=+p --fields=+iaS --extra=+q
+--
+
+Listar funcoes em arquivo.
+ctags -x guessNumber.cpp
+Lista diretamente em arquivo
+ctags -x -R --c++-kinds=+p --fields=+iaS --extra=+q guessNumber.cpp
+--
+
+/**        /**
+*     ->    *
+*/          */
+
+sed '/\/\*\*/,/\*\//{ /\/\*\*/bf;s/\*/ &/;:f}'
+--
+
+comenta man function
+sed  -e '/main/h' -e'/}/{x;s/.* \([^ ]\+\)\s*(.*)/end function \1/;x;G;s/}/} \/\/ /}' -e :a -e '/}/{!N; s/\n/ /; ta;}'
+
+--
+lista nomes de funcoes
+
+ctags -x guessNumber.cpp| sed 's/.*\.cpp\s*//;s/\(.* [^ ]\+\s*.*\)/\/\/ \1/'
+// void guessGame ()
+// bool isCorrect (int g, int a)
+// int main ()
+
+ctags -x guessNumber.cpp| sed 's/.*\.cpp\s*//;s/\(.* [^ ]\+\s*\)(.*)/\1/'
+void guessGame ()
+bool isCorrect (int g, int a)
+int main ()
+--
+
+usando table
+echo -e "\n xvxcv\n xcvxcv\n  xvcxc\n  fadf\n  saaaa\n d"| ./table  -d 12 10
+--
+
+usando tags
+make tags
+--
+
+usando arquivo externo no gdb
+gdb -q -x debug.gdb
+ou
+gdb -q -x debug.gdb > out.gdb
+--
+
+usar o
+indent.cansi MyClass.cpp
+--
+
+tags para plugin firefox
+ctags --c++-kinds=+p --fields=+iaS --extra=+q -f fxtags -R /usr/lib/xulrunner-devel-1.9b4/include
+:let &tags=&tags.','.'fxtags'
+--
+
+
+

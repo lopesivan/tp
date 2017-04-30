@@ -1,0 +1,7 @@
+all: test.png
+test.png:
+	dot binarytree.gv | gvpr -c -ftree.gv | neato -n -Tpng -o test.png
+show:
+	eog test.png
+clean:
+	rm test.png

@@ -1,0 +1,11 @@
+require 'dl'
+require 'dl/import'
+
+module Libc
+  extend DL::Importable
+  dlload "/lib/libc.so.6"
+  extern "char* ttyname(int)"
+end
+
+puts Libc.ttyname(0)
+

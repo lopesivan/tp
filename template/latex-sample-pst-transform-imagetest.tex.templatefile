@@ -1,0 +1,35 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage[a4paper]{geometry}
+\usepackage{pst-reflux}
+
+\pagestyle{empty}
+\begin{document}
+%\definecolor{sepia}{HTML}{A29181}
+\newpsstyle{EBULLITION}{fillstyle=gradient,gradbegin={[HTML]{B6A589}},gradend=white,gradmidpoint=0}
+\newpsstyle{AMPOULE}{fillstyle=solid,fillcolor={[HTML]{947F62}}}
+\newpsstyle{METAL}{fillstyle=solid,fillcolor={[HTML]{A29181}}}
+\newpsstyle{REFRIGERANT}{fillstyle=solid,fillcolor={[HTML]{E9E1CE}}}
+\newpsstyle{BOULON}{fillstyle=ccslope,slopebegin={[HTML]{716044}},slopeend=white}
+
+\begin{center}
+\psframebox[fillstyle=solid,fillcolor={[HTML]{E9E1CE}},linestyle=none]{
+\begin{pspicture}(-8,-2)(4,14.2)
+\psset{linecolor={[HTML]{716044}},hatchcolor={[HTML]{716044}}}
+\ChauffageReflux[styleEbullition=EBULLITION,%
+                 styleAmpoule=AMPOULE,%
+                 styleColor=cyan!20,%
+                 styleMetal=METAL,%
+                 styleRefrigerant=REFRIGERANT,%
+                 styleBoulon=BOULON,%
+                 linewidth=2\pslinewidth]{30}
+\end{pspicture}}
+\end{center}
+
+\begin{center}
+\begin{pspicture}(-8,-2)(4,14.2)
+\ChauffageReflux{30}
+\end{pspicture}
+\end{center}
+\end{document}

@@ -1,0 +1,86 @@
+/*******************************************************
+
+Note the possible combinations with '(1|2)(a|b)'.
+
+     The complete match '1b'
+     The match with '1'
+     The match with 'b'
+
+./regexp '(1|2)(a|b)' 1b
+match
+2 0
+$0 = 1b, preg.re_nsub = 2
+1 0
+$1 = 1, preg.re_nsub = 2
+2 1
+$2 = b, preg.re_nsub = 2
+
+ ./regexp '([a|c|e|g]{2}|[h-z])([0-9]|-)(a|b)' cc8b
+match
+4 0
+$0 = cc8b, preg.re_nsub = 3
+2 0
+$1 = cc, preg.re_nsub = 3
+3 2
+$2 = 8, preg.re_nsub = 3
+4 3
+$3 = b, preg.re_nsub = 3
+
+*******************************************************/
+#include <stdio.h>
+#include <sys/types.h>
+#include <string.h>
+#include <regex.h>
+
+#define NUM_MATCHES 4		//max sub-matches
+
+int
+main (int argc, char *argv[])
+{
+	regex_t preg;
+	regmatch_t pmatch[NUM_MATCHES];
+	size_t  rm,
+	        i;
+	char    pom[1024];
+
+	if (argc != 3) {
+		printf ("Usage ./regexp [a-z]{2}[0-9]{2} a2b3ed23\n\n"
+			" this program is setup so that there will be a maximum\n"
+			" of 4 submatches\n"
+			"        ./regexp '([a|c|e|g]{2}|[h-z])([0-9]|-)(a|b)' cc8b \n"
+			"        match\n"
+			"        4 0\n"
+			"        $0 = cc8b, preg.re_nsub = 3\n"
+			"        2 0\n"
+			"        $1 = cc, preg.re_nsub = 3\n"
+			"        3 2\n"
+			"        $2 = 8, preg.re_nsub = 3\n"
+			"        4 3\n" "        $3 = b, preg.re_nsub = 3\n");
+
+		return 1;
+	}
+
+	/* it's possible something won't compile like  ./regexp '*' abc */
+
+	if ((rm = regcomp (&preg, argv[1], REG_EXTENDED)) != 0) {
+		fprintf (stderr, "Invalid expression:'%s'\n", argv[1]);
+		return 1;
+	}
+
+	(rm =
+	 regexec (&preg, argv[2], NUM_MATCHES, pmatch,
+		  0)) ? printf ("No match\n") : printf ("match\n");
+
+	for (i = 0; !rm && i <= preg.re_nsub; i++) {
+		strncpy (pom, argv[2] + pmatch[i].rm_so,
+			 pmatch[i].rm_eo - pmatch[i].rm_so);
+		printf ("%d %d\n", pmatch[i].rm_eo, pmatch[i].rm_so);
+		pom[pmatch[i].rm_eo - pmatch[i].rm_so] = '\0';
+		printf ("$%d = %s, preg.re_nsub = %d\n", i, pom,
+			preg.re_nsub);
+	}
+
+	regfree (&preg);
+
+	return 0;
+}

@@ -1,0 +1,31 @@
+main           = segmenter.c
+prerequisite   = segmenter.c
+
+# ----------------------------------------------------------------------------
+
+program        = $(main:.c=)
+sources        = $(prerequisite)
+objects        = $(sources:.c=.o)
+
+dependences    = $(prerequisite:.c=.o)
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+CC          = gcc
+WARNINGS    = -Wall
+GDBFLAGS    = -g
+LIBS        = libavformat  libavcodec libavutil
+LDLIBS      = `pkg-config --libs   $(LIBS)`
+INCLUDES    = `pkg-config --cflags $(LIBS)`
+DEFINEFLAGS =
+
+CFLAGS      = $(WARNINGS) $(GDBFLAGS) $(INCLUDES)
+
+all:          $(program)
+
+$(program):   $(dependences)
+
+clean:
+	/bin/rm -rf $(program) $(objects)

@@ -1,0 +1,35 @@
+!!! XML
+/
+  ** AndroidManifest **
+  Document   : AndroidManifest.haml
+  Created on : #{Time.new}
+  Author     : ivan
+  Description: .
+
+- configuration = Manifest.new()
+- __package__   = configuration.get_package()
+
+%manifest{configuration.manifest}
+
+  %supports-screens{configuration.screen}/
+
+  - configuration.get_permissions.each do |p|
+    %uses-permission{"android:name" => "android.permission.#{p}"}/
+
+  /
+    ** Application **
+  %application{"android:icon"  => "@drawable/icon",
+               "android:label" => "@string/app_name"}
+
+    /
+      ** Activity **
+    %activity{"android:label"             => "@string/app_name",
+              "android:name"              => ".__ACTIVITY__",
+              "android:theme"             => "@android:style/Theme.Black.NoTitleBar.Fullscreen",
+              "android:screenOrientation" => "landscape" }
+
+      %intent-filter
+        %action{  "android:name" => "android.intent.action.MAIN"}/
+        %category{"android:name" => "android.intent.category.LAUNCHER"}/
+
+/ end-of-file

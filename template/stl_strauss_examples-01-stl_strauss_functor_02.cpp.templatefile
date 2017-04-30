@@ -1,0 +1,305 @@
+#include <cassert>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <iostream>
+
+//
+// Código longo mas interessante para demonstrar
+// programação genérica. Pretendo usar essa hierarquia
+// para futuras explanações
+//
+
+struct ProgrammingLanguage
+{
+  std::string name;
+  std::string creator;
+  // preciso disso para o dynamic_cast...
+  virtual ~ProgrammingLanguage(){}
+};
+
+struct CompiledProgrammingLanguage : public ProgrammingLanguage
+{
+  struct Compiler
+  {
+    std::string name;
+    bool isOpenSource;
+  };
+
+  std::vector<Compiler> availableCompilers;
+};
+
+struct NativeCompiledProgrammingLanguage  : public CompiledProgrammingLanguage
+{
+  bool hasOptimizer;
+};
+
+enum JitModel
+{
+  Everything,
+  HotFunctions
+};
+
+struct ByteCodeCompiledProgrammingLanguage : public CompiledProgrammingLanguage
+{
+  bool hasJit;
+  JitModel jitModel;
+};
+
+struct InterpretedLanguage : public ProgrammingLanguage
+{
+  bool hasConsole;
+};
+
+void LoadLanguages(std::vector<ProgrammingLanguage*>* pLanguages)
+{
+  //
+
+  // Alerta de didática:
+  // EU SOU CONTRA alocar memória em ponteiro raw, sem
+  // gerenciamento. A primeira versão desse código usava
+  // boost:shared_ptr, mas tornava os functors mais
+  // complicados por causa de adaptors e coisas assim.
+  //
+
+  //
+  // Python
+
+  //
+  InterpretedLanguage* python = new InterpretedLanguage();
+  python->name = "Python" ;
+  python->creator = "Guido van Rossum";
+  python->hasConsole = true;
+  pLanguages->push_back(python);
+
+  //
+
+  // VBScript
+  //
+  InterpretedLanguage* vbScript = new InterpretedLanguage();
+  vbScript->name = "VBScript" ;
+  vbScript->creator = "??";
+  vbScript->hasConsole = false;
+  pLanguages->push_back(vbScript);
+
+  //
+  // JavaScript
+  //
+  InterpretedLanguage* javaScript = new InterpretedLanguage();
+  javaScript->name = "JavaScript";
+  javaScript->creator = "??";
+  javaScript->hasConsole = false;
+  pLanguages->push_back(javaScript);
+
+  //
+  // Java
+  //
+  ByteCodeCompiledProgrammingLanguage* java = new ByteCodeCompiledProgrammingLanguage();
+  java->name = "Java" ;
+  java->creator = "James Gosling";
+  java->hasJit = true;
+  java->jitModel = HotFunctions; // Me corrijam se estou errado
+
+  CompiledProgrammingLanguage::Compiler javaCompiler;
+  javaCompiler.isOpenSource = true; // Já foi liberado, né?
+  javaCompiler.name = "javac";
+  java->availableCompilers.push_back(javaCompiler);
+
+  pLanguages->push_back(java);
+
+  //
+  // C#
+
+  //
+  ByteCodeCompiledProgrammingLanguage* cSharp = new ByteCodeCompiledProgrammingLanguage();
+  cSharp->name = "C#";
+  cSharp->creator = "Anders Hejlsberg";
+  cSharp->hasJit = true;
+  cSharp->jitModel = Everything;
+
+  CompiledProgrammingLanguage::Compiler microsoftCsCompiler;
+  microsoftCsCompiler.isOpenSource = false;
+  microsoftCsCompiler.name = "csc";
+  cSharp->availableCompilers.push_back(microsoftCsCompiler);
+
+  pLanguages->push_back(cSharp);
+
+  //
+  // C++
+  //
+  NativeCompiledProgrammingLanguage* cPlusPlus = new NativeCompiledProgrammingLanguage();
+  cPlusPlus->name = "C++";
+  cPlusPlus->creator = "Bjarne Stroustrup";
+
+  CompiledProgrammingLanguage::Compiler gcc;
+  gcc.isOpenSource = true;
+  gcc.name = "GNU C++";
+  cPlusPlus->availableCompilers.push_back(gcc);
+
+  CompiledProgrammingLanguage::Compiler vc;
+  vc.isOpenSource = false;
+  vc.name = "Visual C++";
+  cPlusPlus->availableCompilers.push_back(vc);
+
+  pLanguages->push_back(cPlusPlus);
+
+  //
+  // Se sua linguagem preferida não está aqui
+  // não fique triste, nada pessoal..
+  //
+}
+
+//
+// Isso não precisa ser um functor, porque
+// como vamos filtrar de acordo com o tipo,
+// um template já guardar estado do tipo com
+// o qual ele foi instânciado
+
+//
+template<typename T>
+bool IsLanguageType(ProgrammingLanguage* p)
+{
+  //
+  // isso não tem efeito em runtime, mas garante
+  // que o tipo que você está usando herda de
+  // ProgrammingLanguage
+  //
+
+  static_cast<ProgrammingLanguage*>((T*)NULL);
+
+  return dynamic_cast<const T*>(p) != NULL;
+}
+
+template<typename TDump, typename TIterator>
+
+void DumpLanguagesByType(TIterator first, TIterator last, std::string message)
+{
+  std::cout << std::endl
+    << message << std::endl
+    << std::string(message.size(), '=') << std::endl;
+
+  for( ; ; )
+  {
+    //
+
+    // acha o próximo item com esse
+    // determinado tipo
+    //
+    first = std::find_if(
+      first,
+      last,
+      &IsLanguageType<TDump>);
+
+    if(first == last)
+      break; // cabô
+
+    // só pra garantir...
+    assert(dynamic_cast<TDump*>((*first)));
+
+    // dump
+    std::cout << (*first)->name << std::endl;
+
+    ++first;
+  }
+
+  return;
+}
+
+//
+// Isso é um functor, um objeto que pode ser
+// chamado como uma função. A vantagem é que um
+// objeto guarda estado, o que nos permite salvar
+// o nome que deve ser procurado nas chamadas
+// seguintes
+//
+class FindLanguageByName
+{
+  std::string m_name;
+public:
+  FindLanguageByName(const std::string& name) : m_name(name)
+  {}
+
+  bool operator()(ProgrammingLanguage* p)
+  {
+    return p->name == m_name;
+  }
+};
+
+void FreeLanguage(ProgrammingLanguage* p)
+{
+  //
+  // caso tenhamos mais membros a serem liberados,
+  // centralizamos o código de limpeza aqui
+
+  //
+  delete p;
+}
+
+int main()
+{
+  typedef std::vector<ProgrammingLanguage*> LanguagesVector;
+  LanguagesVector languages;
+
+  LoadLanguages(&languages);
+
+  //
+  // encontra as linguagens interpretadas. Nessa caso não usamos
+  // functors porque nossa função é um template. Note que como
+  // vamos diferenciar pelo tipo, usaremos um tipo como parâmetro.
+  // tipo como parâmetro = template
+  //
+  std::cout << "Linguagens interpretadas" << std::endl
+<< "========================" << std::endl;
+
+  for(LanguagesVector::iterator iLanguage = languages.begin() ; ; )
+  {
+    iLanguage = std::find_if(
+      iLanguage,
+      languages.end(),
+      &IsLanguageType<InterpretedLanguage>);
+
+    if(iLanguage == languages.end())
+      break; // cabô
+
+    std::cout << (*iLanguage)->name << std::endl;
+
+    ++iLanguage;
+  }
+
+  //
+  // encapusulei o código acima em uma função template.
+  // Agora vou fazer isso com o resto dos tipos.
+  //
+  DumpLanguagesByType<NativeCompiledProgrammingLanguage>(
+    languages.begin(),
+    languages.end(),
+    "Linguagens compiladas para o native code do processador");
+
+  DumpLanguagesByType<ByteCodeCompiledProgrammingLanguage>(
+    languages.begin(),
+    languages.end(),
+    "Linguagens compiladas para byte code");
+
+  //
+  // agora vou procurar a linguagem por nome usando um functor.
+  // Note que a vantagem é que classe FindLanguageByName guarda
+  // a string "Python" para ser usada toda ver que o find_if
+  // chamá-la para fazer a comparação
+
+  //
+  LanguagesVector::iterator iLanguage =
+    std::find_if(languages.begin(), languages.end(), FindLanguageByName("Python"));
+
+  std::cout << std::endl <<
+    "Python" << (iLanguage != languages.end() ?
+"" : " não") << " encontrado." << std::endl;
+
+  //
+  // desalocando tudo
+  //
+  for_each(languages.begin(), languages.end(), &FreeLanguage);
+
+  languages.clear();
+
+  return 0;
+}

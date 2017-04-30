@@ -1,0 +1,21 @@
+#include "Person.h"
+#include <stdio.h>
+
+int
+main (int argc, char *argv[])
+{
+    Person *p;
+	NEW_Person(p);
+
+	MSG_Person_set_age (p, 33);
+	MSG_Person_set_name(p, "Ivan Carlos Da Silva Lopes");
+
+	printf("Name = %s,\nAge  = %d\n",
+		   MSG_Person_get_name(p),
+		   MSG_Person_get_age(p)
+	);
+
+	DELETE_Person(p);
+
+    return 0;
+}

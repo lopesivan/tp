@@ -1,0 +1,12 @@
+CREATE TABLE tb_esporte_interativo (
+    grp ENUM('youtube', 'terra') NOT NULL,
+    id MEDIUMINT NOT NULL AUTO_INCREMENT,
+
+    id_name     VARCHAR(255) NOT NULL,
+    title       VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    link_img    VARCHAR(255) NOT NULL,
+    link_video  VARCHAR(255) NOT NULL,
+
+    PRIMARY KEY (grp,id)
+)

@@ -1,0 +1,18 @@
+-- main table
+select * from agenda;
+
+-- id and name
+select id,name,nascimento from agenda;
+
+-- id and name == ivan
+select id,name,nascimento from agenda
+	where name like 'Ivan%';
+
+-- id and name == ^a
+select id,name,nascimento from agenda
+	where name like 'A%'
+		order by nascimento;
+
+-- id and name
+select id,name,nascimento from agenda
+		order by nascimento;

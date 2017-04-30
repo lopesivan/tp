@@ -1,0 +1,9 @@
+import Cheetah
+import Cheetah.Template
+
+
+def multiple(a,b):
+    return a*b
+
+print Cheetah.Template.Template(file='template.tmpl',
+                                searchList=[dict(multiple=multiple)])

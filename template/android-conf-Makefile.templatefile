@@ -1,0 +1,18 @@
+package = org.livecammobile.example
+
+all: debug
+
+compile:
+	@ant compile
+
+debug: compile
+	@ant debug
+
+install:
+	@ant install
+
+uninstall:
+	@adb uninstall $(package)
+
+clean:
+	@ant clean

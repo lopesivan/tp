@@ -1,0 +1,6 @@
+digraph G {
+
+	"GNU Coreutils" -> "File utilities"  [ label=12 ]
+	"GNU Coreutils" -> "Text utilities"  [ label=12 ]
+	"GNU Coreutils" -> "Shell utilities" [ label=12 ]
+}

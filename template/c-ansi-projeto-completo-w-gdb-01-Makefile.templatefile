@@ -1,0 +1,24 @@
+CC = g++
+LD = g++
+
+CFLAGS  = -g -c
+LDFLAGS = -o
+
+DFLAGS = -q
+DFILE  = debug.gdb
+DEBUG  = gdb
+
+# Compile
+.cpp.o:
+	$(CC) $(CFLAGS) $<
+
+all: unused_returns
+
+unused_returns: unused_returns.o
+	$(CC) $(LDFLAGS) $@ $^
+
+debug: unused_returns
+	$(DEBUG) $(DFLAGS) $^ < $(DFILE)
+
+clean:
+	rm -rf unused_returns unused_returns.o

@@ -1,0 +1,10 @@
+#! /bin/bash
+
+./clean.sh
+
+gnuplot sombrero.gp
+gnuplot term_eps.gp
+gnuplot term_mp.gp
+gnuplot term_png.gp
+gnuplot term_pst.gp
+gnuplot term_svg.gp

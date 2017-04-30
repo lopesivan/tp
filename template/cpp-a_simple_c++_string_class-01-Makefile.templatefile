@@ -1,0 +1,14 @@
+CXXFLAGS = -g -Wall -pedantic
+
+all: test
+
+test: my_string.o
+
+dist: clean
+	rm -rf my_string/ my_string.tar.gz
+	mkdir my_string
+	cp Makefile my_string.h my_string.cpp test.cpp my_string/
+	tar cfzv my_string.tar.gz my_string/
+
+clean:
+	rm -f test my_string.o

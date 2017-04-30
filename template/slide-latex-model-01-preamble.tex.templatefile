@@ -1,0 +1,31 @@
+%\documentclass[11pt]{beamer}
+\documentclass[dvips,11pt]{beamer}
+%\documentclass[handout,dvips,11pt,gray]{beamer}
+
+% Setup appearance:
+
+%\usetheme{Darmstadt}
+%\usetheme{Frankfurt}
+%\usetheme{Warsaw}
+\usetheme[secheader]{Boadilla}
+%\setbeameroption{hide notes}
+%\setbeameroption{show notes}
+%\setbeameroption{show only notes}
+\usefonttheme[onlylarge]{structurebold}
+\setbeamerfont*{frametitle}{size=\normalsize,series=\bfseries}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{note page}[plain]
+
+% Standard packages
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+%\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{pst-all}              % PStricks
+\usepackage{graphicx}             % Graphics formats
+%\usepackage{multimedia}
+
+%\usepackage{pgfpages}
+%\pgfpagesuselayout{4 on 1}[letterpaper,landscape,border shrink=5mm]

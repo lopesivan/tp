@@ -1,0 +1,26 @@
+#include <iostream>
+using namespace std;
+
+void setX(int& x) {
+
+	x = 4;
+}
+
+void setY(int& y) {
+
+	y = 5;
+}
+
+int main()
+{
+	int x,
+		y;
+
+	x = y = 0;
+	std::cout << "(" << x << ", "<< y<< ")"<<std::endl;
+	setX(x);
+	setY(y);
+	std::cout << "(" << x << ", "<< y<< ")"<<std::endl;
+
+	return 0; // success return
+}

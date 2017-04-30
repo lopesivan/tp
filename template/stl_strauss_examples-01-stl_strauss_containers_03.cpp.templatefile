@@ -1,0 +1,120 @@
+#include <iostream>
+#include <vector>
+
+#include <list>
+#include <map>
+#include <string>
+#include <sstream>
+ 
+ 
+
+int main()
+{
+   static const unsigned int n = 10;
+   int array[n];
+   std::vector<int> v;
+   std::list<int> l;
+   std::map<int, std::string> m;
+
+   //
+   // preenchedo o array
+   //
+   for(int a = 0 ; a < n ; ++a)
+   {
+      //
+      // vamos colocar itens não sequenciais, usando o 
+      // dobro da nossa variável de controle
+      //
+      int x = a * 2;
+
+      //
+      // vou usar um stringbuffer para converter de int
+      // para string. Nada de itoa, isso é C++ :-)
+      //
+      std::stringstream buffer;
+      buffer << a;
+ 
+      array[a] = x;
+      v.push_back(x);
+      l.push_back(x);
+      m[x] = buffer.str();
+   }
+ 
+   //
+   // pronto, agora temos todos os containers (sim, um array C
+   // também é um container) preenchidos. Vamos à nossa primeira
+   // tentativa (inútil) de acessar os itens da mesma forma
+   //
+   for(int a = 0 ; a < n ; ++a)
+   {
+      int x;
+ 
+      x = array[a];
+      x = v[a];
+
+      // isso não funciona, o list não suporta acesso por índice
+      // x = l[a];
+
+      // também não funciona, essa sintaxe procura pela chave do map
+      // e não pelo índice no map. Além disso, o retorno dessa expressão
+      // é do tipo string, veja a declaração do map
+      // x = m[a];
+ 
+   }
+ 
+   //
+   // agora vou acessar os itens do array via ponteiro.
+   // incrementamos o ponteiro até o fim do array
+   //
+   std::stringstream buffer;
+   buffer << "array: ";
+ 
+   for(int* i = array ; i != array + n ; ++i)
+   {
+      buffer << *i << ", ";
+   }
+
+ 
+   std::cout << buffer.str() << std::endl;
+ 
+   //
+   // veja como o acesso ao vector funcionará quase da mesma forma,
+   // só muda a inicialização.
+   //
+   buffer.str(""); buffer.clear(); 
+   buffer << "std::vector: ";
+   for(std::vector<int>::iterator i = v.begin() ; i != v.end() ; ++i)
+   {
+      buffer << *i << ", ";
+   }
+   std::cout << buffer.str() << std::endl;
+
+ 
+   //
+   // Mais uma vez. O acesso ao std::list funciona da mesma forma que
+   // para o array e para o std::vector
+   //
+   buffer.str(""); buffer.clear();
+   buffer << "std::list: ";
+   for(std::list<int>::iterator i = l.begin() ; i != l.end() ; ++i)
+   {
+      buffer << *i << ", ";
+   }
+   std::cout << buffer.str() << std::endl;
+
+ 
+   //
+   // O acesso ao map é um pouco diferente porque temos chave e
+   // valor, mas o conceito continua o mesmo
+   //
+   buffer.str(""); buffer.clear();
+   buffer << "std::map: ";
+   for(std::map<int, std::string>::iterator i = m.begin() ; i != m.end() ; ++i)
+   {
+      buffer << "(" << i->first << "," << i->second << ") ";
+   }
+   std::cout << buffer.str() << std::endl;
+
+ 
+   return 0;
+}

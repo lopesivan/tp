@@ -1,0 +1,7 @@
+# Makefile: A standard Makefile for matrix.c
+CFLAGS += -Wall -ansi -g
+
+all  : matrix
+clean:
+	/bin/rm -rf matrix matrix.o
+# END OF FILE

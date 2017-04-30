@@ -1,0 +1,29 @@
+$ vi hw.py
+$ cat hw.py
+#!/usr/bin/env python
+
+# This is a comment
+# comments can span one line only
+
+print 'Hello world!'
+print "Hello world!"
+
+$ python -O -m py_compile hw.py
+
+$ ls
+hw.py  hw.pyo  
+
+$ chmod +x hw.pyo
+
+$ ./hw.pyo
+Hello world!
+Hello world!
+
+$
+
+
+# importar modulo de outro diretorio
+import sys
+sys.path.append('path/to/your/module')
+import mymodule
+

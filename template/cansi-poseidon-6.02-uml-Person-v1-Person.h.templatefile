@@ -1,0 +1,148 @@
+/*@ <FileComment ID=1298622660511> @*/
+/**********************************************************************
+* Class          : Person
+* File           : Person.h
+* Generated with : Poseidon for UML EmbEd 6.0
+* Last generation: Fri Feb 25 05:31:00 BRT 2011
+**********************************************************************/
+/*@ </FileComment ID=1298622660511> @*/
+
+
+/*@ <IncludeGuard> @*/
+#ifndef Person_I483cd7cem12e5ba4dbd9m4b29_H
+#define Person_I483cd7cem12e5ba4dbd9m4b29_H
+/*@ </IncludeGuard> @*/
+
+/*@ <Include> @*/
+#include <stdlib.h>
+#include <string.h>
+#include "Person_fdef.h"
+#include <stdio.h>
+/*@ </Include> @*/
+
+/*@ <Definitions> @*/
+/********************************
+* Documentation of class Person *
+********************************/
+/*
+*
+* Constructor:
+* ------------
+*     Create() : void
+*
+* Destructor:
+* -----------
+*     Destroy() : void
+*
+* Methods:
+* --------
+
+*    + get_age() : unsigned int
+*
+
+*    + set_age(unsigned int age) : void
+*
+
+*    + set_name(char * name) : void
+*
+
+*    + get_name() : char *
+*
+*
+* Attributes:
+* -----------
+
+*    - name : char * 
+*
+
+*    - age : unsigned int  = 0
+*
+*/
+
+
+
+
+void _PE_Person_Create(void * _self);
+
+
+
+void _PE_Person_Destroy(void * _self, unsigned char isSuper);
+
+
+
+unsigned int Person_get_age(void * _self);
+
+void Person_set_age(void * _self, unsigned int age);
+
+void Person_set_name(void * _self, char * name);
+
+char * Person_get_name(void * _self);
+
+
+
+/*****************************
+* Attributes of class Person *
+*****************************/
+/* definition of attributes */
+#define _PE_Person_ATTR  \
+    char * name;  \
+    unsigned int age;
+
+struct _PE_Person {
+    _PE_Person_ATTR
+};
+
+/************************************
+* Static attributes of class Person *
+************************************/
+
+
+/**********************************************
+* Macros for constructor and destructor calls *
+**********************************************/
+#define NEW_Person(obj)  \
+    { if ((obj=(Person*)malloc(sizeof(Person))) != NULL)  \
+        _PE_Person_Create(obj);  \
+    }
+
+#define INIT_Person(obj)  \
+    _PE_Person_Create(obj);
+
+#define DELETE_Person(obj)  \
+    { if (obj != NULL) {  \
+        _PE_Person_Destroy(obj, 0);  \
+        obj = NULL;  \
+      }  \
+    }
+
+#define DEINIT_Person(obj)  \
+    { if (obj != NULL)  \
+        _PE_Person_Destroy(obj, 1);  \
+    }
+
+
+/**************************
+* Macros for method calls *
+**************************/
+
+#define MSG_Person_get_name(obj)  \
+    Person_get_name(obj)
+
+
+#define MSG_Person_set_name(obj, name)  \
+    Person_set_name(obj, name)
+
+
+#define MSG_Person_get_age(obj)  \
+    Person_get_age(obj)
+
+
+#define MSG_Person_set_age(obj, age)  \
+    Person_set_age(obj, age)
+
+
+/*@ </Definitions> @*/
+
+/*@ <IncludeGuardEnd> @*/
+#endif  /* Person_I483cd7cem12e5ba4dbd9m4b29_H */
+/*@ </IncludeGuardEnd> @*/

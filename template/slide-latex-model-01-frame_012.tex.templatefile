@@ -1,0 +1,16 @@
+\section{Graphics}
+
+\subsection*{}
+
+\begin{frame}{Type of Graphics}
+\begin{itemize}
+\item Inserting graphics into a presentation is a \alert{good} idea, i.e., sometimes a picture
+is really worth a thousand words.
+\item \LaTeX\ has available a number of packages which allow for simple drawings to be done
+within the \LaTeX\ document itself.  
+\item  \LaTeX\ also has available packages which allow for importing of external document files, such
+as {\tt .ps, .eps, .jpg, .gif}, etc.
+\item {\tt beamer} allows for inclusion of ''movies'' in a presentation also.
+\end{itemize}
+\note<1>{An animated {\tt .gif} file is also a movie!}
+\end{frame}

@@ -1,0 +1,23 @@
+* Create a repository
+ - use the database backend
+   svnadmin create ~/svn_repos/Eccos
+ - use the filesystem backend
+   svnadmin create --fs-type=fsfs PATH
+
+* Import a revision
+ svn import -m "Initial import" Eccos file:///home/reichr/svn_repos/Eccos/trunk
+
+* Check out a revision
+ svn co file:///home/reichr/svn_repos/Eccos/trunk Eccos
+
+* Dump a repository
+ svnadmin dump /home/reichr/svn_repos/Eccos | gzip -9 > dump.gz
+ svnadmin dump /home/reichr/svn_repos/Eccos | gzip -9 > `date "+Eccosdump%Y-%m-%d_%H:%M:%S.gz"`
+
+* Load contents of a dump into a repository
+ gunzip -c dump.gz | svnadmin load /home/reichr/svn_repos/e
+
+svn log --verbose # achando arquivos
+svn --username ivan list --depth infinity https://192.168.1.105/svn/ffmpeg-gstreamer-vlc-read-only # find file
+svn --username ivan list --depth infinity --xml https://192.168.1.105/svn/ffmpeg-gstreamer-vlc-read-only 
+

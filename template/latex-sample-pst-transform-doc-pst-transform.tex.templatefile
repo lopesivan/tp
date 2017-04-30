@@ -1,0 +1,800 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage[a4paper]{geometry}
+\usepackage{pst-transform,pst-slpe,pst-grad}
+\usepackage{multido,graphicx}
+\usepackage[nomessages]{fp}
+\usepackage{multicol}
+\usepackage{hyperref}
+\usepackage{frenchle}
+\input{random}
+% RANDOM.TEX       v.1   (Donald Arseneau)
+% Generating "random" numbers in TeX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Manuel Luque 1 août 2007
+% révisé le 2 août 2007
+% révisé le 1 septembre 2007 (package)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\SpecialCoor
+\makeatletter
+% de nouvelles flèches de Christophe FOUREY
+% http://tug.org/mailman/htdig/pstricks/2007/004294.html
+% v : Vee arrow (inside)
+% V : Vee arrow (outside)
+% f : Filled vee arrow (inside)
+% F : Filled vee arrow (outside)
+\edef\pst@arrowtable{\pst@arrowtable,v-v,V-V,f-f,F-F}
+
+% Vee arrow
+\def\psset@veearrowlength#1{\pst@getlength{#1}\psk@veearrowlength}
+\psset@veearrowlength{3mm} % default projected length
+\def\psset@veearrowangle#1{\pst@getangle{#1}\psk@veearrowangle}
+\psset@veearrowangle{30} % default angle
+\def\psset@veearrowlinewidth#1{\pst@getlength{#1}\psk@veearrowlinewidth}
+\psset@veearrowlinewidth{.35mm} % default vee arrow line width
+
+% Filled vee arrow
+\def\psset@filledveearrowlength#1{\pst@getlength{#1}
+\psk@filledveearrowlength}
+\psset@filledveearrowlength{3mm} % default projected length
+\def\psset@filledveearrowangle#1{\pst@getangle{#1}
+\psk@filledveearrowangle}
+\psset@filledveearrowangle{15} % default angle
+\def\psset@filledveearrowlinewidth#1{\pst@getlength{#1}
+\psk@filledveearrowlinewidth}
+\psset@filledveearrowlinewidth{.35mm} % default vee arrow line width
+
+\pst@def{VeeArrow}<%
+     1 setlinecap           % round caps
+     1 setlinejoin          % round join
+     setlinewidth           % vee arrow line width
+     /y ED              % projected length
+     2 div /a ED                % angle (divide by 2)
+     /t ED              % false = inside, true = outside
+     a sin a cos div y mul /x ED        % perpendicular length : x=tan(a).y
+     t { 1 -1 scale } if            % if outside : symmetry
+     x neg y moveto         % point #1
+     0 0 L              % point #2
+     x y L              % point #3
+     {closepath gsave fill grestore} if % if filled : close and fill
+     stroke             % draw line
+     0 t {y 2 mul} {0} ifelse moveto>   % if outside : twice longer line
+
+% VeeArrow : filled?   outside?   (total) angle   (projected) length   (arrow) line width
+
+\@namedef{psas@v}{%
+   false false \psk@veearrowangle \psk@veearrowlength
+\psk@veearrowlinewidth \tx@VeeArrow}
+
+\@namedef{psas@V}{%
+   false true \psk@veearrowangle \psk@veearrowlength
+\psk@veearrowlinewidth \tx@VeeArrow}
+
+\@namedef{psas@f}{%
+   true false \psk@filledveearrowangle \psk@filledveearrowlength
+\psk@filledveearrowlinewidth \tx@VeeArrow}
+
+\@namedef{psas@F}{%
+   true true \psk@filledveearrowangle \psk@filledveearrowlength
+\psk@filledveearrowlinewidth \tx@VeeArrow}
+
+
+\makeatother
+
+\newpsstyle{metal}{fillstyle=solid,fillcolor=cyan!10!gray!90}
+\newpsstyle{boulon}{fillstyle=ccslope,slopebegin=cyan!20!gray!90,
+  slopeend=white}
+%\newpsstyle{chauffage}{fillstyle=ccslope,slopebegin=cyan!40!gray!90,
+%  slopeend=white}
+\newpsstyle{chauffage}{fillstyle=solid,fillcolor=gray!50}
+\definecolor{maroon}{rgb}{0.65,0.25,0.17}
+
+\makeatletter
+\def\supportboy#1{% #1 angle d'élévation
+% limites de l'angle
+\pst@cntg=#1\relax \ifnum\pst@cntg>50 \typeout{Niveau must be 50 and not
+`\the\pst@cntg'. Value 50 forced.} \pst@cntg=50
+    \else
+   \ifnum\pst@cntg<15 \typeout{Niveau must be 15 and not
+`\the\pst@cntg'. Value 15 forced.} \pst@cntg=15
+\fi\fi
+% boulons et axes
+\def\boulon{\pscircle[style=boulon](0,0){0.2}%
+            \pspolygon[style=boulon](0.15;60)(0.15;120)(0.15;180)(0.15;240)(0.15;300)(0.15;360)}
+\def\axe{\pscircle[style=boulon](0,0){0.15}}
+\def\tige{\psframe[framearc=1,style=metal](-2,0)(2,0.5)}
+% molette et vis
+\def\vis{%
+\psframe(-2.5,-0.1)(2.5,0.1)
+\psframe[fillstyle=crosshatch](2.5,-0.75)(3,0.75)
+\psframe[linestyle=none,fillstyle=hlines,hatchangle=60,hatchsep=0.05]%
+            (-1,-0.1)(2,0.1)}
+% base  et plan support
+\def\base{%
+\psframe(-2,-0.25)(2,0.25)
+\pscustom[linestyle=none,style=metal]{\psline(-2,0.25)(2,0.25)(2,-0.25)(-2,-0.25)(-2,0.25)%
+          \psarc(-0.95,0){0.15}{90}{270}\psline(-0.8,-0.15)(1.7,-0.15)%
+          \psarc(1.7,0){0.15}{-90}{90}
+          \psline(-0.95,0.15)}
+\psline(-2,0.25)(2,0.25)(2,-0.25)(-2,-0.25)(-2,0.25)%
+\psarc(-0.95,0){0.15}{90}{270}\psline(-0.95,-0.15)(1.7,-0.15)%
+\psarc(1.7,0){0.15}{-90}{90}
+\psline(1.7,0.15)(-0.95,0.15)}
+% calcul de quelques points
+\pnode(-1.75,0.25){O1}% O1 axe 1
+% O2 milieu de la tige 1 après rotation,
+% O3 extrémité de la tige 1 après rotation.
+\psrotate(O1){\the\pst@cntg}{\pnode(0,0.25){O2}\pnode(1.75,0.25){O3}}%
+% récupérer le noeud 4
+\psrotate(O2){-\the\pst@cntg}{\pstranslate(0,0.25)(O2){\pnode(-1.75,0.25){O4}}} % récupérer le noeud 4
+\pstranslate(-1.75,0)(O4){\vis}
+% translation et rotation de la tige 1 -> tige 3
+% et récupérer les noeuds 5 et 6
+\psrotate(O3){-\the\pst@cntg}{\pstranslate(1.75,0.25)(O3){\tige\pnode(0,0.25){O5}\pnode(-1.75,0.25){O6}}} % tige 3
+% translation et rotation de la tige 1 -> tige 2 et récupérer le noeud 7
+\psrotate(O2){-\the\pst@cntg}{\pstranslate(0,0.25)(O2){\tige\pnode(1.75,0.25){O7}}} % tige 2
+% translation et rotation de la tige 1 -> tige 4
+\psrotate(O5){\the\pst@cntg}{\pstranslate(0,0.25)(O5){\tige\pnode(1.75,0.25){O8}}} % tige 4
+% rotation  de la tige 1
+\psrotate(O1){\the\pst@cntg}{\tige}% tige 1
+% récupérer le noeud milieu du dessus du plan support
+% pour y placer l'appareil de chauffage : O9
+\rput(0,0.25){\base}\pstranslate(-1.75,0)(O6){\base\pnode(0,0.25){O9}}
+\multido{\i=1+1}{6}{\rput(O\i){\boulon}}
+\rput(O8){\axe}\rput(O7){\axe}}
+
+\makeatother
+
+% paramètres du ballon 250 mL
+\def\eCol{0.2}
+\def\rBallon{1}
+\def\rRaccord{0.3}
+
+
+
+\def\ballon{%
+\pstVerb{%
+        /rRaccord \rRaccord\space def
+        /eCol \eCol\space def
+        /rBallon \rBallon\space def
+        /hB rBallon rRaccord add dup mul eCol rRaccord add dup mul sub sqrt def
+        /AngleB hB eCol rRaccord add atan def}%
+\psline(! eCol rBallon 2 mul)(! eCol 0.05 add rBallon 1.95 mul)
+       (! eCol 0.05 sub rBallon 1.90 mul)(! eCol 0.05 add rBallon 1.85 mul)
+       (! eCol 0.05 sub rBallon 1.80 mul)(! eCol 0.05 add rBallon 1.75 mul)
+\psline(! eCol rBallon 1.7 mul)(!eCol hB)
+\psarc(! eCol rRaccord add hB){\rRaccord}{180}{! 180 AngleB add}
+\psarcn(0,0){\rBallon}{!AngleB}{!180 AngleB sub}
+\psarc(! eCol rRaccord add neg hB){\rRaccord}{! AngleB neg}{0}
+\psline(!eCol neg hB)(! eCol neg rBallon 1.7 mul)
+\psline(! eCol 0.05 add neg rBallon 1.75 mul)(! eCol 0.05 sub neg rBallon 1.80 mul)
+       (! eCol 0.05 add neg rBallon 1.85 mul)(! eCol 0.05 sub neg rBallon 1.90 mul)
+       (! eCol 0.05 add neg rBallon 1.95 mul)(! eCol neg rBallon 2 mul)}%
+
+
+
+\def\ballondeb{%
+\psclip{\pscustom[linestyle=none]{\ballon}}%
+    \psframe[fillstyle=solid,fillcolor=green!50,linecolor=green](-2,-2)(2,0)
+\endpsclip%
+\pscustom{\ballon}}
+
+\def\rChauffage{1}
+\def\chauffage{%
+\pstVerb{/rChauffage \rChauffage\space def}%
+\psframe*(!rChauffage -1.2 mul rChauffage -1.6 mul)(!rChauffage -0.8 mul rChauffage -1.5 mul)
+\psframe*(!rChauffage 1.2 mul rChauffage -1.6 mul)(!rChauffage 0.8 mul rChauffage -1.5 mul)
+\pspolygon*(!rChauffage -1.5 mul rChauffage -1.4 mul)(!rChauffage -1.5 mul rChauffage -1.2 mul)
+           (!rChauffage -1.7 mul rChauffage -1.25 mul)(!rChauffage -1.7 mul rChauffage -1.35 mul)
+\pscurve[linewidth=2\pslinewidth](!rChauffage -1.6 mul rChauffage -1.3 mul)(!rChauffage -2.5 mul rChauffage -1.4 mul)
+                       (!rChauffage -2.5 mul rChauffage -2 mul)(!rChauffage -3.5 mul rChauffage -2 mul)
+\pscustom{\psarcn(0,0){\rChauffage }{0}{180}
+\psline(!rChauffage neg 0)(!rChauffage -1.5 mul 0.1 add 0)
+\psarc(!rChauffage -1.5 mul 0.1 add -0.1){0.1}{90}{180}
+\psline(!rChauffage -1.5 mul rChauffage -1.5 mul)(!rChauffage -1.5 mul rChauffage -1.5 mul)
+       (!rChauffage 1.5 mul rChauffage -1.5 mul)(!rChauffage 1.5 mul 0.1 neg)
+\psarc(!rChauffage 1.5 mul 0.1 sub -0.1){0.1}{0}{90}
+\psline(!rChauffage 1.5 mul 0.1 sub 0)(! rChauffage 0)
+\fill[style=chauffage]}}
+
+\def\supportchauffage#1{%
+\pstVerb{/rChauffage \rChauffage\space def}%
+\supportboy{#1}\pstranslate(!0 rChauffage -1.6 mul)(O9){\chauffage}}
+
+\def\Bill{%
+%Côté gauche et oreille
+%\pscurve(-0.45,1.5)(-0.6,1.35)(-0.5,1)
+\pscurve(0.4,1.38)(0,1.6)(-0.2,1.65)(-0.4,1.53)(-0.5,1.4)(-0.55,1.2)(-0.5,1)
+\psline(-0.5,1)(-0.45,0.6)
+\pscurve(-0.45,0.6)(-0.75,0.4)(-0.9,0)(-0.8,-0.45)(-0.5,-0.5)(-0.4,-0.2)(-0.4,0.1)
+(-0.25,0.5)(-0.2,0.8)(-0.3,1)
+\pscurve(-0.3,1)(-0.2,0.8)(0,0.7)(0.2,0.6)(0.22,0.5)(0.17,0.3)
+%Collier
+\pscurve(0.1,0.2)(0.25,0.4)(0.6,0.6)(0.75,0.55)
+\psline(0.75,0.55)(0.8,0.4)
+\pscurve(0.8,0.4)(0.5,0.25)(0.25,0)
+\psline(0.25,0)(0.1,0.2)
+%patte gauche
+\pscurve(0.15,0.1)(0.05,0)(-0.1,-0.25)(-0.05,-0.5)(0.15,-0.55)
+\pscurve(0.2,-0.2)(0.2,-0.45)(0.15,-0.55)(0.1,-1)(0.2,-1.25)(0.2,-1.5)
+\pscurve(0.2,-1.5)(0,-1.45)(-0.2,-1.4)(-0.5,-1.5)(-0.6,-1.65)(-0.55,-1.8)
+\pscurve(-0.4,-1.6)(-0.55,-1.8)(-0.4,-1.9)
+\pscurve(-0.3,-1.7)(-0.4,-1.9)(0,-1.9)(.5,-1.8)(.48,-1.65)(0.4,-1.35)
+\pscurve(0.4,-1.35)(0.6,-1.35)(0.8,-1.25)
+\pscurve(0.6,-1.35)(0.6,-1.45)(0.6,-1.7)(0.75,-1.9)(1,-2)(1.35,-1.8)(1.2,-1.6)
+\pscurve(1.35,-1.8)(1.5,-1.75)(1.4,-1.5)(1,-1.5)(1,-1.5)(0.85,-1.25)
+%ventre
+\pscurve(0.85,-1.25)(1,-1)(1,-0.75)(0.9,-0.3)(0.8,0)
+%coude droit
+\pscurve(1,-0.55)(1.15,-0.45)(1,0)(0.7,0.35)
+%oreille droite
+\pscurve(0.5,0.8)(0.8,0.55)(0.9,0.25)(1,0)(1.25,-0.1)(1.4,0.35)(1.2,0.6)(0.8,0.8)(0.7,0.88)
+\pscurve(0,0.95)(0.2,0.8)(0.5,0.9)
+\pscurve(0.5,0.9)(0.8,0.9)(1,1.15)
+\pscurve(1,1.15)(1.1,1)(1.2,1.2)(1.1,1.5)
+%Truffe
+\psccurve[fillstyle=ccslope,slopebegin=white,slopeend=gray](1.1,1.5)(1,1.8)(0.7,1.9)(0.52,1.6)(0.6,1.25)(1,1.35)
+\pscurve(0.5,1.4)(0.4,1.2)(0.5,1.1)
+\pscurve(0.4,1.35)(0.25,1.5)(0,1.6)(-0.2,1.65)(-0.45,1.5)
+%les yeux
+\pscurve(0.4,1.3)(0.25,1.5)(0.1,1.5)(0.1,1.4)
+\pscurve(0.25,1.25)(0,1.4)(-0.1,1.4)(-0.05,1.25)(0.1,1.1)
+\pscircle*(0.3,1.35){0.05}
+\pscircle*(0.17,1.25){0.05}
+%rictus
+\pscurve(-0.1,0.9)(0,0.93)(0.05,1.01)
+%sourcils
+\pscurve(-0.1,1.5)(-0.2,1.47)(-0.1,1.25)
+\pscircle(0.7,-0.9){0.1}
+%quelques poils
+\psline(-0.45,1.5)(-0.35,2)
+\psline(-0.35,1.6)(-0.2,2.2)
+\psline(-0.2,1.6)(-0.2,2)
+\psline(-0.2,1.5)(0,1.8)
+\pscurve(0.6,0.9)(0.5,0.8)(0.45,0.55)
+%queue
+\pscurve(0.1,-0.8)(0,-0.82)(-0.1,-1)(0,-1.1)(0.18,-1.18)
+\psline(0.45,0)(0.4,-0.25)
+\psline(0.35,-0.2)(0.55,-0.4)
+\psline(0.7,-0.3)(0.7,-0.5)
+\psline(1,-0.25)(1.2,-0.5)
+}
+
+\def\poisson{{%
+\psset{fillstyle=slope}
+    \pscurve(0.1,1.8)(0.4,1.65)(0.6,1.1)(0.85,1.2)
+    \pscurve(1.6,3.25)(2.5,4.2)(2.5,3.5)
+    \pscurve(4.25,1.9)(4.5,1.5)(3.9,1.4)(3.7,0.8)(3.2,1.5)
+    \pscurve(2.5,3.5)(2.75,3.75)(3.2,4)(3.75,3.2)(3.2,2.8)%(2.8,3.2)
+    \pscurve(5,2.45)(6,2.5)(5.75,2)(6,1.5)(5.8,1.4)(5,1.6)
+    \pscurve(3.2,1.4)(3.1,0.7)(3.5,0.5)(2.7,0.5)
+    \pscurve(1.8,1.1)(2.2,1.4)(2.7,1.6)(2.6,1.2)(2.65,1.1)
+    (2.6,1)(2.65,0.9)(1.9,0.5)}
+    \pscurve[fillstyle=slopes](0.25,2.4)(1,3)(1.6,3.25)(2.5,3.5)(3,3)(4,2.6)
+    (5,2.45)(5.7,2.75)(6,2.5)(5.75,2)(6,1.5)(5.9,1.35)(5,1.6)
+    (4,1.7)(3,1.1)(2.7,-.2)(2,0)(1,0.3)(0.8,0.3)(0.35,1)
+    (0.1,1.8)(0,2.1)(0.1,2.2)(0.5,1.9)(0.45,2.2)(0.25,2.4)
+    \pscircle(0.9,2.5){0.25}
+    \pscircle*(0.9,2.5){0.15}
+    \pscircle[fillstyle=solid,linestyle=none](0.85,2.55){0.03}
+    \pscurve(0.35,1)(1,0.8)(1.45,1)(1.6,1.6)(1.5,2.25)}
+
+\DeclareFixedFont{\SF}{T1}{phv}{b}{n}{1cm}
+\DeclareFixedFont{\Sf}{T1}{phv}{b}{n}{0.4cm}
+
+\title{Des transformations simples dans le plan\\
+avec le package \textsf{pst-transform}}
+\date{7 août 2007 - documentation révisée le 1 septembre}
+% révisé le 1 septembre
+\author{Manuel Luque\\
+ \texttt{\footnotesize manuel.luque27@gmail.com}}
+\begin{document}
+\maketitle
+\begin{abstract}
+Suite à une discussion que j'avais initiée sur \texttt{fr.comp.text.tex}\footnote{Voir le fil, \textsf{``Macro de rotation pour PStricks''} :
+\href{http://groups.google.fr/group/fr.comp.text.tex/}{http://groups.google.fr/group/fr.comp.text.tex/}},
+j'ai pensé qu'il serait utile de regrouper un ensemble de commandes permettant des transformations simples dans le plan :
+\begin{enumerate}
+  \item translation ;
+  \item rotation ;
+  \item homothétie ;
+  \item cisaillement ;
+  \item symétrie par rapport à une droite, ou un point.
+\end{enumerate}
+J'ai repris et modifié la définition de \verb+\psrotate+ qui avait été élaborée lors de cette discussion et qu'Herbert Voss
+avait introduite dans le package \textsf{pstricks-add}, afin de la rendre plus puissante et d'exploiter les possibilités
+de \textsf{pst-node}.
+
+La commande relative à l'homothétie avait été définie suite à une question posée lors de cette discussion.
+
+les commandes relatives au cisaillement et à la symétrie par rapport à une droite figuraient déjà dans une ancienne étude, voir la page :\\
+\centerline{\href{http://members.aol.com/ManuelLuque3/miroirs.htm}{http://members.aol.com/ManuelLuque3/miroirs.htm}}
+
+Ces commandes associées au package \textsf{pst-node} sont suffisamment puissantes pour limiter au maximum les calculs. Elles sont bien sûr perfectibles :
+n'hésitez pas à me faire part de vos améliorations ou de vos applications.
+\end{abstract}
+\tableofcontents
+\clearpage
+\psset{unit=1,dimen=middle}
+
+
+
+\section{La matrice de transformation de PostScript}
+Nous trouvons page 159 de l'édition française du \textit{Manuel de référence du langage PostScript}(Addison-Wesley), les explications sur la \textit{``Représentation et
+la manipulation''} de la matrice de transformation courante(\texttt{CTM}).
+
+Si les relations entre anciennes $(x,y)$ et nouvelles coordonnées $(x',y')$, après transformation s'écrivent sous la forme :
+\[\left\lbrace%
+ \begin{array}{ccl}
+ x'&=&ax +cy+t_x\\
+ y'&=&bx +dy+t_y
+ \end{array}
+ \right.
+\]
+La matrice de transformation courante(\texttt{CTM}) qui permettra à \texttt{PostScript} de faire les calculs et
+l'affichage de l'image transformée est représentée par un  tableau à 6 éléments :
+
+\centerline{\texttt{CTM = [a b c d e f]}}
+
+Ce tableau est ensuite intégré dans la commande.
+
+Par exemple pour la translation de $(x_0,y_0)\longrightarrow (x_1,y_1)$ :
+\begin{verbatim}
+  \pst@Verb{%
+    {[1 0 0 1 x1 x0 sub y1 y0 sub]
+     concat } \tx@TMChange }%
+\end{verbatim}
+J'ai suivi la méthode employée par Timothy Van Zandt dans le package \texttt{pst-3d}, en modifiant, pour chaque cas, la \texttt{CTM}.
+\newpage
+\section{Homothétie}
+\verb+\psHomothetie(xCentre,yCentre){rapport}{objet}+
+
+\begin{pspicture}(-5,-5)(4,9)
+\psgrid[subgriddiv=0](-5,-4)(4,8)
+\psdots[dotsize=3pt,linecolor=red](3,-4)
+\Bill
+\psHomothetie(3,-4){2}{\Bill}
+\end{pspicture}
+\begin{verbatim}
+\begin{pspicture}(-5,-4)(4,8)
+\psgrid[subgriddiv=0](-5,-4)(4,8)
+\psdots[dotsize=3pt,linecolor=red](3,-4)
+\Bill
+\psHomothetie(3,-4){2}{\Bill}
+\end{pspicture}
+\end{verbatim}
+\section{Application combinée rotation et homothétie : théorème du point fixe\protect\footnote{Dictionnaire Penguin des curiosités mathématiques, page~182. Eyrolles}}
+\subsection{Méthode 1}
+L'homothétie s'applique aussi à l'épaisseur du trait, avec les inconvénients de lisibilité des petits tracés.
+\begin{verbatim}
+\pnode(-1,1){O}% rotation
+\rectangle
+\multido{\i=\rot+\rot}{10}{%
+\psrotate(O){\i}{\psHomothetie(O){\rH}{\rectangle}}
+\FPeval{\rH}{\rH*0.5}
+    }
+\end{verbatim}
+\def\rectangle{\psframe[linewidth=0.2](-4,-3)(4,3)%
+    \uput[135](-4,3){A}\uput[45](4,3){B}
+    \uput[225](-4,-3){D}\uput[-45](4,-3){C}}
+\def\rH{0.6} % rapport d'homothétie
+\def\rot{-15} % angle de rotation
+\begin{pspicture}(-4,-3)(4,3)
+%\psgrid(-4,-3)(4,3)
+\pnode(-1,1){O}% rotation
+\rectangle
+\multido{\i=\rot+\rot}{10}{%
+\psrotate(O){\i}{\psHomothetie(O){\rH}{\rectangle}}
+\FPeval{\rH}{\rH*0.5}
+    }
+\end{pspicture}
+\subsection{Méthode 2}
+Pour remédier à l'inconvénient précédent, on calcule les sommets du rectangle après transformation et puis on trace.
+\begin{verbatim}
+\multido{\i=\rot+\rot}{10}{%
+\psrotate(O){\i}{\psHomothetie(O){\rH}{%
+    \pnode(-4,3){A}\pnode(4,3){B}
+    \pnode(4,-3){C}\pnode(-4,-3){D}}\psframe(A)(C)}
+\FPeval{\rH}{\rH*0.5}
+    }
+\end{verbatim}
+\begin{pspicture}(-4,-3)(4,3)
+%\psgrid(-4,-3)(4,3)
+\pnode(-1,1){O}% rotation
+\psframe(-4,-3)(4,3)
+\multido{\i=\rot+\rot}{10}{%
+\psrotate(O){\i}{\psHomothetie(O){\rH}{%
+    \pnode(-4,3){A}\pnode(4,3){B}
+    \pnode(4,-3){C}\pnode(-4,-3){D}}\psframe(A)(C)}
+\FPeval{\rH}{\rH*0.5}
+    }
+\end{pspicture}
+\subsection{Méthode 3 : calculs avec PostScript}
+Les calculs précédents ont été faits avec le package \textsf{fp}, les voici réalisés avec \textsf{PostScript}
+\begin{verbatim}
+\multido{\i=\rot+\rot,\iCount=1+1}{10}{%
+\psrotate(O){\i}{\psHomothetie(O){\rH\space \iCount\space exp}{%
+    \pnode(-4,3){A}\pnode(4,3){B}
+    \pnode(4,-3){C}\pnode(-4,-3){D}}\psframe(A)(C)}
+    }
+\end{verbatim}
+\def\rH{0.6} % rapport d'homothétie
+\begin{pspicture}(-4,-3)(4,3)
+%\psgrid(-4,-3)(4,3)
+\pnode(-1,1){O}% rotation
+\psframe(-4,-3)(4,3)
+\multido{\i=\rot+\rot,\iCount=1+1}{10}{%
+\psrotate(O){\i}{\psHomothetie(O){\rH\space \iCount\space exp}{%
+    \pnode(-4,3){A}\pnode(4,3){B}
+    \pnode(4,-3){C}\pnode(-4,-3){D}}\psframe(A)(C)}
+    }
+\end{pspicture}
+\newpage
+\section{Translations}
+La commande dédiée aux translations est \verb+\pstranslate(x0,y0)(x1,y1){objet}+. Elle permet de
+déplacer tout l'objet dans la translation qui au point $A_0(x_0,y_0)$ fait correspondre le point $A_1(x_1,y_1)$.
+
+Exemple : suspendre un cadre en un pont donné.
+\begin{verbatim}
+\begin{pspicture}(0,0)(12,10)
+\psgrid[subgriddiv=0](0,0)(12,10)%
+\lucky
+\pstranslate(0,6)(9,9){\lucky}
+\psline[linecolor=red]{o-v}(0,6)(9,10)
+\end{pspicture}
+\end{verbatim}
+\def\lucky{\psframe[framesep=0pt,linewidth=0.1](-2.05,0)(2.05,5.3)%
+           \psline(-2.05,5.3)(0,6)(2.05,5.3)
+           \makebox[0cm]{\includegraphics{luckyluke1.eps}}}
+\begin{pspicture}(-2,0)(12,10)
+\psgrid[subgriddiv=0](0,0)(12,9)%
+\lucky
+\pstranslate(0,6)(9,9){\lucky}
+\psline[linecolor=red]{o-v}(0,6)(9,9)
+\end{pspicture}
+\def\canne{%
+    \pscustom{\psline(0,0)(0,4)\psarcn(0.4,4){0.4}{180}{0}
+             \psarcn(0.7,4){0.1}{0}{180}\psarc(0.4,4){0.2}{0}{180}
+              \psline(0.2,4)(0.2,0)}
+    \pspolygon[fillstyle=solid,fillcolor=gray](-0.05,0)(-0.1,-0.4)(0.3,-0.4)(0.25,0)}
+\begin{multicols}{2}
+{\psset{unit=0.75}
+\begin{pspicture}(-5,-1)(2,7)
+\psgrid(-5,-1)(1,7)
+\canne
+\pstranslate(0.7,4)(-3,6){\psset{linecolor=red}\canne}
+\psline[linecolor=green]{o-v}(0.7,4)(-3,6)
+\end{pspicture}}
+\columnbreak
+\begin{verbatim}
+\begin{pspicture}(-5,-1)(2,7)
+\psgrid(-5,-1)(2,7)
+\canne
+\pstranslate(0.7,4)(-3,6){\canne}
+\psline[linecolor=red]{o-v}(0.7,4)(-3,6)
+\end{pspicture}
+\end{verbatim}
+\end{multicols}
+\section{Rotations}
+\begin{pspicture}(-1,-1)(4,5)
+\psgrid\canne
+\psrotate(0.4,4){45}{\psgrid(-1,0)(1,5)\psset{linecolor=red}\canne}
+\psdot[linecolor=green](0.4,4)
+\end{pspicture}
+\begin{pspicture}(-1,-1)(4,5)
+\psgrid\canne
+\psrotate(0.1,0){-30}{\psgrid(-1,0)(1,5)\psset{linecolor=red}\canne}
+\psdot[linecolor=green](0.1,0)
+\end{pspicture}
+\begin{verbatim}
+\begin{pspicture}(-1,-1)(4,5)
+\psgrid\canne
+\psrotate(0.4,4){45}{\psgrid(-1,0)(1,5)\psset{linecolor=red}\canne}
+\psdot[linecolor=green](0.4,4)
+\end{pspicture}
+\begin{pspicture}(-1,-1)(4,6)
+\psgrid\canne
+\psrotate(0.1,0){-30}{\psgrid(-1,0)(1,5)\psset{linecolor=red}\canne}
+\psdot[linecolor=green](0.1,0)
+\end{pspicture
+\end{verbatim}
+\begin{multicols}{2}
+Où on peut faire des choses assez compliquées sans effectuer aucun calcul !
+Il suffit de noter le point intéressant, ici le centre du ballon, afin de savoir où il se trouve
+après transformation : ceci grâce aux n\oe{}uds.
+
+\begin{pspicture}(-4,-2)(3,3)
+\psgrid(-4,-2)(3,3)
+{\psset{linestyle=none}\ballon}% initialise les paramètres du ballon sans le tracer
+% ballon initial
+\ballondeb%
+% extrémité droite du col du ballon
+% 2*rayon du ballon est la hauteur mesurée à partir du centre du ballon
+\pnode(! eCol rBallon 2 mul){C}
+% ballon que l'on fait tourner autour de l'extrémité droite du col
+% on note O' la position du centre après rotation
+\psrotate(C){-70}{\pnode(0,0){O'}}
+% On déplace le ballon contenant le liquide, mais sans dessiner le ballon
+% uniquement le contenu, ceci afin de garder la surface libre du liquide horizontale.
+\pstranslate(0,0)(O'){\psset{linestyle=none}\ballondeb}
+% on marque le centre de rotation
+\psdot[linecolor=red](C)
+% on dessine le ballon incliné de 70°
+\psrotate(C){-70}{\pscustom{\ballon}}%
+% représentons l'angle de rotation
+\psarcn[linecolor=red]{->}(C){0.75}{-90}{-160}
+\uput{0.75}[-125](C){\textcolor{red}{$\alpha$}}
+\end{pspicture}
+\end{multicols}
+\begin{verbatim}
+\begin{pspicture}(-4,-2)(3,3)
+\psgrid(-4,-2)(3,3)
+{\psset{linestyle=none}\ballon}% initialise les paramètres du ballon sans le tracer
+% ballon initial
+\ballondeb%
+% extrémité droite du col du ballon
+% 2*rayon du ballon est la hauteur mesurée à partir du centre du ballon
+\pnode(! eCol rBallon 2 mul){C}
+% ballon que l'on fait tourner autour de l'extrémité droite du col
+% on note O' la position du centre après rotation
+\psrotate(C){-70}{\pnode(0,0){O'}}
+% On déplace le ballon contenant le liquide, mais sans dessiner le ballon
+% uniquement le contenu, ceci afin de garder la surface libre du liquide horizontale.
+\pstranslate(0,0)(O'){\psset{linestyle=none}\ballondeb}
+% on marque le centre de rotation
+\psdot[linecolor=red](C)
+% on dessine le ballon incliné de 70°
+\psrotate(C){-70}{\pscustom{\ballon}}%
+% représentons l'angle de rotation
+\psarcn[linecolor=red]{->}(C){0.75}{-90}{-160}
+\uput{0.75}[-125](C){\textcolor{red}{$\alpha$}}
+\end{pspicture}
+\end{verbatim}
+\section{Combinaison rotation et translation}
+\subsection{Déplacer et faire tourner une canne}
+\begin{multicols}{2}
+\begin{pspicture}(-1,-1)(4,4)
+\psgrid\canne
+\pstranslate(0.4,4)(2,3){\psrotate(0.4,4){30}{\psset{linecolor=red}\canne}}
+\psdot[linecolor=green](2,3)
+\psline[linecolor=blue]{o-v}(0.4,4)(2,3)
+\end{pspicture}
+\columnbreak
+\begin{verbatim}
+\begin{pspicture}(-1,-1)(4,4)
+\psgrid\canne
+\pstranslate(0.4,4)(2,3){%
+        \psrotate(0.4,4){30}{%
+          \psset{linecolor=red}\canne}
+          }
+\psdot[linecolor=green](2,3)
+\psline[linecolor=blue]{o-v}(0.4,4)(2,3)
+\end{pspicture}
+\end{verbatim}
+\end{multicols}
+\subsection{Construction d'un support-boy paramétrable pour la chimie}
+\begin{center}
+\begin{pspicture}(-3,-1)(3,4)
+\psgrid
+\supportboy{25}
+\end{pspicture}
+\end{center}
+{\small
+\begin{verbatim}
+\def\supportboy#1{% #1 angle d'élévation
+% limites de l'angle
+\pst@cntg=#1\relax \ifnum\pst@cntg>50 \typeout{Niveau must be 50 and not
+`\the\pst@cntg'. Value 50 forced.} \pst@cntg=50
+    \else
+   \ifnum\pst@cntg<15 \typeout{Niveau must be 15 and not
+`\the\pst@cntg'. Value 15 forced.} \pst@cntg=15
+\fi\fi
+% boulons et axes
+\def\boulon{\pscircle[style=boulon](0,0){0.2}%
+            \pspolygon[style=boulon](0.15;60)(0.15;120)(0.15;180)(0.15;240)(0.15;300)(0.15;360)}
+\def\axe{\pscircle[style=boulon](0,0){0.15}}
+\def\tige{\psframe[framearc=1,style=metal](-2,0)(2,0.5)}
+% molette et vis
+\def\vis{%
+\psframe(-2.5,-0.1)(2.5,0.1)
+\psframe[fillstyle=crosshatch](2.5,-0.75)(3,0.75)
+\psframe[linestyle=none,fillstyle=hlines,hatchangle=60,hatchsep=0.05]%
+            (-1,-0.1)(2,0.1)}
+% base  et plan support
+\def\base{%
+\psframe(-2,-0.25)(2,0.25)
+\pscustom[linestyle=none,style=metal]{\psline(-2,0.25)(2,0.25)(2,-0.25)(-2,-0.25)(-2,0.25)%
+          \psarc(-0.95,0){0.15}{90}{270}\psline(-0.8,-0.15)(1.7,-0.15)%
+          \psarc(1.7,0){0.15}{-90}{90}
+          \psline(-0.95,0.15)}
+\psline(-2,0.25)(2,0.25)(2,-0.25)(-2,-0.25)(-2,0.25)%
+\psarc(-0.95,0){0.15}{90}{270}\psline(-0.95,-0.15)(1.7,-0.15)%
+\psarc(1.7,0){0.15}{-90}{90}
+\psline(1.7,0.15)(-0.95,0.15)}
+% calcul de quelques points
+\pnode(-1.75,0.25){O1}% O1 axe 1
+% O2 milieu de la tige 1 après rotation,
+% O3 extrémité de la tige 1 après rotation.
+\psrotate(O1){\the\pst@cntg}{\pnode(0,0.25){O2}\pnode(1.75,0.25){O3}}%
+% récupérer le noeud 4
+\psrotate(O2){-\the\pst@cntg}{\pstranslate(0,0.25)(O2){\pnode(-1.75,0.25){O4}}} % récupérer le noeud 4
+\pstranslate(-1.75,0)(O4){\vis}
+% translation et rotation de la tige 1 -> tige 3
+% et récupérer les noeuds 5 et 6
+\psrotate(O3){-\the\pst@cntg}{\pstranslate(1.75,0.25)(O3){\tige\pnode(0,0.25){O5}\pnode(-1.75,0.25){O6}}} % tige 3
+% translation et rotation de la tige 1 -> tige 2 et récupérer le noeud 7
+\psrotate(O2){-\the\pst@cntg}{\pstranslate(0,0.25)(O2){\tige\pnode(1.75,0.25){O7}}} % tige 2
+% translation et rotation de la tige 1 -> tige 4
+\psrotate(O5){\the\pst@cntg}{\pstranslate(0,0.25)(O5){\tige\pnode(1.75,0.25){O8}}} % tige 4
+% rotation  de la tige 1
+\psrotate(O1){\the\pst@cntg}{\tige}% tige 1
+% récupérer le noeud milieu du dessus du plan support
+% pour y placer l'appareil de chauffage : O9
+\rput(0,0.25){\base}\pstranslate(-1.75,0)(O6){\base\pnode(0,0.25){O9}}
+\multido{\i=1+1}{6}{\rput(O\i){\boulon}}
+\rput(O8){\axe}\rput(O7){\axe}}
+\end{verbatim}}
+\section{Symétrie par rapport à une droite : l'effet miroir}
+\subsection{Des ciseaux pour gauchers et droitiers}
+\begin{pspicture}(-5,-1)(5,2)
+%\psgrid(-5,-1)(5,2)
+\pnode(0,-1){A}\pnode(0,2){B}
+\rput(-2.5,-0.5){ciseaux pour gaucher}
+\rput(2.5,-0.5){ciseaux pour droitier}
+\rput[bl](0,0){\includegraphics{ciseauxpourdroitier.eps}}%
+\psline[linecolor=red](A)(B)
+\SymPlan(A)(B){\includegraphics{ciseauxpourdroitier.eps}}
+\end{pspicture}
+\begin{verbatim}
+\begin{pspicture}(-5,-1)(5,2)
+\psgrid(-5,-1)(5,2)
+\pnode(0,-1){A}\pnode(0,2){B}
+\rput(-2.5,-0.5){ciseaux pour gaucher}
+\rput(2.5,-0.5){ciseaux pour droitier}
+\rput[bl](0,0){\includegraphics{ciseauxpourdroitier.eps}}%
+\psline[linecolor=red](A)(B)
+\SymPlan(A)(B){\includegraphics{ciseauxpourdroitier.eps}}
+\end{pspicture}
+\end{verbatim}
+\subsection{Reflet d'un panneau dans une flaque d'eau}
+\begin{minipage}{2cm}
+\begin{pspicture}(-1,-5)(1,5)
+%\psgrid%
+\def\panneau{%
+\psframe[fillstyle=gradient,gradangle=90,gradend=black,gradbegin=white](-0.1,0)(0.1,3.2)
+\psframe[fillstyle=solid,framearc=0.5](-1,2.2)(1,2.8)
+\rput(0,2.5){\Sf RAPPEL}
+\pscircle[fillstyle=solid](0,4){1}
+\pscircle[linewidth=0.2,linecolor=red](0,4){0.8}
+\rput(0,4){\SF 50}}
+\psframe*[linecolor=cyan!25](-1,0)(1,5)
+\panneau
+\psframe*[linecolor=green!20](-1,0)(1,-5)
+\pnode(-1,0){A}\pnode(1,0){B}
+\SymPlan(A)(B){\panneau}
+\psline[linewidth=0.2,linecolor=red!50!yellow!50](A)(B)
+\end{pspicture}
+\end{minipage}
+\hfill
+\begin{minipage}{11cm}
+%\small
+\begin{verbatim}
+\begin{pspicture}(-1,-5)(1,5)
+%%
+\def\panneau{%
+\psframe[fillstyle=gradient,gradangle=90,gradend=black,%
+                   gradbegin=white](-0.1,0)(0.1,3.2)
+\psframe[fillstyle=solid,framearc=0.5](-1,2.2)(1,2.8)
+\rput(0,2.5){\Sf RAPPEL}
+\pscircle[fillstyle=solid](0,4){1}
+\pscircle[linewidth=0.2,linecolor=red](0,4){0.8}
+\rput(0,4){\SF 50}}
+%%
+\psframe*[linecolor=cyan!25](-1,0)(1,5)
+\panneau
+\psframe*[linecolor=green!20](-1,0)(1,-5)
+\pnode(-1,0){A}\pnode(1,0){B}
+\SymPlan(A)(B){\panneau}
+\psline[linewidth=0.2,linecolor=red!50!yellow!50](A)(B)
+\end{pspicture}
+\end{verbatim}
+\end{minipage}
+\section{Cisaillement}
+\subsection{Présentation}
+Dans son livre \textit{Forme et croissance}, \textsc{D'arcy
+Thompson} propose <<~une analyse des phénomènes biologiques sous
+leurs aspects mathématiques (la géométrie des formes) et physiques
+(le jeu des forces)~>>. Dans le chapitre \textit{La théorie des
+transformations ou la comparaison des formes appa\-rentées}, il
+étudie certaines variétés de poissons. À la page 293 des éditions
+du Seuil, il illustre <<~un cas assez simple, où seule intervient
+une force de cisaillement~>>.
+
+<<~La première figure représente en coordonnées cartésiennes un
+petit poisson océanique du nom d'\textit{Argyropelecus
+olfersi}.~>>
+
+<<~L'autre figure représente exactement le même croquis  transféré
+dans un système de coordonnées obliques dont les axes forment un
+angle de 70\textsuperscript{o} : mais, curieusement, ce dernier
+constitue alors, une très bonne représentation d'un poisson
+apparenté, et pourtant classé dans un genre différent,
+\textit{Sternoptyx diaphana}. La déformation illustrée par cet
+exemple est précisément analogue aux fossiles soumis aux
+contraintes de cisaillement des roches.~>>\footnote{Ce qui est
+entre guillemets est extrait du livre.}
+\psset{unit=0.5,subgriddiv=0,gridlabels=0.5}
+\vspace{1cm}
+
+\strut\hfill
+\begin{minipage}{6cm}
+\begin{pspicture}(6,4)
+\psgrid\poisson
+\end{pspicture}\\
+\centering \textit{Argyropelecus olfersi}\\ Représentation en
+coordonnées cartésiennes
+\end{minipage}
+\hfill
+\begin{minipage}{6cm}
+\begin{pspicture}(6,4)
+\psgrid[gridlabels=0,gridcolor=lightgray](6,4)%
+\pscisaillement[cisX=20]{\psgrid\poisson}
+\psarcn[arrowsize=0.3]{->}(0,0){4}{90}{70}
+\uput[80](4;80){$\omega$}
+\psline{->}(0,4)
+\end{pspicture}\\
+\centering \textit{Sternoptyx diaphana}\\ pscisaillement de
+$\omega=20$\textsuperscript{o} dans la direction de $x$.
+\end{minipage}
+\strut\hfill \vspace{1cm}
+
+C'est la commande \verb+\pscisaillement[cisX=20]{\psgrid\poisson}+
+qui réalise cat effet de cisaillement, en paramètrant l'angle.
+
+Ci-dessous, le résultat obtenu par la commande
+\verb+\psTilt{70}{\psgrid\poisson}+ faisant partie du package
+\verb+\pst-3d+ qui fait exactement la même chose, dans ce cas là.
+\begin{center}
+\begin{pspicture}(6,4)
+\psgrid[gridlabels=0,gridcolor=lightgray](6,4)%
+\psTilt{70}{\psgrid\poisson}
+\end{pspicture}
+\end{center}
+\hfill
+
+Mais on peut aussi prévoir un cisaillement suivant l'axe $Oy$, et
+même combiner les deux !
+\subsection{Cisaillement suivant \textit{Oy}}
+\begin{center}
+\begin{pspicture}(6,7)
+\psgrid[gridlabels=0,gridcolor=lightgray](6,4)%
+\pscisaillement[cisX=0,cisY=45]{\poisson\psgrid(6,4)}
+\psarc[arrowsize=0.3]{->}(0,0){6}{0}{45}
+\uput[22.5](6;22.5){$\beta$}
+\end{pspicture}
+\begin{verbatim}
+\pscisaillement[cisX=0,cisY=45]{\psgrid(6,4)\poisson}
+\end{verbatim}
+\end{center}
+\subsection{Cisaillement suivant \textit{Ox} et \textit{Oy}}
+\begin{center}
+\begin{pspicture}(6,7)
+\psgrid[gridlabels=0,gridcolor=lightgray](6,4)%
+\pscisaillement[cisX=20,cisY=20]{\psgrid(6,4)\poisson}
+\end{pspicture}
+\begin{verbatim}
+\pscisaillement[cisX=20,cisY=20]{\psgrid(6,4)\poisson}
+\end{verbatim}
+\end{center}
+Avec des valeurs différentes :
+\begin{center}
+\begin{pspicture}(6,9)
+\psgrid[gridlabels=0,gridcolor=lightgray](6,4)%
+\pscisaillement[cisX=30,cisY=60]{\psgrid(6,4)\poisson}
+\end{pspicture}
+\begin{verbatim}
+\pscisaillement[cisX=30,cisY=60]{\psgrid(6,4)\poisson}
+\end{verbatim}
+\end{center}
+\end{document}

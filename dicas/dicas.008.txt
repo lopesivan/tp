@@ -1,0 +1,87 @@
+Ativando quotas de disco
+@=@=@008
+@
+@
+Pra que usar quota ? Quota pode ser usado para especificar limites para o uso
+de blocos de dados que podem ser alocados para um usuário ou grupo.
+
+Num sistema Fedora Core, tanto o kernel como os scripts de inicialização já
+vem preparados para o uso de quotas (eventualmente em outras distros poderá
+ser necessário recompilar o kernel ou editar alguns scripts para ter este
+suporte). Neste artigo, irei explicar os passos necessários para ativar quotas
+no Fedora Core.
+
+Primeiro temos que informar ao kernel qual ou quais partições que deverão ter
+quota ativada, para isso, editei o arquivo /etc/fstab e alterei:
+
+LABEL=/home /home ext3 defaults 1 2
+
+Para:
+
+LABEL=/home /home ext3 defaults,usrquota 1 2
+
+O parâmetro usrquota informa que a partição será montada com suporte a quota
+para usuários. Apó isso, para ativar o suporte a quota naquela partição,
+remontei o sistema de arquivos:
+
+# mount -o remount /home
+
+Inicializei a tabela da quota (o “m” é para forçar a checagem mesmo com o
+sistema montado, o ideal seria entrar em single mode aqui para evitar que
+algum arquivo seja alterado durante a checagem pois pode acontecer dele gerar
+uma tabela com valores inconsistentes e eventualmente um usuário terá o uso da
+quota reportado como maior ou menor que a realidade):
+
+# quotacheck -cugm /
+
+Editei a quota do meu usuário de teste (ele vai abrir um “vi”)
+
+# edquota -u teste
+
+Disk quotas for user teste (uid 502):
+Filesystem blocks soft hard inodes soft hard
+/dev/hda3 24 0 0 7 0 0
+
+Mudei para: (deixei +- 2MB pro usuário)
+
+Disk quotas for user teste (uid 502):
+Filesystem blocks soft hard inodes soft hard
+/dev/sda2 24 2000 2000 7 0 0
+
+Aqui também poderia ter sido usado o setquota:
+
+# setquota -u teste 2000 2000 0 0 /
+
+Ativei a quota:
+
+# quotaon /quota
+
+E fiz os testes:
+
+# su - teste
+[teste@jerry ~]$ dd if=/dev/zero count=1024 bs=512 of=bla1
+1024+0 records in
+1024+0 records out
+524288 bytes (524 kB) copied, 0,029159 seconds, 18,0 MB/s
+
+[teste@jerry ~]$ dd if=/dev/zero count=1024 bs=512 of=bla2
+1024+0 records in
+1024+0 records out
+524288 bytes (524 kB) copied, 0,01723 seconds, 30,4 MB/s
+
+[teste@jerry ~]$ dd if=/dev/zero count=1024 bs=512 of=bla3
+1024+0 records in
+1024+0 records out
+524288 bytes (524 kB) copied, 0,004585 seconds, 114 MB/s
+
+[teste@jerry ~]$ dd if=/dev/zero count=1024 bs=512 of=bla4
+sda2: write failed, user block limit reached.
+dd: escrevendo `bla4′: Disk quota exceeded
+841+0 records in
+840+0 records out
+430080 bytes (430 kB) copied, 0,022635 seconds, 19,0 MB/s
+
+Esses testes são basicamente a criação de 4 arquivos de 512 Kbytes de tamanho.
+Como deixei a quota com 2000Kbytes, na criação do quarto arquivo eu recebi a
+mensagem de que a quota de disco foi excedida (Disk quota exceeded). Com esta
+mensagem, pude ter certeza de que tenho quota funcionando no sistema :)

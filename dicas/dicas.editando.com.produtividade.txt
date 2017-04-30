@@ -1,0 +1,128 @@
+@\:\:\:
+			Dicas de uso do VIM (VI)
+\:\:
+Movimentando palavra
+O commando <C-c>
+Usando o tab para completar codigo
+Objeto texto
+Criar macro simples
+Rodando Shell na tela
+Escondendo bloco de codigos
+surround
+\:
+
+
+
+1. Movimentando palavra
+		   <--+     +-->
+		      |     |
+		   <C-F7>  <C-F8>
+
+2. O commando <C-c>
+	use <c-c> no command mode para adicionar comentarios
+	use <c-c> no insert mode para adicionar templates do script jPTemplates
+
+3. Usando o tab para completar codigo
+	Use o tab para completar os tipos  que tem padroes definidos nos arquivos.
+~/.vim/ftplugin/`filetype`/template_filetype.vim
+examplo:
+:$ ls ~/.vim/ftplugin/template_c.vim
+if(TAB)
+
+4. Objeto texto
+[key] eh uma combinacao qualquer ou um caracter sozinho.
+
+	yss[key]
+	ysiw[key]
+
+examplo:
+	map <F10> :normal ysiw'<CR>
+
+	ds[key]
+
+	cs[key1][key2]
+
+	Vs'
+
+	Vs<[key]
+
+
+5. Criar macro simples:
+call ctxabbr#define('sc', 'System.Collections', '<using')
+
+6. Rodando Shell na tela
+echo "one"
+echo "two"
+echo "three"
+%RunView bash
+
+7. Escondendo bloco de codigos
+Commands:
+:Narrow (takes a region, zooms to it)
+:Widen (inserts the hidden parts again)
+
+8. surround
+
+"Hello world!"
+
+to change it to
+
+'Hello world!'
+
+Now press cs'<q> to change it to
+
+<q>Hello world!</q>
+
+To go full circle, press cst" to get
+
+"Hello world!"
+
+To remove the delimiters entirely, press ds" .
+
+Hello world!
+
+Now with the cursor on "Hello", press ysiw] (iw is a text object).
+
+[Hello] world!
+
+Let's make that braces and add some space (use "}" instead of "{" for no space): cs]{
+
+{ Hello } world!
+
+Now wrap the entire line in parentheses with yssb or yss) .
+
+({ Hello } world!)
+
+Revert to the original text: ds{ds)
+
+Hello world!
+
+Emphasize hello: ysiw<em>
+
+<em>Hello</em> world!
+
+Finally, let's try out visual mode. Press a capital V (for linewise visual mode)
+followed by S<p class="important">.
+
+<p class="important">
+  <em>Hello</em> world!
+</p>
+
+COMMENT:
+<C-F2> adiciona commnet - toogle
+<C-/>  adiciona commnet - toogle
+
+9. ligar e desligar prompt
+F3
+
+10.  Align
+comenta codigo em C
+
+modo visual enter
+'<'>enter
+\adec
+
+A mesma coisa:
+:'<,'>Align \*\/
+:'<,'>Align \/\*
+

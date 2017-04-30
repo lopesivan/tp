@@ -1,0 +1,42 @@
+#!/bin/bash
+# vi:set nu nowrap:
+# do-ffmpeg-update.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: do-ffmpeg-update.sh
+#        Date: Thu 20 May 2010 09:08:56 AM BRT
+# Description:
+# Syntaxe:  ./do-ffmpeg-update.sh
+#
+#
+
+VERSION="0.1"
+workspace=~/workspace/src
+
+# ----------------------------------------------------------------------------
+
+mkdir -p $workspace
+
+sudo apt-get remove ffmpeg x264 libx264-dev
+
+cd $workspace/x264
+make distclean
+git pull
+./configure
+make
+sudo checkinstall --pkgname=x264 --pkgversion "2:0.`grep X264_BUILD x264.h -m1 | cut -d' ' -f3`.`git rev-list HEAD | wc -l`+git`git rev-list HEAD -n 1 | head -c 7`" --backup=no --default
+
+cd $workspace/ffmpeg
+make distclean
+svn update
+./configure --enable-gpl --enable-version3 --enable-nonfree --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab
+make
+sudo checkinstall --pkgname=ffmpeg --pkgversion "4:SVN-r`svn info | grep vision | awk '{ print $NF }'`" --backup=no --default
+hash x264 ffmpeg
+# ----------------------------------------------------------------------------
+exit 0

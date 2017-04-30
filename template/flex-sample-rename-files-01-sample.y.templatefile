@@ -1,0 +1,70 @@
+/*
+ * transjpg.l
+ * ----------
+ * title : JPG to jpg converter
+ * description : will create a .jpg extension for every .JPG
+ * file and save this in a shell script file
+ */
+
+%option noyywrap
+%option yylineno
+
+%%
+
+.* {
+	// include the 'mv' command before each sentence
+	fprintf(yyout, "mv \"");
+	ECHO;				/* line of file: file.JPG */
+    fprintf(yyout, "\" \"");
+
+    /*
+     * include new extension... change these for a different one
+     */
+    yytext[yyleng - 3] = 'j';	/* file.jPG */
+    yytext[yyleng - 2] = 'p';	/* file.jpG */
+    yytext[yyleng - 1] = 'g';	/* file.jpg */
+
+    ECHO;				/* line of file: file.jpg */
+
+    fprintf (yyout, "\" ");
+}
+
+%%
+
+
+void
+errorexit (char *s)
+{
+    perror (s);
+    exit (EXIT_FAILURE);
+}
+
+int
+main (int argc, char *argv[])
+{
+    if (argc != 3)
+    {
+        fprintf (stdout, "usage: ./trans_jpg <infile> <outfile>\n");
+        exit (EXIT_FAILURE);
+    }
+
+    if ((yyin = fopen (argv[1], "r")) == NULL)
+        errorexit (argv[1]);
+
+    if ((yyout = fopen (argv[2], "w")) == NULL)
+        errorexit (argv[2]);
+
+    yylex ();
+
+    if (fclose (yyin) != 0)
+        errorexit ("yyin");
+
+    if (fclose (yyout) != 0)
+        errorexit ("yyout");
+
+    fprintf (stdout, "ready for %d changes!\n", yylineno - 1);
+
+    fprintf (stdout, "Success\n");
+
+    return 0;
+}

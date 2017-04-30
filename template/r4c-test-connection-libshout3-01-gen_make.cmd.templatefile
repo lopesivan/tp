@@ -1,0 +1,1 @@
+ echo shout_sample.c | g_mk-s| sed '2aLDFLAGS = -L/usr/local/lib -lshout3' > Makefile

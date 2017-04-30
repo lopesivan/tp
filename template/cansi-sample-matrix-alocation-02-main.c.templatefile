@@ -1,0 +1,94 @@
+#include <stdio.h>
+#include <math.h>
+#include <time.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include "matrix.h"
+
+/*****************************************************************************
+ *                                                                           *
+ *  --------------------------------- main --------------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+void
+test_array()
+{
+
+    Array A;
+    A = new_array(4);
+
+	puts("array test - new_array:");
+	print_array(A, 4);
+
+	puts("array test - one:");
+	one        (A, 4);
+	print_array(A, 4);
+
+	puts("array test - two:");
+	two        (A, 4);
+	print_array(A, 4);
+
+	puts("array test - three:");
+	three      (A, 4);
+	print_array(A, 4);
+
+	puts("array test - grand:");
+	grand      (A, 4);
+	print_array(A, 4);
+
+	puts("array test - delete_array:");
+	delete_array(A, 4);
+	print_array (A, 4);
+
+	puts("array test - three:");
+	three      (A, 4);
+	print_array(A, 4);
+
+	return;
+}
+
+void
+test_matrix()
+{
+
+    Matrix A;
+
+    A = new_matrix(4,4);
+
+	puts("matrix test - new_matrix:");
+	print_matrix(A, 4, 4);
+
+	puts("array test - one:");
+	matrix_one    (A, 4, 4);
+	print_matrix  (A, 4, 4);
+
+	puts("matrix test - two:");
+	matrix_two    (A, 4, 4);
+	print_matrix  (A, 4, 4);
+
+	puts("matrix test - three:");
+	matrix_three  (A, 4, 4);
+	print_matrix  (A, 4, 4);
+
+	puts("matrix test - grand:");
+	matrix_grand  (A, 4, 4);
+	print_matrix  (A, 4, 4);
+
+	puts("matrix test - delete_matrix:");
+	delete_matrix (A, 4, 4);
+	print_matrix  (A, 4, 4);
+
+	return;
+}
+
+int
+main (int argc, char *argv[])
+{
+	test_array();
+	test_matrix();
+
+	return 0;
+
+}

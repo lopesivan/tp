@@ -1,0 +1,11 @@
+class MyString
+{
+public:
+	MyString(const char * ch = "") : _value(ch) {}
+	virtual ~MyString();
+
+	operator const char * () { return _value; }
+
+private:
+	const char *_value;
+};

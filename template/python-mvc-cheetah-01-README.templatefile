@@ -1,0 +1,10 @@
+.
+./README
+./view
+./view/view-pagina_html.py
+./view/pagina_html.pyc
+./view/pagina_html.py
+./model
+./model/pagina_html.tmpl
+./controller
+./controller/ctrl-pagina_html.sh

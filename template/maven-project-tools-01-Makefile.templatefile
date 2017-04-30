@@ -1,0 +1,22 @@
+package  = com.foo
+project  = MyProject
+checkfile= .pipeline_up_to_date
+
+$(checkfile)_web:
+	touch $(checkfile)_web
+	echo "Launching some commands now."
+	@make maven-archetype-webapp
+
+$(checkfile)_console:
+	touch $(checkfile)_console
+	echo "Launching some commands now."
+	@make maven-archetype-quickstart
+
+web: $(checkfile)_web
+
+console: $(checkfile)_console
+
+default: console
+
+include maven.mk
+

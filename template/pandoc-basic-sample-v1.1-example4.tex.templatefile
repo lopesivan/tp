@@ -1,0 +1,2409 @@
+\documentclass{article}
+\usepackage{amssymb,amsmath}
+\usepackage[mathletters]{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage{fancyvrb}
+% Redefine labelwidth for lists; otherwise, the enumerate package will cause
+% markers to extend beyond the left margin.
+\makeatletter\AtBeginDocument{%
+  \renewcommand{\@listi}
+    {\setlength{\labelwidth}{4em}}
+}\makeatother
+\usepackage{enumerate}
+\usepackage{array}
+% This is needed because raggedright in table elements redefines \\:
+\newcommand{\PreserveBackslash}[1]{\let\temp=\\#1\let\\=\temp}
+\let\PBS=\PreserveBackslash
+\usepackage{url}
+\usepackage[breaklinks=true,unicode=true,pdfborder={0 0 0}]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setcounter{secnumdepth}{0}
+\VerbatimFootnotes % allows verbatim text in footnotes
+
+\title{Pandoc User's Guide}
+\author{John MacFarlane}
+\date{January 27, 2012}
+
+\begin{document}
+\maketitle
+
+\section{Synopsis}
+
+pandoc {[}\emph{options}{]} {[}\emph{input-file}{]}\ldots{}
+
+\section{Description}
+
+Pandoc is a \href{http://www.haskell.org/}{Haskell} library for
+converting from one markup format to another, and a command-line tool
+that uses this library. It can read
+\href{http://daringfireball.net/projects/markdown/}{markdown} and
+(subsets of) \href{http://redcloth.org/textile}{Textile},
+\href{http://docutils.sourceforge.net/docs/ref/rst/introduction.html}{reStructuredText},
+\href{http://www.w3.org/TR/html40/}{HTML}, and
+\href{http://www.latex-project.org/}{LaTeX}; and it can write plain
+text, \href{http://daringfireball.net/projects/markdown/}{markdown},
+\href{http://docutils.sourceforge.net/docs/ref/rst/introduction.html}{reStructuredText},
+\href{http://www.w3.org/TR/xhtml1/}{XHTML},
+\href{http://www.w3.org/TR/html5/}{HTML 5},
+\href{http://www.latex-project.org/}{LaTeX} (including
+\href{http://www.tex.ac.uk/CTAN/macros/latex/contrib/beamer}{beamer}
+slide shows), \href{http://www.pragma-ade.nl/}{ConTeXt},
+\href{http://en.wikipedia.org/wiki/Rich\_Text\_Format}{RTF},
+\href{http://www.docbook.org/}{DocBook XML},
+\href{http://opendocument.xml.org/}{OpenDocument XML},
+\href{http://en.wikipedia.org/wiki/OpenDocument}{ODT},
+\href{http://www.microsoft.com/interop/openup/openxml/default.aspx}{Word
+docx}, \href{http://www.gnu.org/software/texinfo/}{GNU Texinfo},
+\href{http://www.mediawiki.org/wiki/Help:Formatting}{MediaWiki markup},
+\href{http://www.idpf.org/}{EPUB},
+\href{http://redcloth.org/textile}{Textile},
+\href{http://developer.apple.com/DOCUMENTATION/Darwin/Reference/ManPages/man7/groff\_man.7.html}{groff
+man} pages, \href{http://orgmode.org}{Emacs Org-Mode},
+\href{http://www.methods.co.nz/asciidoc/}{AsciiDoc}, and
+\href{http://www.w3.org/Talks/Tools/Slidy/}{Slidy},
+\href{http://paulrouget.com/dzslides/}{DZSlides}, or
+\href{http://meyerweb.com/eric/tools/s5/}{S5} HTML slide shows. It can
+also produce \href{http://www.adobe.com/pdf/}{PDF} output on systems
+where LaTeX is installed.
+
+Pandoc's enhanced version of markdown includes syntax for footnotes,
+tables, flexible ordered lists, definition lists, delimited code blocks,
+superscript, subscript, strikeout, title blocks, automatic tables of
+contents, embedded LaTeX math, citations, and markdown inside HTML block
+elements. (These enhancements, described below under
+\href{\#pandocs-markdown}{Pandoc's markdown}, can be disabled using the
+\verb!--strict! option.)
+
+In contrast to most existing tools for converting markdown to HTML,
+which use regex substitutions, Pandoc has a modular design: it consists
+of a set of readers, which parse text in a given format and produce a
+native representation of the document, and a set of writers, which
+convert this native representation into a target format. Thus, adding an
+input or output format requires only adding a reader or writer.
+
+\subsection{Using \texttt{pandoc}}
+
+If no \emph{input-file} is specified, input is read from \emph{stdin}.
+Otherwise, the \emph{input-files} are concatenated (with a blank line
+between each) and used as input. Output goes to \emph{stdout} by default
+(though output to \emph{stdout} is disabled for the \verb!odt!,
+\verb!docx!, and \verb!epub! output formats). For output to a file, use
+the \verb!-o! option:
+
+\begin{verbatim}
+pandoc -o output.html input.txt
+\end{verbatim}
+Instead of a file, an absolute URI may be given. In this case pandoc
+will fetch the content using HTTP:
+
+\begin{verbatim}
+pandoc -f html -t markdown http://www.fsf.org
+\end{verbatim}
+If multiple input files are given, \verb!pandoc! will concatenate them
+all (with blank lines between them) before parsing.
+
+The format of the input and output can be specified explicitly using
+command-line options. The input format can be specified using the
+\verb!-r/--read! or \verb!-f/--from! options, the output format using
+the \verb!-w/--write! or \verb!-t/--to! options. Thus, to convert
+\verb!hello.txt! from markdown to LaTeX, you could type:
+
+\begin{verbatim}
+pandoc -f markdown -t latex hello.txt
+\end{verbatim}
+To convert \verb!hello.html! from html to markdown:
+
+\begin{verbatim}
+pandoc -f html -t markdown hello.html
+\end{verbatim}
+Supported output formats are listed below under the \verb!-t/--to!
+option. Supported input formats are listed below under the
+\verb!-f/--from! option. Note that the \verb!rst!, \verb!textile!,
+\verb!latex!, and \verb!html! readers are not complete; there are some
+constructs that they do not parse.
+
+If the input or output format is not specified explicitly, \verb!pandoc!
+will attempt to guess it from the extensions of the input and output
+filenames. Thus, for example,
+
+\begin{verbatim}
+pandoc -o hello.tex hello.txt
+\end{verbatim}
+will convert \verb!hello.txt! from markdown to LaTeX. If no output file
+is specified (so that output goes to \emph{stdout}), or if the output
+file's extension is unknown, the output format will default to HTML. If
+no input file is specified (so that input comes from \emph{stdin}), or
+if the input files' extensions are unknown, the input format will be
+assumed to be markdown unless explicitly specified.
+
+Pandoc uses the UTF--8 character encoding for both input and output. If
+your local character encoding is not UTF--8, you should pipe input and
+output through \verb!iconv!:
+
+\begin{verbatim}
+iconv -t utf-8 input.txt | pandoc | iconv -f utf-8
+\end{verbatim}
+\subsection{Creating a PDF}
+
+Earlier versions of pandoc came with a program, \verb!markdown2pdf!,
+that used pandoc and pdflatex to produce a PDF. This is no longer
+needed, since \verb!pandoc! can now produce \verb!pdf! output itself. To
+produce a PDF, simply specify an output file with a \verb!.pdf!
+extension. Pandoc will create a latex file and use pdflatex (or another
+engine, see \verb!--latex-engine!) to convert it to PDF:
+
+\begin{verbatim}
+pandoc test.txt -o test.pdf
+\end{verbatim}
+Production of a PDF requires that a LaTeX engine be installed (see
+\verb!--latex-engine!, below), and assumes that the following LaTeX
+packages are available: \verb!amssymb!, \verb!amsmath!, \verb!ifxetex!,
+\verb!ifluatex!, \verb!listings! (if the \verb!--listings! option is
+used), \verb!fancyvrb!, \verb!enumerate!, \verb!ctable!, \verb!url!,
+\verb!graphicx!, \verb!hyperref!, \verb!ulem!, \verb!babel! (if the
+\verb!lang! variable is set), \verb!fontspec! (if \verb!xelatex! or
+\verb!lualatex! is used as the LaTeX engine), \verb!xltxtra! and
+\verb!xunicode! (if \verb!xelatex! is used).
+
+\subsection{\texttt{hsmarkdown}}
+
+A user who wants a drop-in replacement for \verb!Markdown.pl! may create
+a symbolic link to the \verb!pandoc! executable called
+\verb!hsmarkdown!. When invoked under the name \verb!hsmarkdown!,
+\verb!pandoc! will behave as if the \verb!--strict! flag had been
+selected, and no command-line options will be recognized. However, this
+approach does not work under Cygwin, due to problems with its simulation
+of symbolic links.
+
+\section{Options}
+
+\subsection{General options}
+
+\begin{description}
+\item[\texttt{-f} \emph{FORMAT}, \texttt{-r} \emph{FORMAT},
+\texttt{--from=}\emph{FORMAT}, \texttt{--read=}\emph{FORMAT}]
+Specify input format. \emph{FORMAT} can be \verb!native! (native
+Haskell), \verb!json! (JSON version of native AST), \verb!markdown!
+(markdown), \verb!textile! (Textile), \verb!rst! (reStructuredText),
+\verb!html! (HTML), or \verb!latex! (LaTeX). If \verb!+lhs! is appended
+to \verb!markdown!, \verb!rst!, or \verb!latex!, the input will be
+treated as literate Haskell source: see
+\href{\#literate-haskell-support}{Literate Haskell support}, below.
+
+\item[\texttt{-t} \emph{FORMAT}, \texttt{-w} \emph{FORMAT},
+\texttt{--to=}\emph{FORMAT}, \texttt{--write=}\emph{FORMAT}]
+Specify output format. \emph{FORMAT} can be \verb!native! (native
+Haskell), \verb!json! (JSON version of native AST), \verb!plain! (plain
+text), \verb!markdown! (markdown), \verb!rst! (reStructuredText),
+\verb!html! (XHTML 1), \verb!html5! (HTML 5), \verb!latex! (LaTeX),
+\verb!beamer! (LaTeX beamer slide show), \verb!context! (ConTeXt),
+\verb!man! (groff man), \verb!mediawiki! (MediaWiki markup),
+\verb!textile! (Textile), \verb!org! (Emacs Org-Mode), \verb!texinfo!
+(GNU Texinfo), \verb!docbook! (DocBook XML), \verb!opendocument!
+(OpenDocument XML), \verb!odt! (OpenOffice text document), \verb!docx!
+(Word docx), \verb!epub! (EPUB book), \verb!asciidoc! (AsciiDoc),
+\verb!slidy! (Slidy HTML and javascript slide show), \verb!dzslides!
+(HTML5 + javascript slide show), \verb!s5! (S5 HTML and javascript slide
+show), or \verb!rtf! (rich text format). Note that \verb!odt! and
+\verb!epub! output will not be directed to \emph{stdout}; an output
+filename must be specified using the \verb!-o/--output! option. If
+\verb!+lhs! is appended to \verb!markdown!, \verb!rst!, \verb!latex!,
+\verb!html!, or \verb!html5!, the output will be rendered as literate
+Haskell source: see \href{\#literate-haskell-support}{Literate Haskell
+support}, below.
+
+\item[\texttt{-o} \emph{FILE}, \texttt{--output=}\emph{FILE}]
+Write output to \emph{FILE} instead of \emph{stdout}. If \emph{FILE} is
+\verb!-!, output will go to \emph{stdout}. (Exception: if the output
+format is \verb!odt!, \verb!docx!, or \verb!epub!, output to stdout is
+disabled.)
+
+\item[\texttt{--data-dir=}\emph{DIRECTORY}]
+Specify the user data directory to search for pandoc data files. If this
+option is not specified, the default user data directory will be used:
+
+\begin{verbatim}
+$HOME/.pandoc
+\end{verbatim}
+in unix and
+
+\begin{verbatim}
+C:\Documents And Settings\USERNAME\Application Data\pandoc
+\end{verbatim}
+in Windows. A \verb!reference.odt!, \verb!reference.docx!,
+\verb!default.csl!, \verb!epub.css!, \verb!templates!, \verb!slidy!, or
+\verb!s5! directory placed in this directory will override pandoc's
+normal defaults.
+
+\item[\texttt{-v}, \texttt{--version}]
+Print version.
+
+\item[\texttt{-h}, \texttt{--help}]
+Show usage message.
+
+\end{description}
+\subsection{Reader options}
+
+\begin{description}
+\item[\texttt{--strict}]
+Use strict markdown syntax, with no pandoc extensions or variants. When
+the input format is HTML, this means that constructs that have no
+equivalents in standard markdown (e.g.~definition lists or strikeout
+text) will be parsed as raw HTML.
+
+\item[\texttt{-R}, \texttt{--parse-raw}]
+Parse untranslatable HTML codes and LaTeX environments as raw HTML or
+LaTeX, instead of ignoring them. Affects only HTML and LaTeX input. Raw
+HTML can be printed in markdown, reStructuredText, HTML, Slidy,
+DZSlides, and S5 output; raw LaTeX can be printed in markdown,
+reStructuredText, LaTeX, and ConTeXt output. The default is for the
+readers to omit untranslatable HTML codes and LaTeX environments. (The
+LaTeX reader does pass through untranslatable LaTeX \emph{commands},
+even if \verb!-R! is not specified.)
+
+\item[\texttt{-S}, \texttt{--smart}]
+Produce typographically correct output, converting straight quotes to
+curly quotes, \verb!---! to em-dashes, \verb!--! to en-dashes, and
+\verb!...! to ellipses. Nonbreaking spaces are inserted after certain
+abbreviations, such as ``Mr.'' (Note: This option is significant only
+when the input format is \verb!markdown! or \verb!textile!. It is
+selected automatically when the input format is \verb!textile! or the
+output format is \verb!latex! or \verb!context!.)
+
+\item[\texttt{--old-dashes}]
+Selects the pandoc \textless{}= 1.8.2.1 behavior for parsing smart
+dashes: \verb!-! before a numeral is an en-dash, and \verb!--! is an
+em-dash. This option is selected automatically for \verb!textile! input.
+
+\item[\texttt{--base-header-level=}\emph{NUMBER}]
+Specify the base level for headers (defaults to 1).
+
+\item[\texttt{--indented-code-classes=}\emph{CLASSES}]
+Specify classes to use for indented code blocks---for example,
+\verb!perl,numberLines! or \verb!haskell!. Multiple classes may be
+separated by spaces or commas.
+
+\item[\texttt{--normalize}]
+Normalize the document after reading: merge adjacent \verb!Str! or
+\verb!Emph! elements, for example, and remove repeated \verb!Space!s.
+
+\item[\texttt{-p}, \texttt{--preserve-tabs}]
+Preserve tabs instead of converting them to spaces (the default).
+
+\item[\texttt{--tab-stop=}\emph{NUMBER}]
+Specify the number of spaces per tab (default is 4).
+
+\end{description}
+\subsection{General writer options}
+
+\begin{description}
+\item[\texttt{-s}, \texttt{--standalone}]
+Produce output with an appropriate header and footer (e.g.~a standalone
+HTML, LaTeX, or RTF file, not a fragment). This option is set
+automatically for \verb!pdf!, \verb!epub!, \verb!docx!, and \verb!odt!
+output.
+
+\item[\texttt{--template=}\emph{FILE}]
+Use \emph{FILE} as a custom template for the generated document. Implies
+\verb!--standalone!. See \href{\#templates}{Templates} below for a
+description of template syntax. If no extension is specified, an
+extension corresponding to the writer will be added, so that
+\verb!--template=special! looks for \verb!special.html! for HTML output.
+If the template is not found, pandoc will search for it in the user data
+directory (see \verb!--data-dir!). If this option is not used, a default
+template appropriate for the output format will be used (see
+\verb!-D/--print-default-template!).
+
+\item[\texttt{-V} \emph{KEY=VAL}, \texttt{--variable=}\emph{KEY:VAL}]
+Set the template variable \emph{KEY} to the value \emph{VAL} when
+rendering the document in standalone mode. This is generally only useful
+when the \verb!--template! option is used to specify a custom template,
+since pandoc automatically sets the variables used in the default
+templates.
+
+\item[\texttt{-D} \emph{FORMAT},
+\texttt{--print-default-template=}\emph{FORMAT}]
+Print the default template for an output \emph{FORMAT}. (See \verb!-t!
+for a list of possible \emph{FORMAT}s.)
+
+\item[\texttt{--no-wrap}]
+Disable text wrapping in output. By default, text is wrapped
+appropriately for the output format.
+
+\item[\texttt{--columns}=\emph{NUMBER}]
+Specify length of lines in characters (for text wrapping).
+
+\item[\texttt{--toc}, \texttt{--table-of-contents}]
+Include an automatically generated table of contents (or, in the case of
+\verb!latex!, \verb!context!, and \verb!rst!, an instruction to create
+one) in the output document. This option has no effect on \verb!man!,
+\verb!docbook!, \verb!slidy!, or \verb!s5! output.
+
+\item[\texttt{--no-highlight}]
+Disables syntax highlighting for code blocks and inlines, even when a
+language attribute is given.
+
+\item[\texttt{--highlight-style}=\emph{STYLE}]
+Specifies the coloring style to be used in highlighted source code.
+Options are \verb!pygments! (the default), \verb!kate!,
+\verb!monochrome!, \verb!espresso!, \verb!haddock!, and \verb!tango!.
+
+\item[\texttt{-H} \emph{FILE}, \texttt{--include-in-header=}\emph{FILE}]
+Include contents of \emph{FILE}, verbatim, at the end of the header.
+This can be used, for example, to include special CSS or javascript in
+HTML documents. This option can be used repeatedly to include multiple
+files in the header. They will be included in the order specified.
+Implies \verb!--standalone!.
+
+\item[\texttt{-B} \emph{FILE},
+\texttt{--include-before-body=}\emph{FILE}]
+Include contents of \emph{FILE}, verbatim, at the beginning of the
+document body (e.g.~after the \verb!<body>! tag in HTML, or the
+\verb!\begin{document}! command in LaTeX). This can be used to include
+navigation bars or banners in HTML documents. This option can be used
+repeatedly to include multiple files. They will be included in the order
+specified. Implies \verb!--standalone!.
+
+\item[\texttt{-A} \emph{FILE},
+\texttt{--include-after-body=}\emph{FILE}]
+Include contents of \emph{FILE}, verbatim, at the end of the document
+body (before the \verb!</body>! tag in HTML, or the
+\verb!\end{document}! command in LaTeX). This option can be be used
+repeatedly to include multiple files. They will be included in the order
+specified. Implies \verb!--standalone!.
+
+\end{description}
+\subsection{Options affecting specific writers}
+
+\begin{description}
+\item[\texttt{--self-contained}]
+Produce a standalone HTML file with no external dependencies, using
+\verb!data:! URIs to incorporate the contents of linked scripts,
+stylesheets, images, and videos. The resulting file should be
+``self-contained,'' in the sense that it needs no external files and no
+net access to be displayed properly by a browser. This option works only
+with HTML output formats, including \verb!html!, \verb!html5!,
+\verb!html+lhs!, \verb!html5+lhs!, \verb!s5!, \verb!slidy!, and
+\verb!dzslides!. Scripts, images, and stylesheets at absolute URLs will
+be downloaded; those at relative URLs will be sought first relative to
+the working directory, then relative to the user data directory (see
+\verb!--data-dir!), and finally relative to pandoc's default data
+directory.
+
+\item[\texttt{--offline}]
+Deprecated synonym for \verb!--self-contained!.
+
+\item[\texttt{-5}, \texttt{--html5}]
+Produce HTML5 instead of HTML4. This option has no effect for writers
+other than \verb!html!. (\emph{Deprecated:} Use the \verb!html5! output
+format instead.)
+
+\item[\texttt{--ascii}]
+Use only ascii characters in output. Currently supported only for HTML
+output (which uses numerical entities instead of UTF--8 when this option
+is selected).
+
+\item[\texttt{--reference-links}]
+Use reference-style links, rather than inline links, in writing markdown
+or reStructuredText. By default inline links are used.
+
+\item[\texttt{--atx-headers}]
+Use ATX style headers in markdown output. The default is to use
+setext-style headers for levels 1--2, and then ATX headers.
+
+\item[\texttt{--chapters}]
+Treat top-level headers as chapters in LaTeX, ConTeXt, and DocBook
+output. When the LaTeX template uses the report, book, or memoir class,
+this option is implied. If \verb!--beamer! is used, top-level headers
+will become \verb!\part{..}!.
+
+\item[\texttt{-N}, \texttt{--number-sections}]
+Number section headings in LaTeX, ConTeXt, or HTML output. By default,
+sections are not numbered.
+
+\item[\texttt{--listings}]
+Use listings package for LaTeX code blocks
+
+\item[\texttt{-i}, \texttt{--incremental}]
+Make list items in slide shows display incrementally (one by one). The
+default is for lists to be displayed all at once.
+
+\item[\texttt{--slide-level}=\emph{NUMBER}]
+Specifies that headers with the specified level create slides (for
+\verb!beamer!, \verb!s5!, \verb!slidy!, \verb!dzslides!). Headers above
+this level in the hierarchy are used to divide the slide show into
+sections; headers below this level create subheads within a slide. The
+default is to set the slide level based on the contents of the document;
+see \href{\#structuring-the-slide-show}{Structuring the slide show},
+below.
+
+\item[\texttt{--section-divs}]
+Wrap sections in \verb!<div>! tags (or \verb!<section>! tags in HTML5),
+and attach identifiers to the enclosing \verb!<div>! (or
+\verb!<section>!) rather than the header itself. See
+\href{\#header-identifiers-in-html-latex-and-context}{Section
+identifiers}, below.
+
+\item[\texttt{--email-obfuscation=}\emph{none\textbar{}javascript\textbar{}references}]
+Specify a method for obfuscating \verb!mailto:! links in HTML documents.
+\emph{none} leaves \verb!mailto:! links as they are. \emph{javascript}
+obfuscates them using javascript. \emph{references} obfuscates them by
+printing their letters as decimal or hexadecimal character references.
+If \verb!--strict! is specified, \emph{references} is used regardless of
+the presence of this option.
+
+\item[\texttt{--id-prefix}=\emph{STRING}]
+Specify a prefix to be added to all automatically generated identifiers
+in HTML output. This is useful for preventing duplicate identifiers when
+generating fragments to be included in other pages.
+
+\item[\texttt{-T} \emph{STRING}, \texttt{--title-prefix=}\emph{STRING}]
+Specify \emph{STRING} as a prefix at the beginning of the title that
+appears in the HTML header (but not in the title as it appears at the
+beginning of the HTML body). Implies \verb!--standalone!.
+
+\item[\texttt{-c} \emph{URL}, \texttt{--css=}\emph{URL}]
+Link to a CSS style sheet.
+
+\item[\texttt{--reference-odt=}\emph{FILE}]
+Use the specified file as a style reference in producing an ODT. For
+best results, the reference ODT should be a modified version of an ODT
+produced using pandoc. The contents of the reference ODT are ignored,
+but its stylesheets are used in the new ODT. If no reference ODT is
+specified on the command line, pandoc will look for a file
+\verb!reference.odt! in the user data directory (see \verb!--data-dir!).
+If this is not found either, sensible defaults will be used.
+
+\item[\texttt{--reference-docx=}\emph{FILE}]
+Use the specified file as a style reference in producing a docx file.
+For best results, the reference docx should be a modified version of a
+docx file produced using pandoc. The contents of the reference docx are
+ignored, but its stylesheets are used in the new docx. If no reference
+docx is specified on the command line, pandoc will look for a file
+\verb!reference.docx! in the user data directory (see
+\verb!--data-dir!). If this is not found either, sensible defaults will
+be used.
+
+\item[\texttt{--epub-stylesheet=}\emph{FILE}]
+Use the specified CSS file to style the EPUB. If no stylesheet is
+specified, pandoc will look for a file \verb!epub.css! in the user data
+directory (see \verb!--data-dir!). If it is not found there, sensible
+defaults will be used.
+
+\item[\texttt{--epub-cover-image=}\emph{FILE}]
+Use the specified image as the EPUB cover. It is recommended that the
+image be less than 1000px in width and height.
+
+\item[\texttt{--epub-metadata=}\emph{FILE}]
+Look in the specified XML file for metadata for the EPUB. The file
+should contain a series of Dublin Core elements, as documented at
+\url{http://dublincore.org/documents/dces/}. For example:
+
+\begin{verbatim}
+ <dc:rights>Creative Commons</dc:rights>
+ <dc:language>es-AR</dc:language>
+\end{verbatim}
+By default, pandoc will include the following metadata elements:
+\verb!<dc:title>! (from the document title), \verb!<dc:creator>! (from
+the document authors), \verb!<dc:date>! (from the document date, which
+should be in \href{http://www.w3.org/TR/NOTE-datetime}{ISO 8601
+format}), \verb!<dc:language>! (from the \verb!lang! variable, or, if is
+not set, the locale), and \verb!<dc:identifier id="BookId">! (a randomly
+generated UUID). Any of these may be overridden by elements in the
+metadata file.
+
+\item[\texttt{--epub-embed-font=}\emph{FILE}]
+Embed the specified font in the EPUB. This option can be repeated to
+embed multiple fonts. To use embedded fonts, you will need to add
+declarations like the following to your CSS (see
+`\verb!--epub-stylesheet!):
+
+\begin{verbatim}
+@font-face {
+font-family: DejaVuSans;
+font-style: normal;
+font-weight: normal;
+src:url("DejaVuSans-Regular.ttf");
+}
+@font-face {
+font-family: DejaVuSans;
+font-style: normal;
+font-weight: bold;
+src:url("DejaVuSans-Bold.ttf");
+}
+@font-face {
+font-family: DejaVuSans;
+font-style: italic;
+font-weight: normal;
+src:url("DejaVuSans-Oblique.ttf");
+}
+@font-face {
+font-family: DejaVuSans;
+font-style: italic;
+font-weight: bold;
+src:url("DejaVuSans-BoldOblique.ttf");
+}
+body { font-family: "DejaVuSans"; }
+\end{verbatim}
+\item[\texttt{--latex-engine=}\emph{pdflatex\textbar{}lualatex\textbar{}xelatex}]
+Use the specified LaTeX engine when producing PDF output. The default is
+\verb!pdflatex!. If the engine is not in your PATH, the full path of the
+engine may be specified here.
+
+\end{description}
+\subsection{Citations}
+
+\begin{description}
+\item[\texttt{--bibliography=}\emph{FILE}]
+Specify bibliography database to be used in resolving citations. The
+database type will be determined from the extension of \emph{FILE},
+which may be \verb!.mods! (MODS format), \verb!.bib! (BibTeX/BibLaTeX
+format), \verb!.ris! (RIS format), \verb!.enl! (EndNote format),
+\verb!.xml! (EndNote XML format), \verb!.wos! (ISI format),
+\verb!.medline! (MEDLINE format), \verb!.copac! (Copac format), or
+\verb!.json! (citeproc JSON). If you want to use multiple
+bibliographies, just use this option repeatedly.
+
+\item[\texttt{--csl=}\emph{FILE}]
+Specify \href{http://CitationStyles.org}{CSL} style to be used in
+formatting citations and the bibliography. If \emph{FILE} is not found,
+pandoc will look for it in
+
+\begin{verbatim}
+$HOME/.csl
+\end{verbatim}
+in unix and
+
+\begin{verbatim}
+C:\Documents And Settings\USERNAME\Application Data\csl
+\end{verbatim}
+in Windows. If the \verb!--csl! option is not specified, pandoc will use
+a default style: either \verb!default.csl! in the user data directory
+(see \verb!--data-dir!), or, if that is not present, the Chicago
+author-date style.
+
+\item[\texttt{--citation-abbreviations=}\emph{FILE}]
+Specify a file containing abbreviations for journal titles and other
+bibliographic fields (indicated by setting \verb!form="short"! in the
+CSL node for the field). The format is described at
+\url{http://citationstylist.org/2011/10/19/abbreviations-for-zotero-test-release/}.
+Here is a short example:
+
+\begin{verbatim}
+{ "default": {
+    "container-title": {
+            "Lloyd's Law Reports": "Lloyd's Rep",
+            "Estates Gazette": "EG",
+            "Scots Law Times": "SLT"
+    }
+  }
+}
+\end{verbatim}
+\item[\texttt{--natbib}]
+Use natbib for citations in LaTeX output.
+
+\item[\texttt{--biblatex}]
+Use biblatex for citations in LaTeX output.
+
+\end{description}
+\subsection{Math rendering in HTML}
+
+\begin{description}
+\item[\texttt{-m} {[}\emph{URL}{]},
+\texttt{--latexmathml}{[}=\emph{URL}{]}]
+Use the \href{http://math.etsu.edu/LaTeXMathML/}{LaTeXMathML} script to
+display embedded TeX math in HTML output. To insert a link to a local
+copy of the \verb!LaTeXMathML.js! script, provide a \emph{URL}. If no
+\emph{URL} is provided, the contents of the script will be inserted
+directly into the HTML header, preserving portability at the price of
+efficiency. If you plan to use math on several pages, it is much better
+to link to a copy of the script, so it can be cached.
+
+\item[\texttt{--mathml}{[}=\emph{URL}{]}]
+Convert TeX math to MathML (in \verb!docbook! as well as \verb!html! and
+\verb!html5!). In standalone \verb!html! output, a small javascript (or
+a link to such a script if a \emph{URL} is supplied) will be inserted
+that allows the MathML to be viewed on some browsers.
+
+\item[\texttt{--jsmath}{[}=\emph{URL}{]}]
+Use
+\href{http://www.math.union.edu/\ensuremath{\sim}dpvc/jsmath/}{jsMath}
+to display embedded TeX math in HTML output. The \emph{URL} should point
+to the jsMath load script (e.g. \verb!jsMath/easy/load.js!); if
+provided, it will be linked to in the header of standalone HTML
+documents. If a \emph{URL} is not provided, no link to the jsMath load
+script will be inserted; it is then up to the author to provide such a
+link in the HTML template.
+
+\item[\texttt{--mathjax}{[}=\emph{URL}{]}]
+Use \href{http://www.mathjax.org/}{MathJax} to display embedded TeX math
+in HTML output. The \emph{URL} should point to the \verb!MathJax.js!
+load script. If a \emph{URL} is not provided, a link to the MathJax CDN
+will be inserted.
+
+\item[\texttt{--gladtex}]
+Enclose TeX math in \verb!<eq>! tags in HTML output. These can then be
+processed by
+\href{http://www.math.uio.no/\ensuremath{\sim}martingu/gladtex/index.html}{gladTeX}
+to produce links to images of the typeset formulas.
+
+\item[\texttt{--mimetex}{[}=\emph{URL}{]}]
+Render TeX math using the
+\href{http://www.forkosh.com/mimetex.html}{mimeTeX} CGI script. If
+\emph{URL} is not specified, it is assumed that the script is at
+\verb!/cgi-bin/mimetex.cgi!.
+
+\item[\texttt{--webtex}{[}=\emph{URL}{]}]
+Render TeX formulas using an external script that converts TeX formulas
+to images. The formula will be concatenated with the URL provided. If
+\emph{URL} is not specified, the Google Chart API will be used.
+
+\end{description}
+\subsection{Options for wrapper scripts}
+
+\begin{description}
+\item[\texttt{--dump-args}]
+Print information about command-line arguments to \emph{stdout}, then
+exit. This option is intended primarily for use in wrapper scripts. The
+first line of output contains the name of the output file specified with
+the \verb!-o! option, or \verb!-! (for \emph{stdout}) if no output file
+was specified. The remaining lines contain the command-line arguments,
+one per line, in the order they appear. These do not include regular
+Pandoc options and their arguments, but do include any options appearing
+after a \verb!--! separator at the end of the line.
+
+\item[\texttt{--ignore-args}]
+Ignore command-line arguments (for use in wrapper scripts). Regular
+Pandoc options are not ignored. Thus, for example,
+
+\begin{verbatim}
+pandoc --ignore-args -o foo.html -s foo.txt -- -e latin1
+\end{verbatim}
+is equivalent to
+
+\begin{verbatim}
+pandoc -o foo.html -s
+\end{verbatim}
+\end{description}
+\section{Templates}
+
+When the \verb!-s/--standalone! option is used, pandoc uses a template
+to add header and footer material that is needed for a self-standing
+document. To see the default template that is used, just type
+
+\begin{verbatim}
+pandoc -D FORMAT
+\end{verbatim}
+where \verb!FORMAT! is the name of the output format. A custom template
+can be specified using the \verb!--template! option. You can also
+override the system default templates for a given output format
+\verb!FORMAT! by putting a file \verb!templates/default.FORMAT! in the
+user data directory (see \verb!--data-dir!, above).
+
+Templates may contain \emph{variables}. Variable names are sequences of
+alphanumerics, \verb!-!, and \verb!_!, starting with a letter. A
+variable name surrounded by \verb!$! signs will be replaced by its
+value. For example, the string \verb!$title$! in
+
+\begin{verbatim}
+<title>$title$</title>
+\end{verbatim}
+will be replaced by the document title.
+
+To write a literal \verb!$! in a template, use \verb!$$!.
+
+Some variables are set automatically by pandoc. These vary somewhat
+depending on the output format, but include:
+
+\begin{description}
+\item[\texttt{header-includes}]
+contents specified by \verb!-H/--include-in-header! (may have multiple
+values)
+\item[\texttt{toc}]
+non-null value if \verb!--toc/--table-of-contents! was specified
+\item[\texttt{include-before}]
+contents specified by \verb!-B/--include-before-body! (may have multiple
+values)
+\item[\texttt{include-after}]
+contents specified by \verb!-A/--include-after-body! (may have multiple
+values)
+\item[\texttt{body}]
+body of document
+\item[\texttt{title}]
+title of document, as specified in title block
+\item[\texttt{author}]
+author of document, as specified in title block (may have multiple
+values)
+\item[\texttt{date}]
+date of document, as specified in title block
+\item[\texttt{lang}]
+language code for HTML or LaTeX documents
+\item[\texttt{slidy-url}]
+base URL for Slidy documents (defaults to
+\verb!http://www.w3.org/Talks/Tools/Slidy2!)
+\item[\texttt{s5-url}]
+base URL for S5 documents (defaults to \verb!ui/default!)
+\item[\texttt{font-size}]
+font size (10pt, 11pt, 12pt) for LaTeX documents
+\item[\texttt{documentclass}]
+document class for LaTeX documents
+\item[\texttt{theme}]
+theme for LaTeX beamer documents
+\item[\texttt{colortheme}]
+colortheme for LaTeX beamer documents
+\end{description}
+Variables may be set at the command line using the \verb!-V/--variable!
+option. This allows users to include custom variables in their
+templates.
+
+Templates may contain conditionals. The syntax is as follows:
+
+\begin{verbatim}
+$if(variable)$
+X
+$else$
+Y
+$endif$
+\end{verbatim}
+This will include \verb!X! in the template if \verb!variable! has a
+non-null value; otherwise it will include \verb!Y!. \verb!X! and
+\verb!Y! are placeholders for any valid template text, and may include
+interpolated variables or other conditionals. The \verb!$else$! section
+may be omitted.
+
+When variables can have multiple values (for example, \verb!author! in a
+multi-author document), you can use the \verb!$for$! keyword:
+
+\begin{verbatim}
+$for(author)$
+<meta name="author" content="$author$" />
+$endfor$
+\end{verbatim}
+You can optionally specify a separator to be used between consecutive
+items:
+
+\begin{verbatim}
+$for(author)$$author$$sep$, $endfor$
+\end{verbatim}
+If you use custom templates, you may need to revise them as pandoc
+changes. We recommend tracking the changes in the default templates, and
+modifying your custom templates accordingly. An easy way to do this is
+to fork the pandoc-templates repository
+(\url{http://github.com/jgm/pandoc-templates}) and merge in changes
+after each pandoc release.
+
+\section{Pandoc's markdown}
+
+Pandoc understands an extended and slightly revised version of John
+Gruber's \href{http://daringfireball.net/projects/markdown/}{markdown}
+syntax. This document explains the syntax, noting differences from
+standard markdown. Except where noted, these differences can be
+suppressed by specifying the \verb!--strict! command-line option.
+
+\subsection{Philosophy}
+
+Markdown is designed to be easy to write, and, even more importantly,
+easy to read:
+
+\begin{quote}
+A Markdown-formatted document should be publishable as-is, as plain
+text, without looking like it's been marked up with tags or formatting
+instructions. ---
+\href{http://daringfireball.net/projects/markdown/syntax\#philosophy}{John
+Gruber}
+
+\end{quote}
+This principle has guided pandoc's decisions in finding syntax for
+tables, footnotes, and other extensions.
+
+There is, however, one respect in which pandoc's aims are different from
+the original aims of markdown. Whereas markdown was originally designed
+with HTML generation in mind, pandoc is designed for multiple output
+formats. Thus, while pandoc allows the embedding of raw HTML, it
+discourages it, and provides other, non-HTMLish ways of representing
+important document elements like definition lists, tables, mathematics,
+and footnotes.
+
+\subsection{Paragraphs}
+
+A paragraph is one or more lines of text followed by one or more blank
+line. Newlines are treated as spaces, so you can reflow your paragraphs
+as you like. If you need a hard line break, put two or more spaces at
+the end of a line, or type a backslash followed by a newline.
+
+\subsection{Headers}
+
+There are two kinds of headers, Setext and atx.
+
+\subsubsection{Setext-style headers}
+
+A setext-style header is a line of text ``underlined'' with a row of
+\verb!=! signs (for a level one header) of \verb!-! signs (for a level
+two header):
+
+\begin{verbatim}
+A level-one header
+==================
+
+A level-two header
+------------------
+\end{verbatim}
+The header text can contain inline formatting, such as emphasis (see
+\href{\#inline-formatting}{Inline formatting}, below).
+
+\subsubsection{Atx-style headers}
+
+An Atx-style header consists of one to six \verb!#! signs and a line of
+text, optionally followed by any number of \verb!#! signs. The number of
+\verb!#! signs at the beginning of the line is the header level:
+
+\begin{verbatim}
+## A level-two header
+
+### A level-three header ###
+\end{verbatim}
+As with setext-style headers, the header text can contain formatting:
+
+\begin{verbatim}
+# A level-one header with a [link](/url) and *emphasis*
+\end{verbatim}
+Standard markdown syntax does not require a blank line before a header.
+Pandoc does require this (except, of course, at the beginning of the
+document). The reason for the requirement is that it is all too easy for
+a \verb!#! to end up at the beginning of a line by accident (perhaps
+through line wrapping). Consider, for example:
+
+\begin{verbatim}
+I like several of their flavors of ice cream:
+#22, for example, and #5.
+\end{verbatim}
+\subsubsection{Header identifiers in HTML, LaTeX, and ConTeXt}
+
+\emph{Pandoc extension}.
+
+Each header element in pandoc's HTML and ConTeXt output is given a
+unique identifier. This identifier is based on the text of the header.
+To derive the identifier from the header text,
+
+\begin{itemize}
+\item
+  Remove all formatting, links, etc.
+\item
+  Remove all punctuation, except underscores, hyphens, and periods.
+\item
+  Replace all spaces and newlines with hyphens.
+\item
+  Convert all alphabetic characters to lowercase.
+\item
+  Remove everything up to the first letter (identifiers may not begin
+  with a number or punctuation mark).
+\item
+  If nothing is left after this, use the identifier \verb!section!.
+\end{itemize}
+Thus, for example,
+
+\begin{center}
+\begin{tabular}{ll}
+Header & Identifier\\
+\hline
+Header identifiers in HTML & \verb!header-identifiers-in-html!\\
+\emph{Dogs}?---in \emph{my} house? & \verb!dogs--in-my-house!\\
+\href{http://www.w3.org/TR/html40/}{HTML},
+\href{http://meyerweb.com/eric/tools/s5/}{S5}, or
+\href{http://en.wikipedia.org/wiki/Rich\_Text\_Format}{RTF}? & \verb!html-s5-or-rtf!\\
+3. Applications & \verb!applications!\\
+33 & \verb!section!\\
+\end{tabular}
+\end{center}
+
+These rules should, in most cases, allow one to determine the identifier
+from the header text. The exception is when several headers have the
+same text; in this case, the first will get an identifier as described
+above; the second will get the same identifier with \verb!-1! appended;
+the third with \verb!-2!; and so on.
+
+These identifiers are used to provide link targets in the table of
+contents generated by the \verb!--toc|--table-of-contents! option. They
+also make it easy to provide links from one section of a document to
+another. A link to this section, for example, might look like this:
+
+\begin{verbatim}
+See the section on
+[header identifiers][#header-identifiers-in-html].
+\end{verbatim}
+Note, however, that this method of providing links to sections works
+only in HTML, LaTeX, and ConTeXt formats.
+
+If the \verb!--section-divs! option is specified, then each section will
+be wrapped in a \verb!div! (or a \verb!section!, if \verb!--html5! was
+specified), and the identifier will be attached to the enclosing
+\verb!<div>! (or \verb!<section>!) tag rather than the header itself.
+This allows entire sections to be manipulated using javascript or
+treated differently in CSS.
+
+\subsection{Block quotations}
+
+Markdown uses email conventions for quoting blocks of text. A block
+quotation is one or more paragraphs or other block elements (such as
+lists or headers), with each line preceded by a \verb!>! character and a
+space. (The \verb!>! need not start at the left margin, but it should
+not be indented more than three spaces.)
+
+\begin{verbatim}
+> This is a block quote. This
+> paragraph has two lines.
+>
+> 1. This is a list inside a block quote.
+> 2. Second item.
+\end{verbatim}
+A ``lazy'' form, which requires the \verb!>! character only on the first
+line of each block, is also allowed:
+
+\begin{verbatim}
+> This is a block quote. This
+paragraph has two lines.
+
+> 1. This is a list inside a block quote.
+2. Second item.
+\end{verbatim}
+Among the block elements that can be contained in a block quote are
+other block quotes. That is, block quotes can be nested:
+
+\begin{verbatim}
+> This is a block quote.
+>
+> > A block quote within a block quote.
+\end{verbatim}
+Standard markdown syntax does not require a blank line before a block
+quote. Pandoc does require this (except, of course, at the beginning of
+the document). The reason for the requirement is that it is all too easy
+for a \verb!>! to end up at the beginning of a line by accident (perhaps
+through line wrapping). So, unless \verb!--strict! is used, the
+following does not produce a nested block quote in pandoc:
+
+\begin{verbatim}
+> This is a block quote.
+>> Nested.
+\end{verbatim}
+\subsection{Verbatim (code) blocks}
+
+\subsubsection{Indented code blocks}
+
+A block of text indented four spaces (or one tab) is treated as verbatim
+text: that is, special characters do not trigger special formatting, and
+all spaces and line breaks are preserved. For example,
+
+\begin{verbatim}
+    if (a > 3) {
+      moveShip(5 * gravity, DOWN);
+    }
+\end{verbatim}
+The initial (four space or one tab) indentation is not considered part
+of the verbatim text, and is removed in the output.
+
+Note: blank lines in the verbatim text need not begin with four spaces.
+
+\subsubsection{Delimited code blocks}
+
+\emph{Pandoc extension}.
+
+In addition to standard indented code blocks, Pandoc supports
+\emph{delimited} code blocks. These begin with a row of three or more
+tildes (\verb!~!) or backticks (\verb!`!) and end with a row of tildes
+or backticks that must be at least as long as the starting row.
+Everything between these lines is treated as code. No indentation is
+necessary:
+
+\begin{verbatim}
+~~~~~~~
+if (a > 3) {
+  moveShip(5 * gravity, DOWN);
+}
+~~~~~~~
+\end{verbatim}
+Like regular code blocks, delimited code blocks must be separated from
+surrounding text by blank lines.
+
+If the code itself contains a row of tildes or backticks, just use a
+longer row of tildes or backticks at the start and end:
+
+\begin{verbatim}
+~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+code including tildes
+~~~~~~~~~~
+~~~~~~~~~~~~~~~~
+\end{verbatim}
+Optionally, you may attach attributes to the code block using this
+syntax:
+
+\begin{verbatim}
+~~~~ {#mycode .haskell .numberLines startFrom="100"}
+qsort []     = []
+qsort (x:xs) = qsort (filter (< x) xs) ++ [x] ++
+               qsort (filter (>= x) xs)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\end{verbatim}
+Here \verb!mycode! is an identifier, \verb!haskell! and
+\verb!numberLines! are classes, and \verb!startFrom! is an attribute
+with value \verb!100!. Some output formats can use this information to
+do syntax highlighting. Currently, the only output formats that uses
+this information are HTML and LaTeX. If highlighting is supported for
+your output format and language, then the code block above will appear
+highlighted, with numbered lines. (To see which languages are supported,
+do \verb!pandoc --version!.) Otherwise, the code block above will appear
+as follows:
+
+\begin{verbatim}
+<pre id="mycode" class="haskell numberLines" startFrom="100">
+  <code>
+  ...
+  </code>
+</pre>
+\end{verbatim}
+A shortcut form can also be used for specifying the language of the code
+block:
+
+\begin{verbatim}
+```haskell
+qsort [] = []
+```
+\end{verbatim}
+This is equivalent to:
+
+\begin{verbatim}
+``` {.haskell}
+qsort [] = []
+```
+\end{verbatim}
+To prevent all highlighting, use the \verb!--no-highlight! flag. To set
+the highlighting style, use \verb!--highlight-style!.
+
+\subsection{Lists}
+
+\subsubsection{Bullet lists}
+
+A bullet list is a list of bulleted list items. A bulleted list item
+begins with a bullet (\verb!*!, \verb!+!, or \verb!-!). Here is a simple
+example:
+
+\begin{verbatim}
+* one
+* two
+* three
+\end{verbatim}
+This will produce a ``compact'' list. If you want a ``loose'' list, in
+which each item is formatted as a paragraph, put spaces between the
+items:
+
+\begin{verbatim}
+* one
+
+* two
+
+* three
+\end{verbatim}
+The bullets need not be flush with the left margin; they may be indented
+one, two, or three spaces. The bullet must be followed by whitespace.
+
+List items look best if subsequent lines are flush with the first line
+(after the bullet):
+
+\begin{verbatim}
+* here is my first
+  list item.
+* and my second.
+\end{verbatim}
+But markdown also allows a ``lazy'' format:
+
+\begin{verbatim}
+* here is my first
+list item.
+* and my second.
+\end{verbatim}
+\subsubsection{The four-space rule}
+
+A list item may contain multiple paragraphs and other block-level
+content. However, subsequent paragraphs must be preceded by a blank line
+and indented four spaces or a tab. The list will look better if the
+first paragraph is aligned with the rest:
+
+\begin{verbatim}
+  * First paragraph.
+
+    Continued.
+
+  * Second paragraph. With a code block, which must be indented
+    eight spaces:
+
+        { code }
+\end{verbatim}
+List items may include other lists. In this case the preceding blank
+line is optional. The nested list must be indented four spaces or one
+tab:
+
+\begin{verbatim}
+* fruits
+    + apples
+        - macintosh
+        - red delicious
+    + pears
+    + peaches
+* vegetables
+    + brocolli
+    + chard
+\end{verbatim}
+As noted above, markdown allows you to write list items ``lazily,''
+instead of indenting continuation lines. However, if there are multiple
+paragraphs or other blocks in a list item, the first line of each must
+be indented.
+
+\begin{verbatim}
++ A lazy, lazy, list
+item.
+
++ Another one; this looks
+bad but is legal.
+
+    Second paragraph of second
+list item.
+\end{verbatim}
+\textbf{Note:} Although the four-space rule for continuation paragraphs
+comes from the official
+\href{http://daringfireball.net/projects/markdown/syntax\#list}{markdown
+syntax guide}, the reference implementation, \verb!Markdown.pl!, does
+not follow it. So pandoc will give different results than
+\verb!Markdown.pl! when authors have indented continuation paragraphs
+fewer than four spaces.
+
+The
+\href{http://daringfireball.net/projects/markdown/syntax\#list}{markdown
+syntax guide} is not explicit whether the four-space rule applies to
+\emph{all} block-level content in a list item; it only mentions
+paragraphs and code blocks. But it implies that the rule applies to all
+block-level content (including nested lists), and pandoc interprets it
+that way.
+
+\subsubsection{Ordered lists}
+
+Ordered lists work just like bulleted lists, except that the items begin
+with enumerators rather than bullets.
+
+In standard markdown, enumerators are decimal numbers followed by a
+period and a space. The numbers themselves are ignored, so there is no
+difference between this list:
+
+\begin{verbatim}
+1.  one
+2.  two
+3.  three
+\end{verbatim}
+and this one:
+
+\begin{verbatim}
+5.  one
+7.  two
+1.  three
+\end{verbatim}
+\emph{Pandoc extension}.
+
+Unlike standard markdown, Pandoc allows ordered list items to be marked
+with uppercase and lowercase letters and roman numerals, in addition to
+arabic numerals. List markers may be enclosed in parentheses or followed
+by a single right-parentheses or period. They must be separated from the
+text that follows by at least one space, and, if the list marker is a
+capital letter with a period, by at least two spaces.\footnote{The point
+  of this rule is to ensure that normal paragraphs starting with
+  people's initials, like
+
+  \begin{Verbatim}
+B. Russell was an English philosopher.
+  \end{Verbatim}
+  do not get treated as list items.
+
+  This rule will not prevent
+
+  \begin{Verbatim}
+(C) 2007 Joe Smith
+  \end{Verbatim}
+  from being interpreted as a list item. In this case, a backslash
+  escape can be used:
+
+  \begin{Verbatim}
+(C\) 2007 Joe Smith
+  \end{Verbatim}
+}
+
+Pandoc also pays attention to the type of list marker used, and to the
+starting number, and both of these are preserved where possible in the
+output format. Thus, the following yields a list with numbers followed
+by a single parenthesis, starting with 9, and a sublist with lowercase
+roman numerals:
+
+\begin{verbatim}
+ 9)  Ninth
+10)  Tenth
+11)  Eleventh
+       i. subone
+      ii. subtwo
+     iii. subthree
+\end{verbatim}
+Note that Pandoc pays attention only to the \emph{starting} marker in a
+list. So, the following yields a list numbered sequentially starting
+from 2:
+
+\begin{verbatim}
+(2) Two
+(5) Three
+1.  Four
+*   Five
+\end{verbatim}
+If default list markers are desired, use \verb!#.!:
+
+\begin{verbatim}
+#.  one
+#.  two
+#.  three
+\end{verbatim}
+\subsubsection{Definition lists}
+
+\emph{Pandoc extension}.
+
+Pandoc supports definition lists, using a syntax inspired by
+\href{http://www.michelf.com/projects/php-markdown/extra/}{PHP Markdown
+Extra} and
+\href{http://docutils.sourceforge.net/docs/ref/rst/introduction.html}{reStructuredText}:\footnote{I
+  have also been influenced by the suggestions of
+  \href{http://www.justatheory.com/computers/markup/modest-markdown-proposal.html}{David
+  Wheeler}.}
+
+\begin{verbatim}
+Term 1
+
+:   Definition 1
+
+Term 2 with *inline markup*
+
+:   Definition 2
+
+        { some code, part of Definition 2 }
+
+    Third paragraph of definition 2.
+\end{verbatim}
+Each term must fit on one line, which may optionally be followed by a
+blank line, and must be followed by one or more definitions. A
+definition begins with a colon or tilde, which may be indented one or
+two spaces. The body of the definition (including the first line, aside
+from the colon or tilde) should be indented four spaces. A term may have
+multiple definitions, and each definition may consist of one or more
+block elements (paragraph, code block, list, etc.), each indented four
+spaces or one tab stop.
+
+If you leave space after the definition (as in the example above), the
+blocks of the definitions will be considered paragraphs. In some output
+formats, this will mean greater spacing between term/definition pairs.
+For a compact definition list, do not leave space between the definition
+and the next term:
+
+\begin{verbatim}
+Term 1
+  ~ Definition 1
+Term 2
+  ~ Definition 2a
+  ~ Definition 2b
+\end{verbatim}
+\subsubsection{Numbered example lists}
+
+\emph{Pandoc extension}.
+
+The special list marker \verb!@! can be used for sequentially numbered
+examples. The first list item with a \verb!@! marker will be numbered
+`1', the next `2', and so on, throughout the document. The numbered
+examples need not occur in a single list; each new list using \verb!@!
+will take up where the last stopped. So, for example:
+
+\begin{verbatim}
+(@)  My first example will be numbered (1).
+(@)  My second example will be numbered (2).
+
+Explanation of examples.
+
+(@)  My third example will be numbered (3).
+\end{verbatim}
+Numbered examples can be labeled and referred to elsewhere in the
+document:
+
+\begin{verbatim}
+(@good)  This is a good example.
+
+As (@good) illustrates, ...
+\end{verbatim}
+The label can be any string of alphanumeric characters, underscores, or
+hyphens.
+
+\subsubsection{Compact and loose lists}
+
+Pandoc behaves differently from \verb!Markdown.pl! on some ``edge
+cases'' involving lists. Consider this source:
+
+\begin{verbatim}
++   First
++   Second:
+    -   Fee
+    -   Fie
+    -   Foe
+
++   Third
+\end{verbatim}
+Pandoc transforms this into a ``compact list'' (with no \verb!<p>! tags
+around ``First'', ``Second'', or ``Third''), while markdown puts
+\verb!<p>! tags around ``Second'' and ``Third'' (but not ``First''),
+because of the blank space around ``Third''. Pandoc follows a simple
+rule: if the text is followed by a blank line, it is treated as a
+paragraph. Since ``Second'' is followed by a list, and not a blank line,
+it isn't treated as a paragraph. The fact that the list is followed by a
+blank line is irrelevant. (Note: Pandoc works this way even when the
+\verb!--strict! option is specified. This behavior is consistent with
+the official markdown syntax description, even though it is different
+from that of \verb!Markdown.pl!.)
+
+\subsubsection{Ending a list}
+
+What if you want to put an indented code block after a list?
+
+\begin{verbatim}
+-   item one
+-   item two
+
+    { my code block }
+\end{verbatim}
+Trouble! Here pandoc (like other markdown implementations) will treat
+\verb!{ my code block }! as the second paragraph of item two, and not as
+a code block.
+
+To ``cut off'' the list after item two, you can insert some non-indented
+content, like an HTML comment, which won't produce visible output in any
+format:
+
+\begin{verbatim}
+-   item one
+-   item two
+
+<!-- end of list -->
+
+    { my code block }
+\end{verbatim}
+You can use the same trick if you want two consecutive lists instead of
+one big list:
+
+\begin{verbatim}
+1.  one
+2.  two
+3.  three
+
+<!-- -->
+
+1.  uno
+2.  dos
+3.  tres
+\end{verbatim}
+\subsection{Horizontal rules}
+
+A line containing a row of three or more \verb!*!, \verb!-!, or \verb!_!
+characters (optionally separated by spaces) produces a horizontal rule:
+
+\begin{verbatim}
+*  *  *  *
+
+---------------
+\end{verbatim}
+\subsection{Tables}
+
+\emph{Pandoc extension}.
+
+Three kinds of tables may be used. All three kinds presuppose the use of
+a fixed-width font, such as Courier.
+
+\textbf{Simple tables} look like this:
+
+\begin{verbatim}
+  Right     Left     Center     Default
+-------     ------ ----------   -------
+     12     12        12            12
+    123     123       123          123
+      1     1          1             1
+
+Table:  Demonstration of simple table syntax.
+\end{verbatim}
+The headers and table rows must each fit on one line. Column alignments
+are determined by the position of the header text relative to the dashed
+line below it:\footnote{This scheme is due to Michel Fortin, who
+  proposed it on the
+  \href{http://six.pairlist.net/pipermail/markdown-discuss/2005-March/001097.html}{Markdown
+  discussion list}.}
+
+\begin{itemize}
+\item
+  If the dashed line is flush with the header text on the right side but
+  extends beyond it on the left, the column is right-aligned.
+\item
+  If the dashed line is flush with the header text on the left side but
+  extends beyond it on the right, the column is left-aligned.
+\item
+  If the dashed line extends beyond the header text on both sides, the
+  column is centered.
+\item
+  If the dashed line is flush with the header text on both sides, the
+  default alignment is used (in most cases, this will be left).
+\end{itemize}
+The table must end with a blank line, or a line of dashes followed by a
+blank line. A caption may optionally be provided (as illustrated in the
+example above). A caption is a paragraph beginning with the string
+\verb!Table:! (or just \verb!:!), which will be stripped off. It may
+appear either before or after the table.
+
+The column headers may be omitted, provided a dashed line is used to end
+the table. For example:
+
+\begin{verbatim}
+-------     ------ ----------   -------
+     12     12        12             12
+    123     123       123           123
+      1     1          1              1
+-------     ------ ----------   -------
+\end{verbatim}
+When headers are omitted, column alignments are determined on the basis
+of the first line of the table body. So, in the tables above, the
+columns would be right, left, center, and right aligned, respectively.
+
+\textbf{Multiline tables} allow headers and table rows to span multiple
+lines of text (but cells that span multiple columns or rows of the table
+are not supported). Here is an example:
+
+\begin{verbatim}
+-------------------------------------------------------------
+ Centered   Default           Right Left
+  Header    Aligned         Aligned Aligned
+----------- ------- --------------- -------------------------
+   First    row                12.0 Example of a row that
+                                    spans multiple lines.
+
+  Second    row                 5.0 Here's another one. Note
+                                    the blank line between
+                                    rows.
+-------------------------------------------------------------
+
+Table: Here's the caption. It, too, may span
+multiple lines.
+\end{verbatim}
+These work like simple tables, but with the following differences:
+
+\begin{itemize}
+\item
+  They must begin with a row of dashes, before the header text (unless
+  the headers are omitted).
+\item
+  They must end with a row of dashes, then a blank line.
+\item
+  The rows must be separated by blank lines.
+\end{itemize}
+In multiline tables, the table parser pays attention to the widths of
+the columns, and the writers try to reproduce these relative widths in
+the output. So, if you find that one of the columns is too narrow in the
+output, try widening it in the markdown source.
+
+Headers may be omitted in multiline tables as well as simple tables:
+
+\begin{verbatim}
+----------- ------- --------------- -------------------------
+   First    row                12.0 Example of a row that
+                                    spans multiple lines.
+
+  Second    row                 5.0 Here's another one. Note
+                                    the blank line between
+                                    rows.
+-------------------------------------------------------------
+
+: Here's a multiline table without headers.
+\end{verbatim}
+It is possible for a multiline table to have just one row, but the row
+should be followed by a blank line (and then the row of dashes that ends
+the table), or the table may be interpreted as a simple table.
+
+\textbf{Grid tables} look like this:
+
+\begin{verbatim}
+: Sample grid table.
+
++---------------+---------------+--------------------+
+| Fruit         | Price         | Advantages         |
++===============+===============+====================+
+| Bananas       | $1.34         | - built-in wrapper |
+|               |               | - bright color     |
++---------------+---------------+--------------------+
+| Oranges       | $2.10         | - cures scurvy     |
+|               |               | - tasty            |
++---------------+---------------+--------------------+
+\end{verbatim}
+The row of \verb!=!s separates the header from the table body, and can
+be omitted for a headerless table. The cells of grid tables may contain
+arbitrary block elements (multiple paragraphs, code blocks, lists,
+etc.). Alignments are not supported, nor are cells that span multiple
+columns or rows. Grid tables can be created easily using
+\href{http://table.sourceforge.net/}{Emacs table mode}.
+
+\subsection{Title block}
+
+\emph{Pandoc extension}.
+
+If the file begins with a title block
+
+\begin{verbatim}
+% title
+% author(s) (separated by semicolons)
+% date
+\end{verbatim}
+it will be parsed as bibliographic information, not regular text. (It
+will be used, for example, in the title of standalone LaTeX or HTML
+output.) The block may contain just a title, a title and an author, or
+all three elements. If you want to include an author but no title, or a
+title and a date but no author, you need a blank line:
+
+\begin{verbatim}
+%
+% Author
+
+% My title
+%
+% June 15, 2006
+\end{verbatim}
+The title may occupy multiple lines, but continuation lines must begin
+with leading space, thus:
+
+\begin{verbatim}
+% My title
+  on multiple lines
+\end{verbatim}
+If a document has multiple authors, the authors may be put on separate
+lines with leading space, or separated by semicolons, or both. So, all
+of the following are equivalent:
+
+\begin{verbatim}
+% Author One
+  Author Two
+
+% Author One; Author Two
+
+% Author One;
+  Author Two
+\end{verbatim}
+The date must fit on one line.
+
+All three metadata fields may contain standard inline formatting
+(italics, links, footnotes, etc.).
+
+Title blocks will always be parsed, but they will affect the output only
+when the \verb!--standalone! (\verb!-s!) option is chosen. In HTML
+output, titles will appear twice: once in the document head --- this is
+the title that will appear at the top of the window in a browser --- and
+once at the beginning of the document body. The title in the document
+head can have an optional prefix attached (\verb!--title-prefix! or
+\verb!-T! option). The title in the body appears as an H1 element with
+class ``title'', so it can be suppressed or reformatted with CSS. If a
+title prefix is specified with \verb!-T! and no title block appears in
+the document, the title prefix will be used by itself as the HTML title.
+
+The man page writer extracts a title, man page section number, and other
+header and footer information from the title line. The title is assumed
+to be the first word on the title line, which may optionally end with a
+(single-digit) section number in parentheses. (There should be no space
+between the title and the parentheses.) Anything after this is assumed
+to be additional footer and header text. A single pipe character
+(\verb!|!) should be used to separate the footer text from the header
+text. Thus,
+
+\begin{verbatim}
+% PANDOC(1)
+\end{verbatim}
+will yield a man page with the title \verb!PANDOC! and section 1.
+
+\begin{verbatim}
+% PANDOC(1) Pandoc User Manuals
+\end{verbatim}
+will also have ``Pandoc User Manuals'' in the footer.
+
+\begin{verbatim}
+% PANDOC(1) Pandoc User Manuals | Version 4.0
+\end{verbatim}
+will also have ``Version 4.0'' in the header.
+
+\subsection{Backslash escapes}
+
+Except inside a code block or inline code, any punctuation or space
+character preceded by a backslash will be treated literally, even if it
+would normally indicate formatting. Thus, for example, if one writes
+
+\begin{verbatim}
+*\*hello\**
+\end{verbatim}
+one will get
+
+\begin{verbatim}
+<em>*hello*</em>
+\end{verbatim}
+instead of
+
+\begin{verbatim}
+<strong>hello</strong>
+\end{verbatim}
+This rule is easier to remember than standard markdown's rule, which
+allows only the following characters to be backslash-escaped:
+
+\begin{verbatim}
+\`*_{}[]()>#+-.!
+\end{verbatim}
+(However, if the \verb!--strict! option is supplied, the standard
+markdown rule will be used.)
+
+A backslash-escaped space is parsed as a nonbreaking space. It will
+appear in TeX output as \verb!~! and in HTML and XML as \verb!\&#160;!
+or \verb!\&nbsp;!.
+
+A backslash-escaped newline (i.e.~a backslash occurring at the end of a
+line) is parsed as a hard line break. It will appear in TeX output as
+\verb!\\! and in HTML as \verb!<br />!. This is a nice alternative to
+markdown's ``invisible'' way of indicating hard line breaks using two
+trailing spaces on a line.
+
+Backslash escapes do not work in verbatim contexts.
+
+\subsection{Smart punctuation}
+
+If the \verb!--smart! option is specified, pandoc will produce
+typographically correct output, converting straight quotes to curly
+quotes, \verb!---! and \verb!--! to Em-dashes, and \verb!...! to
+ellipses. Nonbreaking spaces are inserted after certain abbreviations,
+such as ``Mr.''
+
+Note: if your LaTeX template uses the \verb!csquotes! package, pandoc
+will detect automatically this and use \verb!\enquote{...}! for quoted
+text.
+
+\subsection{Inline formatting}
+
+\subsubsection{Emphasis}
+
+To \emph{emphasize} some text, surround it with \verb!*!s or \verb!_!,
+like this:
+
+\begin{verbatim}
+This text is _emphasized with underscores_, and this
+is *emphasized with asterisks*.
+\end{verbatim}
+Double \verb!*! or \verb!_! produces \textbf{strong emphasis}:
+
+\begin{verbatim}
+This is **strong emphasis** and __with underscores__.
+\end{verbatim}
+A \verb!*! or \verb!_! character surrounded by spaces, or
+backslash-escaped, will not trigger emphasis:
+
+\begin{verbatim}
+This is * not emphasized *, and \*neither is this\*.
+\end{verbatim}
+Because \verb!_! is sometimes used inside words and identifiers, pandoc
+does not interpret a \verb!_! surrounded by alphanumeric characters as
+an emphasis marker. If you want to emphasize just part of a word, use
+\verb!*!:
+
+\begin{verbatim}
+feas*ible*, not feas*able*.
+\end{verbatim}
+\subsubsection{Strikeout}
+
+\emph{Pandoc extension}.
+
+To strikeout a section of text with a horizontal line, begin and end it
+with \verb!~~!. Thus, for example,
+
+\begin{verbatim}
+This ~~is deleted text.~~
+\end{verbatim}
+\subsubsection{Superscripts and subscripts}
+
+\emph{Pandoc extension}.
+
+Superscripts may be written by surrounding the superscripted text by
+\verb!^! characters; subscripts may be written by surrounding the
+subscripted text by \verb!~! characters. Thus, for example,
+
+\begin{verbatim}
+H~2~O is a liquid.  2^10^ is 1024.
+\end{verbatim}
+If the superscripted or subscripted text contains spaces, these spaces
+must be escaped with backslashes. (This is to prevent accidental
+superscripting and subscripting through the ordinary use of \verb!~! and
+\verb!^!.) Thus, if you want the letter P with `a cat' in subscripts,
+use \verb!P~a\ cat~!, not \verb!P~a cat~!.
+
+\subsubsection{Verbatim}
+
+To make a short span of text verbatim, put it inside backticks:
+
+\begin{verbatim}
+What is the difference between `>>=` and `>>`?
+\end{verbatim}
+If the verbatim text includes a backtick, use double backticks:
+
+\begin{verbatim}
+Here is a literal backtick `` ` ``.
+\end{verbatim}
+(The spaces after the opening backticks and before the closing backticks
+will be ignored.)
+
+The general rule is that a verbatim span starts with a string of
+consecutive backticks (optionally followed by a space) and ends with a
+string of the same number of backticks (optionally preceded by a space).
+
+Note that backslash-escapes (and other markdown constructs) do not work
+in verbatim contexts:
+
+\begin{verbatim}
+This is a backslash followed by an asterisk: `\*`.
+\end{verbatim}
+\subsection{Math}
+
+\emph{Pandoc extension}.
+
+Anything between two \verb!$! characters will be treated as TeX math.
+The opening \verb!$! must have a character immediately to its right,
+while the closing \verb!$! must have a character immediately to its
+left. Thus, \verb!$20,000 and $30,000! won't parse as math. If for some
+reason you need to enclose text in literal \verb!$! characters,
+backslash-escape them and they won't be treated as math delimiters.
+
+TeX math will be printed in all output formats. How it is rendered
+depends on the output format:
+
+\begin{description}
+\item[Markdown, reStructuredText, LaTeX, Org-Mode, ConTeXt]
+It will appear verbatim between \verb!$! characters.
+
+\item[reStructuredText]
+It will be rendered using an interpreted text role \verb!:math:!, as
+described
+\href{http://www.american.edu/econ/itex2mml/mathhack.rst}{here}.
+
+\item[AsciiDoc]
+It will be rendered as \verb!latexmath:[...]!.
+
+\item[Texinfo]
+It will be rendered inside a \verb!@math! command.
+
+\item[groff man]
+It will be rendered verbatim without \verb!$!'s.
+
+\item[MediaWiki]
+It will be rendered inside \verb!<math>! tags.
+
+\item[Textile]
+It will be rendered inside \verb!<span class="math">! tags.
+
+\item[RTF, OpenDocument, ODT]
+It will be rendered, if possible, using unicode characters, and will
+otherwise appear verbatim.
+
+\item[Docbook]
+If the \verb!--mathml! flag is used, it will be rendered using mathml in
+an \verb!inlineequation! or \verb!informalequation! tag. Otherwise it
+will be rendered, if possible, using unicode characters.
+
+\item[Docx]
+It will be rendered using OMML math markup.
+
+\item[HTML, Slidy, DZSlides, S5, EPUB]
+The way math is rendered in HTML will depend on the command-line options
+selected:
+
+\begin{enumerate}[1.]
+\item
+  The default is to render TeX math as far as possible using unicode
+  characters, as with RTF, DocBook, and OpenDocument output. Formulas
+  are put inside a \verb!span! with \verb!class="math"!, so that they
+  may be styled differently from the surrounding text if needed.
+\item
+  If the \verb!--latexmathml! option is used, TeX math will be displayed
+  between \$ or \$\$ characters and put in \verb!<span>! tags with class
+  \verb!LaTeX!. The
+  \href{http://math.etsu.edu/LaTeXMathML/}{LaTeXMathML} script will be
+  used to render it as formulas. (This trick does not work in all
+  browsers, but it works in Firefox. In browsers that do not support
+  LaTeXMathML, TeX math will appear verbatim between \$ characters.)
+\item
+  If the \verb!--jsmath! option is used, TeX math will be put inside
+  \verb!<span>! tags (for inline math) or \verb!<div>! tags (for display
+  math) with class \verb!math!. The
+  \href{http://www.math.union.edu/\ensuremath{\sim}dpvc/jsmath/}{jsMath}
+  script will be used to render it.
+\item
+  If the \verb!--mimetex! option is used, the
+  \href{http://www.forkosh.com/mimetex.html}{mimeTeX} CGI script will be
+  called to generate images for each TeX formula. This should work in
+  all browsers. The \verb!--mimetex! option takes an optional URL as
+  argument. If no URL is specified, it will be assumed that the mimeTeX
+  CGI script is at \verb!/cgi-bin/mimetex.cgi!.
+\item
+  If the \verb!--gladtex! option is used, TeX formulas will be enclosed
+  in \verb!<eq>! tags in the HTML output. The resulting \verb!htex! file
+  may then be processed by
+  \href{http://www.math.uio.no/\ensuremath{\sim}martingu/gladtex/index.html}{gladTeX},
+  which will produce image files for each formula and an \verb!html!
+  file with links to these images. So, the procedure is:
+
+  \begin{verbatim}
+pandoc -s --gladtex myfile.txt -o myfile.htex
+gladtex -d myfile-images myfile.htex
+# produces myfile.html and images in myfile-images
+  \end{verbatim}
+\item
+  If the \verb!--webtex! option is used, TeX formulas will be converted
+  to \verb!<img>! tags that link to an external script that converts
+  formulas to images. The formula will be URL-encoded and concatenated
+  with the URL provided. If no URL is specified, the Google Chart API
+  will be used (\verb!http://chart.apis.google.com/chart?cht=tx&chl=!).
+\end{enumerate}
+\end{description}
+\subsection{Raw HTML}
+
+Markdown allows you to insert raw HTML (or DocBook) anywhere in a
+document (except verbatim contexts, where \verb!<!, \verb!>!, and
+\verb!&! are interpreted literally).
+
+The raw HTML is passed through unchanged in HTML, S5, Slidy, DZSlides,
+EPUB, Markdown, and Textile output, and suppressed in other formats.
+
+\emph{Pandoc extension}.
+
+Standard markdown allows you to include HTML ``blocks'': blocks of HTML
+between balanced tags that are separated from the surrounding text with
+blank lines, and start and end at the left margin. Within these blocks,
+everything is interpreted as HTML, not markdown; so (for example),
+\verb!*! does not signify emphasis.
+
+Pandoc behaves this way when \verb!--strict! is specified; but by
+default, pandoc interprets material between HTML block tags as markdown.
+Thus, for example, Pandoc will turn
+
+\begin{verbatim}
+<table>
+    <tr>
+        <td>*one*</td>
+        <td>[a link](http://google.com)</td>
+    </tr>
+</table>
+\end{verbatim}
+into
+
+\begin{verbatim}
+<table>
+    <tr>
+        <td><em>one</em></td>
+        <td><a href="http://google.com">a link</a></td>
+    </tr>
+</table>
+\end{verbatim}
+whereas \verb!Markdown.pl! will preserve it as is.
+
+There is one exception to this rule: text between \verb!<script>! and
+\verb!<style>! tags is not interpreted as markdown.
+
+This departure from standard markdown should make it easier to mix
+markdown with HTML block elements. For example, one can surround a block
+of markdown text with \verb!<div>! tags without preventing it from being
+interpreted as markdown.
+
+\subsection{Raw TeX}
+
+\emph{Pandoc extension}.
+
+In addition to raw HTML, pandoc allows raw LaTeX, TeX, and ConTeXt to be
+included in a document. Inline TeX commands will be preserved and passed
+unchanged to the LaTeX and ConTeXt writers. Thus, for example, you can
+use LaTeX to include BibTeX citations:
+
+\begin{verbatim}
+This result was proved in \cite{jones.1967}.
+\end{verbatim}
+Note that in LaTeX environments, like
+
+\begin{verbatim}
+\begin{tabular}{|l|l|}\hline
+Age & Frequency \\ \hline
+18--25  & 15 \\
+26--35  & 33 \\ 
+36--45  & 22 \\ \hline
+\end{tabular}
+\end{verbatim}
+the material between the begin and end tags will be interpreted as raw
+LaTeX, not as markdown.
+
+Inline LaTeX is ignored in output formats other than Markdown, LaTeX,
+and ConTeXt.
+
+\subsubsection{Macros}
+
+For output formats other than LaTeX, pandoc will parse LaTeX
+\verb!\newcommand! and \verb!\renewcommand! definitions and apply the
+resulting macros to all LaTeX math. So, for example, the following will
+work in all output formats, not just LaTeX:
+
+\begin{verbatim}
+\newcommand{\tuple}[1]{\langle #1 \rangle}
+
+$\tuple{a, b, c}$
+\end{verbatim}
+In LaTeX output, the \verb!\newcommand! definition will simply be passed
+unchanged to the output.
+
+\subsection{Links}
+
+Markdown allows links to be specified in several ways.
+
+\subsubsection{Automatic links}
+
+If you enclose a URL or email address in pointy brackets, it will become
+a link:
+
+\begin{verbatim}
+<http://google.com>
+<sam@green.eggs.ham>
+\end{verbatim}
+\subsubsection{Inline links}
+
+An inline link consists of the link text in square brackets, followed by
+the URL in parentheses. (Optionally, the URL can be followed by a link
+title, in quotes.)
+
+\begin{verbatim}
+This is an [inline link](/url), and here's [one with
+a title](http://fsf.org "click here for a good time!").
+\end{verbatim}
+There can be no space between the bracketed part and the parenthesized
+part. The link text can contain formatting (such as emphasis), but the
+title cannot.
+
+\subsubsection{Reference links}
+
+An \emph{explicit} reference link has two parts, the link itself and the
+link definition, which may occur elsewhere in the document (either
+before or after the link).
+
+The link consists of link text in square brackets, followed by a label
+in square brackets. (There can be space between the two.) The link
+definition must begin at the left margin or indented no more than three
+spaces. It consists of the bracketed label, followed by a colon and a
+space, followed by the URL, and optionally (after a space) a link title
+either in quotes or in parentheses.
+
+Here are some examples:
+
+\begin{verbatim}
+[my label 1]: /foo/bar.html  "My title, optional"
+[my label 2]: /foo
+[my label 3]: http://fsf.org (The free software foundation)
+[my label 4]: /bar#special  'A title in single quotes'
+\end{verbatim}
+The URL may optionally be surrounded by angle brackets:
+
+\begin{verbatim}
+[my label 5]: <http://foo.bar.baz>
+\end{verbatim}
+The title may go on the next line:
+
+\begin{verbatim}
+[my label 3]: http://fsf.org
+  "The free software foundation"
+\end{verbatim}
+Note that link labels are not case sensitive. So, this will work:
+
+\begin{verbatim}
+Here is [my link][FOO]
+
+[Foo]: /bar/baz
+\end{verbatim}
+In an \emph{implicit} reference link, the second pair of brackets is
+empty, or omitted entirely:
+
+\begin{verbatim}
+See [my website][], or [my website].
+
+[my website]: http://foo.bar.baz
+\end{verbatim}
+\subsection{Images}
+
+A link immediately preceded by a \verb"!" will be treated as an image.
+The link text will be used as the image's alt text:
+
+\begin{verbatim}
+![la lune](lalune.jpg "Voyage to the moon")
+
+![movie reel]
+
+[movie reel]: movie.gif
+\end{verbatim}
+\subsubsection{Pictures with captions}
+
+\emph{Pandoc extension}.
+
+An image occurring by itself in a paragraph will be rendered as a figure
+with a caption.\footnote{This feature is not yet implemented for RTF,
+  OpenDocument, or ODT. In those formats, you'll just get an image in a
+  paragraph by itself, with no caption.} (In LaTeX, a figure environment
+will be used; in HTML, the image will be placed in a \verb!div! with
+class \verb!figure!, together with a caption in a \verb!p! with class
+\verb!caption!.) The image's alt text will be used as the caption.
+
+\begin{verbatim}
+![This is the caption](/url/of/image.png)
+\end{verbatim}
+If you just want a regular inline image, just make sure it is not the
+only thing in the paragraph. One way to do this is to insert a
+nonbreaking space after the image:
+
+\begin{verbatim}
+![This image won't be a figure](/url/of/image.png)\ 
+\end{verbatim}
+\subsection{Footnotes}
+
+\emph{Pandoc extension}.
+
+Pandoc's markdown allows footnotes, using the following syntax:
+
+\begin{verbatim}
+Here is a footnote reference,[^1] and another.[^longnote]
+
+[^1]: Here is the footnote.
+
+[^longnote]: Here's one with multiple blocks.
+
+    Subsequent paragraphs are indented to show that they 
+belong to the previous footnote.
+
+        { some.code }
+
+    The whole paragraph can be indented, or just the first
+    line.  In this way, multi-paragraph footnotes work like
+    multi-paragraph list items.
+
+This paragraph won't be part of the note, because it
+isn't indented.
+\end{verbatim}
+The identifiers in footnote references may not contain spaces, tabs, or
+newlines. These identifiers are used only to correlate the footnote
+reference with the note itself; in the output, footnotes will be
+numbered sequentially.
+
+The footnotes themselves need not be placed at the end of the document.
+They may appear anywhere except inside other block elements (lists,
+block quotes, tables, etc.).
+
+Inline footnotes are also allowed (though, unlike regular notes, they
+cannot contain multiple paragraphs). The syntax is as follows:
+
+\begin{verbatim}
+Here is an inline note.^[Inlines notes are easier to write, since
+you don't have to pick an identifier and move down to type the
+note.]
+\end{verbatim}
+Inline and regular footnotes may be mixed freely.
+
+\subsection{Citations}
+
+\emph{Pandoc extension}.
+
+Pandoc can automatically generate citations and a bibliography in a
+number of styles (using Andrea Rossato's \verb!hs-citeproc!). In order
+to use this feature, you will need a bibliographic database in one of
+the following formats:
+
+\begin{center}
+\begin{tabular}{ll}
+Format & File extension\\
+\hline
+MODS & .mods\\
+BibTeX/BibLaTeX & .bib\\
+RIS & .ris\\
+EndNote & .enl\\
+EndNote XML & .xml\\
+ISI & .wos\\
+MEDLINE & .medline\\
+Copac & .copac\\
+JSON citeproc & .json\\
+\end{tabular}
+\end{center}
+
+You will need to specify the bibliography file using the
+\verb!--bibliography! command-line option (which may be repeated if you
+have several bibliographies).
+
+By default, pandoc will use a Chicago author-date format for citations
+and references. To use another style, you will need to use the
+\verb!--csl! option to specify a \href{http://CitationStyles.org}{CSL}
+1.0 style file. A primer on creating and modifying CSL styles can be
+found at \url{http://citationstyles.org/downloads/primer.html}. A
+repository of CSL styles can be found at
+\url{https://github.com/citation-style-language/styles}. See also
+\url{http://zotero.org/styles} for easy browsing.
+
+Citations go inside square brackets and are separated by semicolons.
+Each citation must have a key, composed of `@' + the citation identifier
+from the database, and may optionally have a prefix, a locator, and a
+suffix. Here are some examples:
+
+\begin{verbatim}
+Blah blah [see @doe99, pp. 33-35; also @smith04, ch. 1].
+
+Blah blah [@doe99, pp. 33-35, 38-39 and *passim*].
+
+Blah blah [@smith04; @doe99].
+\end{verbatim}
+A minus sign (\verb!-!) before the \verb!@! will suppress mention of the
+author in the citation. This can be useful when the author is already
+mentioned in the text:
+
+\begin{verbatim}
+Smith says blah [-@smith04].
+\end{verbatim}
+You can also write an in-text citation, as follows:
+
+\begin{verbatim}
+@smith04 says blah.
+
+@smith04 [p. 33] says blah.
+\end{verbatim}
+If the style calls for a list of works cited, it will be placed at the
+end of the document. Normally, you will want to end your document with
+an appropriate header:
+
+\begin{verbatim}
+last paragraph...
+
+# References
+\end{verbatim}
+The bibliography will be inserted after this header.
+
+\section{Producing slide shows with Pandoc}
+
+You can use Pandoc to produce an HTML + javascript slide presentation
+that can be viewed via a web browser. There are three ways to do this,
+using \href{http://meyerweb.com/eric/tools/s5/}{S5},
+\href{http://paulrouget.com/dzslides/}{DZSlides}, or
+\href{http://www.w3.org/Talks/Tools/Slidy/}{Slidy}. You can also produce
+a PDF slide show using LaTeX
+\href{http://www.tex.ac.uk/CTAN/macros/latex/contrib/beamer}{beamer}.
+
+Here's the markdown source for a simple slide show, \verb!habits.txt!:
+
+\begin{verbatim}
+% Habits
+% John Doe
+% March 22, 2005
+
+# In the morning
+
+## Getting up
+
+- Turn off alarm
+- Get out of bed
+
+## Breakfast
+
+- Eat eggs
+- Drink coffee
+
+# In the evening
+
+## Dinner
+
+- Eat spaghetti
+- Drink wine
+
+------------------
+
+![picture of spaghetti](images/spaghetti.jpg)
+
+## Going to sleep
+
+- Get in bed
+- Count sheep
+\end{verbatim}
+To produce the slide show, simply type
+
+\begin{verbatim}
+pandoc -t s5 -s habits.txt -o habits.html
+\end{verbatim}
+for S5,
+
+\begin{verbatim}
+pandoc -t slidy -s habits.txt -o habits.html
+\end{verbatim}
+for Slidy,
+
+\begin{verbatim}
+pandoc -t dzslides -s habits.txt -o habits.html
+\end{verbatim}
+for DZSlides, or
+
+\begin{verbatim}
+pandoc -t beamer habits.txt -o habits.pdf
+\end{verbatim}
+for beamer.
+
+With all HTML slide formats, the \verb!--self-contained! option can be
+used to produce a single file that contains all of the data necessary to
+display the slide show, including linked scripts, stylesheets, images,
+and videos.
+
+\subsection{Structuring the slide show}
+
+By default, the \emph{slide level} is the highest header level in the
+hierarchy that is followed immediately by content, and not another
+header, somewhere in the document. In the example above, level 1 headers
+are always followed by level 2 headers, which are followed by content,
+so 2 is the slide level. This default can be overridden using the
+\verb!--slide-level! option.
+
+The document is carved up into slides according to the following rules:
+
+\begin{itemize}
+\item
+  A horizontal rule always starts a new slide.
+\item
+  A header at the slide level always starts a new slide.
+\item
+  Headers \emph{below} the slide level in the hierarchy create headers
+  \emph{within} a slide.
+\item
+  Headers \emph{above} the slide level in the hierarchy create ``title
+  slides,'' which just contain the section title and help to break the
+  slide show into sections.
+\item
+  A title page is constructed automatically from the document's title
+  block, if present. (In the case of beamer, this can be disabled by
+  commenting out some lines in the default template.)
+\end{itemize}
+These rules are designed to support many different styles of slide show.
+If you don't care about structuring your slides into sections and
+subsections, you can just use level 1 headers for all each slide. (In
+that case, level 1 will be the slide level.) But you can also structure
+the slide show into sections, as in the example above.
+
+For Slidy and S5, the file produced by pandoc with the
+\verb!-s/--standalone! option embeds a link to javascripts and CSS
+files, which are assumed to be available at the relative path
+\verb!s5/default! (for S5) or at the Slidy website at \verb!w3.org! (for
+Slidy). (These paths can be changed by setting the \verb!slidy-url! or
+\verb!s5-url! variables; see \verb!--variable!, above.) For DZSlides,
+the (relatively short) javascript and css are included in the file by
+default.
+
+\subsection{Incremental lists}
+
+By default, these writers produces lists that display ``all at once.''
+If you want your lists to display incrementally (one item at a time),
+use the \verb!-i! option. If you want a particular list to depart from
+the default (that is, to display incrementally without the \verb!-i!
+option and all at once with the \verb!-i! option), put it in a block
+quote:
+
+\begin{verbatim}
+> - Eat spaghetti
+> - Drink wine
+\end{verbatim}
+In this way incremental and nonincremental lists can be mixed in a
+single document.
+
+\subsection{Styling the slides}
+
+You can change the style of HTML slides by putting customized CSS files
+in \verb!$DATADIR/s5/default! (for S5) or \verb!$DATADIR/slidy! (for
+Slidy), where \verb!$DATADIR! is the user data directory (see
+\verb!--data-dir!, above). The originals may be found in pandoc's system
+data directory (generally \verb!$CABALDIR/pandoc-VERSION/s5/default!).
+Pandoc will look there for any files it does not find in the user data
+directory.
+
+For dzslides, the CSS is included in the HTML file itself, and may be
+modified there.
+
+To style beamer slides, you can specify a beamer ``theme'' or
+``colortheme'' using the \verb!-V! option:
+
+\begin{verbatim}
+pandoc -t beamer habits.txt -V theme:Warsaw -o habits.pdf
+\end{verbatim}
+\section{Literate Haskell support}
+
+If you append \verb!+lhs! to an appropriate input or output format
+(\verb!markdown!, \verb!rst!, or \verb!latex! for input or output;
+\verb!html! or \verb!html5! for output only), pandoc will treat the
+document as literate Haskell source. This means that
+
+\begin{itemize}
+\item
+  In markdown input, ``bird track'' sections will be parsed as Haskell
+  code rather than block quotations. Text between \verb!\begin{code}!
+  and \verb!\end{code}! will also be treated as Haskell code.
+\item
+  In markdown output, code blocks with classes \verb!haskell! and
+  \verb!literate! will be rendered using bird tracks, and block
+  quotations will be indented one space, so they will not be treated as
+  Haskell code. In addition, headers will be rendered setext-style (with
+  underlines) rather than atx-style (with `\#' characters). (This is
+  because ghc treats `\#' characters in column 1 as introducing line
+  numbers.)
+\item
+  In restructured text input, ``bird track'' sections will be parsed as
+  Haskell code.
+\item
+  In restructured text output, code blocks with class \verb!haskell!
+  will be rendered using bird tracks.
+\item
+  In LaTeX input, text in \verb!code! environments will be parsed as
+  Haskell code.
+\item
+  In LaTeX output, code blocks with class \verb!haskell! will be
+  rendered inside \verb!code! environments.
+\item
+  In HTML output, code blocks with class \verb!haskell! will be rendered
+  with class \verb!literatehaskell! and bird tracks.
+\end{itemize}
+Examples:
+
+\begin{verbatim}
+pandoc -f markdown+lhs -t html
+\end{verbatim}
+reads literate Haskell source formatted with markdown conventions and
+writes ordinary HTML (without bird tracks).
+
+\begin{verbatim}
+pandoc -f markdown+lhs -t html+lhs
+\end{verbatim}
+writes HTML with the Haskell code in bird tracks, so it can be copied
+and pasted as literate Haskell source.
+
+\section{Authors}
+
+© 2006--2011 John MacFarlane (jgm at berkeley dot edu). Released under
+the \href{http://www.gnu.org/copyleft/gpl.html}{GPL}, version 2 or
+greater. This software carries no warranty of any kind. (See COPYRIGHT
+for full copyright and warranty notices.) Other contributors include
+Recai Oktaş, Paulo Tanimoto, Peter Wang, Andrea Rossato, Eric Kow,
+infinity0x, Luke Plant, shreevatsa.public, Puneeth Chaganti, Paul
+Rivier, rodja.trappe, Bradley Kuhn, thsutton, Nathan Gass, Jonathan
+Daugherty, Jérémy Bobbio, Justin Bogner, qerub, Christopher Sawicki,
+Kelsey Hightower, Masayoshi Takahashi, Antoine Latter, Ralf Stephan,
+Eric Seidel, B. Scott Michel.
+
+\end{document}

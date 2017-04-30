@@ -1,0 +1,14 @@
+$ ./using.sh 
+make: Nada a ser feito para `all'.
+Opened debug file '/home/ivan/tmp/userdebug'
+Message *without* debug!
+------------
+PID27246: Message *with* debug!
+------------
+PID27446: Message *with* debug!
+------------
+PID28295: Message *with* debug!
+------------
+PID28299: Message *with* debug!
+------------
+PID28303: Message *with* debug!

@@ -1,0 +1,62 @@
+Keep in mind that you are dealing with lossy compression here. Converting from Theora to MPEG and back will degrade video quality. Converting from Vorbis to MP3 and then back to Vorbis will degrade audio quality.
+
+Since you want the final result in Ogg Theora/Vorbis anyway, you can optimize the procedure. In order to do that, you need to install the packages vorbis-tools and oggz-tools. Then you can go on like this:
+
+oggzrip -c theora -o video.ogg screencast.ogg
+oggzrip -c vorbis -o audio.ogg screencast.ogg
+
+This will save the video and audio streams from the input file "screencast.ogg" to separate files "video.ogg" and "audio.ogg". No re-encoding will be done at this point, i.e. there will be no quality loss.
+
+oggdec -o audio.wav audio.ogg
+
+This will decode the audio stream to the uncompressed file "audio.wav" which you can load into Audacity and edit. After you have saved your changes to audio.wav, you can encode it to Vorbis again and merge it with the original video:
+
+oggenc -o audio.ogg audio.wav
+oggzmerge -o final.ogg video.ogg audio.ogg
+
+sudo apt-get install oggz-tools
+
+I had several "recordmydesktop" ogg/theora videos and I wanted to concatenate (join) them. I found a way to do it and I want to share it here.
+
+I couldn't find a way to concatenate theora videos in ogg container directly. Instead, I appended them inside a matroska container using the tools of the mkvtools package (following a post I found in lists.xiph.org). In the command line:
+
+Code:
+
+$ mkvmerge -o name-of-file.mkv first.ogg +second.ogg. +third.ogg
+
+... as many .ogg files as I had.
+
+Then, I had to demux both video and audio from matroska and remux into an ogg file. Well, this time mkvtools wasn't able to help me because mkvextract can't extract the video into an ogg file (mkvextract can only extract audio into an ogg file).
+
+The solution was to use gst-launch, from gstreamer. I passed the mkv file through a demuxer, splitting audio from video, and after it rejoins them in an .ogg file, using a muxer:
+
+Code:
+
+$ gst-launch-0.10 filesrc location=name-of-file.mkv ! matroskademux name=demux demux.video_00 ! queue ! theoraparse ! mux. demux.audio_00 ! queue ! vorbisparse ! mux. oggmux name=mux ! filesink location=final-file.ogg
+
+and, voilà, I had my ogg/theora video comprising several concatenated clips.
+
+Be careful, though:
+
+1) I read elsewhere that you can concatenate ogg/theora videos by concatenating the files (using cat). It didn't work for me, mplayer/xine/etc don't play videos concatenated this way.
+
+2) Clips must all have the same dimensions (height x width) for this to work. You can see this information using (from package oggz-tools):
+
+Code:
+
+$ oggzinfo name-of-file.ogg
+
+3) "mkvmerge" from the mkvtoonix package in the repositories didn't work for these ogg/theora files (complained about something in the ogg/theora input files). I have had to download source code from http://www.bunkus.org/videotools/mkvtoolnix/ and compile it.
+Zatta is offline   	Reply With Quote
+
+$ gst-launch-0.10 filesrc location=name-of-file.mkv ! matroskademux name=demux demux.video_00 ! queue ! theoraparse ! mux. demux.audio_00 ! queue ! vorbisparse ! mux. oggmux name=mux ! filesink location=final-file.ogg
+
+
+
+####
+mplayer -identify -frames 0 <movie.mp4>
+
+# e.g. mplayer -identify -frames 0 9.mp4
+# and
+
+hexdump -C <movie.mp4> | head

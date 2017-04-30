@@ -1,0 +1,124 @@
+!!! XML
+/
+  Document   : build.haml -> build.xml
+  Created on : #{Time.new}
+  Author     : ivan
+  Description:
+  Purpose of the document follows.
+
+/
+  Projeto
+%project{:basedir => ".", :default => "dist", :name => "MyProject"}
+
+  /
+    Remove end spaces
+  %target{ :name => "remove-trailing-spaces" }
+    %echo
+      Remove Trailing Spaces.
+    %apply{ :executable  => "sed",
+            :failonerror => "true" }
+      %arg{ :value => "s/[ ]*$//" }/
+      %arg{ :value => "-i" }/
+      %fileset{ :dir => "src" }
+        %include{ :name => "**/*.java" }/
+  /
+    Squeeze with SED.
+  %target{ :name    => "squeeze-blank",
+           :depends => "remove-trailing-spaces" }
+    %echo
+      Suppress repeated empty output lines.
+    %apply{ :executable  => "sed",
+            :failonerror => "true" }
+      %arg{ :value => "/^$/N;/\\n$/D" }/
+      %arg{ :value => "-i" }/
+      %fileset{ :dir => "src" }
+        %include{ :name => "**/*.java" }/
+  /
+    Artistic Style 1.24
+    Maintained by: Jim Pattee
+    Original Author: Tal Davidson
+  %target{ :name    => "indent",
+           :depends => "squeeze-blank" }
+    %echo
+      Indenting source code.
+    %apply{:executable  => "astyle",
+           :failonerror => "true" }
+      %arg{:value => "-A4" }/
+      %arg{:value => "-s4" }/
+      %arg{:value => "--indent=spaces=4" }/
+      %arg{:value => "-t4" }/
+      %arg{:value => "-b"  }/
+      %arg{:value => "-S"  }/
+      %arg{:value => "-N"  }/
+      %arg{:value => "-L"  }/
+      %arg{:value => "-w"  }/
+      %arg{:value => "-U"  }/
+      %arg{:value => "-F"  }/
+      %arg{:value => "-p"  }/
+      %arg{:value => "-H"  }/
+      %arg{:value => "-j"  }/
+      %arg{:value => "-y"  }/
+      %arg{:value => "-k3" }/
+      %arg{:value => "-z2" }/
+      %fileset{:dir => "src" }
+        %include{:name => "**/*.java" }/
+
+  %property{:name => "src.dir",     :value => "src"}/
+  %property{:name => "build.dir",   :value => "build"}/
+  %property{:name => "dist.dir",    :value => "dist"}/
+  %property{:name => "classes.dir", :value => "${build.dir}/classes"}/
+  %property{:name => "jar.dir",     :value => "${dist.dir}/lib"}/
+  %property{:name => "main-class",  :value => "${main}"}/
+
+  %description
+    simple example build file
+
+  %target{:name => "init"}
+
+    /
+      Create the time stamp
+    %tstamp/
+
+    /
+      Create the build directory structure used by compile
+    %mkdir{:dir => "${classes.dir}"}/
+
+  %target{:depends     => "init",
+          :description => "compile the source ",
+          :name        => "compile"}
+
+    /
+      Compile the java code from ${src} into ${build}
+    %javac{:destdir           => "${classes.dir}",
+           :includeantruntime => "false",
+           :srcdir            => "${src.dir}"}/
+
+  %target{:depends           => "compile",
+          :description       => "generate the distribution",
+          :name              => "dist"}
+
+    /
+      Create the distribution directory
+    %mkdir{:dir => "${jar.dir}"}/
+
+    /
+      Put everything in ${build} into the MyProject-${DSTAMP}.jar file
+    %jar{:basedir  => "${classes.dir}",
+         :destfile => "${jar.dir}/${ant.project.name}.jar"}
+      %manifest
+        %attribute{:name  => "Main-Class",
+                   :value => "${main-class}"}/
+
+  %target{:name        => "run",
+          :description => "run the aplication" }
+    %java{:jar  => "${jar.dir}/${ant.project.name}.jar",
+          :fork => "true" }/
+
+  %target{:description => "clean up",
+          :name        => "clean"}
+
+    /
+      Delete the ${build} and ${dist} directory trees
+    %delete{:dir => "${build.dir}"}/
+    %delete{:dir => "${dist.dir}" }/
+

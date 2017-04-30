@@ -1,0 +1,42 @@
+#include <iostream>
+using namespace std;
+
+void foo(int* address) {
+	(*address) = 30;
+}
+
+void bar(int& Address_of_var) {
+
+	Address_of_var = 40;
+}
+
+//
+// main
+//
+
+int main()
+{
+	int var =  20;
+
+	std::cout << "var = " << var << std::endl;
+
+	foo(&var);
+	std::cout << "var = " << var << std::endl;
+
+	bar(var);
+	std::cout << "var = " << var << std::endl;
+
+	int *p;
+	p = &var;
+
+	foo(p);
+	std::cout << "var = " << var << std::endl;
+
+	bar(*p);
+	std::cout << "var = " << var << std::endl;
+
+	*p = 50;
+	std::cout << "var = " << var << std::endl;
+
+	return 0; // success return
+}

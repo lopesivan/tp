@@ -1,0 +1,25 @@
+/* vi:set nu nowrap:
+ * $Id:$
+ * Federal University of Rio de Janeiro
+ *      Author: Ivan carlos da Silva Lopes
+ *        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+ *     License: <+LICENSE+>
+ *    Language: C ansi
+ *        File: biblioteca.h
+ *        Date: Ter 14 Dez 2010 01:42:29 BRST
+ * Description:
+ */
+
+#ifndef BIBLIOTECA_H
+#define BIBLIOTECA_H
+
+/*****************************************************************************
+ *                                                                           *
+ *  --------------------------- Public Interface --------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+int foo(void);
+int bar(void);
+
+#endif				/* biblioteca.h */

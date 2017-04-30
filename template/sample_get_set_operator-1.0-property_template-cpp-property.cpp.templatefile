@@ -1,0 +1,77 @@
+// Property Template for C++
+// 2010/11/11
+// ppetruzalek@yahoo.com.br
+
+#include <string>
+
+using namespace std;
+
+template<class T>
+class Property
+{
+	T	m_;
+	bool	m_readonly;
+
+public:
+	Property(bool readonly = false):m_readonly(readonly) {}
+	Property(T value, bool readonly = false):m_(value),m_readonly(readonly) {}
+	Property(const Property<T>& rhs) { m_ = rhs.m_; m_readonly = rhs.m_readonly; }
+	~Property() {}
+	
+	const Property<T>& operator=(const T& rhs) { Set(rhs); return *this; }
+	const Property<T>& operator=(const Property<T>& rhs)
+	{
+		if( this != &rhs )
+		{
+			m_ = rhs.m_;
+			m_readonly = rhs.m_readonly;
+		}
+		return *this;
+	}
+
+	bool	operator==(const T& rhs) { return m_ == rhs; }
+	bool	operator==(const Property<T>& rhs) { return m_ == rhs.m_; }
+
+	T	operator()() { return m_; }
+	T	Get() { return m_; }
+	void	Set(T value) { if( !m_readonly ) m_ = value; }
+};
+
+template<>
+class Property<string>
+{
+	T	m_;
+	bool	m_readonly;
+
+public:
+	Property(bool readonly = false):m_readonly(readonly) {}
+	Property(T value, bool readonly = false):m_(value),m_readonly(readonly) {}
+	Property(const Property<T>& rhs) { m_ = rhs.m_; m_readonly = rhs.m_readonly; }
+	~Property() {}
+	
+	const Property<T>& operator=(const T& rhs) { Set(rhs); return *this; }
+	const Property<T>& operator=(const Property<T>& rhs)
+	{
+		if( this != &rhs )
+		{
+			m_ = rhs.m_;
+			m_readonly = rhs.m_readonly;
+		}
+		return *this;
+	}
+
+	bool	operator==(const T& rhs) { return m_ == rhs; }
+	bool	operator==(const Property<T>& rhs) { return m_ == rhs.m_; }
+
+	T	operator()() { return m_; }
+	T	Get() { return m_; }
+	void	Set(T value) { if( !m_readonly ) m_ = value; }
+	
+	// This method enables the sintax:
+	// Property<string> p = "text";
+	const Property<string>& operator=(const char* rhs)
+	{
+		m_ = rhs;
+		return *this;
+	}
+};

@@ -1,0 +1,5 @@
+dia2code  classes.dia -t c
+hw -c > main.c
+ls *.h| sed 's/.*/#include "&"/' >> main.c
+easymk -p *.c --with-prerequisite > Makefile
+

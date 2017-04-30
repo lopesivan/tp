@@ -1,0 +1,21 @@
+#!/bin/sh
+
+VERSION="0.1"
+DirSrc=~/src
+
+echo "Pre-building configuration"
+
+echo '***Test***'
+test -e $DirSrc || mkdir $DirSrc
+
+cd $DirSrc
+
+echo '***Git***'
+git clone http://cx4a.org/repo/gccsense.git
+git clone http://cx4a.org/repo/gcc.git
+cd gcc
+
+# checkout code-assist branch
+git checkout code-assist
+
+exit 0

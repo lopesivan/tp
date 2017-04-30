@@ -1,0 +1,132 @@
+: ${ID_F_SOURCE_APP:=app}
+: ${ID_F_SOURCE_MYFRAME:=MyFrame}
+: ${ID_F_SOURCE_MYAPP:=MyApp}
+
+MK_MAKEFILE()
+{
+cat << __EOF__ | sed 's/[ \t]*$//; /./,/^$/!d' > ${application_name}/${SOURCE_DIR}/Makefile
+program        := ${ID_F_SOURCE_APP%.cpp}
+sources        := ${ID_F_SOURCE_APP} ${ID_F_SOURCE_MYFRAME} ${ID_F_SOURCE_MYAPP}
+WXWIDGETS_PATH := $WXWIDGETS_PATH
+
+ifdef DMAKE
+	DBGMAKE := @echo
+endif
+
+CXX   = g++
+CC    = \$(DBGMAKE) \$(CXX)
+LD    = \$(CC)
+
+CTAGS = \$(DBGMAKE) ctags
+RM    = \$(DBGMAKE) /bin/rm
+
+LDFLAGS     = -o
+GDBFLAGS    = -g
+WARNINGS    = -Wall
+
+CFLAGS      = -c                     \\
+              -pthread               \\
+              -pthread               \\
+              -Wundef                \\
+              -Wno-ctor-dtor-privacy \\
+              -O2                    \\
+              -fno-strict-aliasing
+
+DEFINEFLAGS = -D__WXGTK__            \\
+              -D_FILE_OFFSET_BITS=64 \\
+              -D_LARGE_FILES         \\
+              -DPNG_NO_MMX_CODE      \\
+              -DWX_PRECOMP           \\
+              -DWXUSINGDLL
+
+HEADERS     = atk-1.0             \\
+              cairo               \\
+              freetype2           \\
+              gail-1.0            \\
+              glib-2.0            \\
+              gtk-2.0             \\
+              libart-2.0          \\
+              libgnomecanvas-2.0  \\
+              libgnomeprint-2.2   \\
+              libgnomeprintui-2.2 \\
+              libpng12            \\
+              libxml2             \\
+              pango-1.0
+
+LIBRARY     = atk-1.0             \\
+              dl                  \\
+              expat               \\
+              fontconfig          \\
+              gdk_pixbuf-2.0      \\
+              gdk-x11-2.0         \\
+              glib-2.0            \\
+              gmodule-2.0         \\
+              gobject-2.0         \\
+              gthread-2.0         \\
+              gtk-x11-2.0         \\
+              jpeg                \\
+              m                   \\
+              pango-1.0           \\
+              png                 \\
+              rt                  \\
+              SM                  \\
+              tiff                \\
+              wx_base-2.8         \\
+              wx_base_xml-2.8     \\
+              wx_gtk2_adv-2.8     \\
+              wx_gtk2_core-2.8    \\
+              wx_gtk2_html-2.8    \\
+              X11                 \\
+              Xcomposite          \\
+              Xcursor             \\
+              Xdamage             \\
+              Xext                \\
+              Xfixes              \\
+              Xi                  \\
+              Xinerama            \\
+              Xrandr              \\
+              Xrender             \\
+              Xxf86vm             \\
+              z
+
+INCLUDE     = \$(addprefix -I/usr/include/,\$(HEADERS)/lib)               \\
+              \$(addprefix -I/usr/lib/,glib-2.0/include gtk-2.0/include) \\
+              -I\$(WXWIDGETS_PATH)/lib/wx/include/gtk2-ansi-release-2.8  \\
+              -I\$(WXWIDGETS_PATH)/include                               \\
+              -I\$(WXWIDGETS_PATH)/samples                               \\
+              -I../include
+
+LIBS        = -L/usr/openwin/lib                                    \\
+              -L\$(WXWIDGETS_PATH)/lib                               \\
+              -Wl,-rpath,\$(WXWIDGETS_PATH)/lib                      \\
+              -Wl,--version-script,\$(WXWIDGETS_PATH)/version-script \\
+              -L/usr/openwin/lib                                    \\
+              \$(addprefix -l,\$(LIBRARY))
+
+objects     = \$(sources:.cpp=.o)
+programs    = \$(program)
+
+#
+# Compile
+#
+
+.cpp.o:
+	@echo "Compiling \$< using CXX=\$(CXX) `date`\n`gcc -v 2>&1| tail -1`"
+	\$(CC) \$(CFLAGS) \$(DEFINEFLAGS) \$(WARNINGS) \$(INCLUDE) \$<
+
+all:    \$(programs)
+
+tags:
+	\$(RM) -rf tags
+	\$(CTAGS) -R --c++-kinds=+p --fields=+iaS --extra=+q \$(sources) *.hpp
+
+\$(program): \$(objects)
+	\$(CC) \$(LDFLAGS) \$@ \$^ \$(LIBS)
+
+clean:
+	\$(RM) -rf \$(program) \$(objects) *.orig a.out
+
+__EOF__
+}
+
+MK_MAKEFILE

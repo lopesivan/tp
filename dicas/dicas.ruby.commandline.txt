@@ -1,0 +1,12 @@
+# passando comando para o interpretador ruby
+echo 1.class | ruby -e "print eval STDIN.read"
+
+shell_script_output = `./shell-script.sh`
+puts shell_script_output
+
+$ echo Ubuntu_10.04.1_LTS | ruby -ne 'BEGIN{$\="\n"}; a=$_.chomp; puts "#{a.upcase}"'
+UBUNTU_10.04.1_LTS
+
+$ echo Ubuntu_10.04.1_LTS | ruby -ne 'BEGIN{$\="\n"}; a=$_.chomp; puts "#{a.downcase}"'
+ubuntu_10.04.1_lts
+

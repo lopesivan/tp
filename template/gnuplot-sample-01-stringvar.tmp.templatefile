@@ -1,0 +1,18 @@
+Exercise string handling functions
+
+foo          = ,foo
+strlen(foo)  = 3
+substr(foo,3,4) = o
+
+haystack     = `date`
+haystack     = Thu Nov  5 04:18:28 BRST 2009
+needle       = :
+S = strstrt(haystack,needle) = 14
+haystack[S-2:S+2] = 04:18
+It is now 04:18
+
+words(haystack)   = 6
+word(haystack,5)  = BRST
+
+sprintf output of long strings works OK
+

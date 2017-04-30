@@ -1,0 +1,16 @@
+\section{Summary}
+
+\subsection*{}
+
+\begin{frame}{Comments}
+\begin{itemize}
+\item There are many different ways of accomplishing the same task with \LaTeX.  Once one finds something that
+works, stick with it until one finds a better way of doing it.
+\item One should definitely explore different themes with {\tt beamer}.  Make extensive use of the references listed
+at the end.
+\item Putting too many fancy things into a presentation takes away from the purpose of the presentation, i.e., the 
+content.  Sometimes basic is better.
+\item With {\tt beamer} flexibility is the key.  Note that {\tt beamer} provides a powerful alternative to 
+using Microsoft Powerpoint.
+\end{itemize}
+\end{frame}

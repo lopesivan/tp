@@ -1,0 +1,29 @@
+#include <iostream>
+#include <string>
+
+#include "MyString.h"
+
+int main ()
+{
+    MyString ms("Hello World!");
+
+    std::cout << "MyString ms is " << ms << std::endl; //!==> USE CASE 1
+
+    ms = "hehehe";
+
+    std::cout << "MyString ms is " << ms << std::endl;
+
+    if (ms == "hehehe") //!==> USE CASE 2
+        std::cout << "ms matches const char * !!!" << std::endl;
+    else
+        std::cout << "nope." << std::endl;
+
+    std::string str = "hehehe";
+
+    if (str == static_cast<const char *>(ms)) //!==> USE CASE 3
+        std::cout << "ms matches std::string !!!" << std::endl;
+    else
+        std::cout << "nope." << std::endl;
+
+    return 0;
+}

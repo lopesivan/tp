@@ -1,0 +1,16 @@
+###############
+# get source. #
+###############
+cmd='--cpp-basic-sample-class-string-Capacity-length-01'
+n=$(expr "$(tp list ${cmd}| nl| tail -2| head -1)" : '[[:blank:]]*\([0-9]*\)')
+
+arr=( empty empty `tp list ${cmd} | sed -n "2,${n}s/.*-//p"` ) && seq -f"tp %g " 2 $n | sed 's/tp \([0-9]\+\)/& > ${arr[\1]}/' > prj
+cat << EOF >> prj
+chmod +x run.sh
+EOF
+
+# run
+. prj
+
+# clean
+history | tail -1 | sed 's/.*\./rm prj  /'| sh

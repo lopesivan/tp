@@ -1,0 +1,170 @@
+Log in Page Discussion History Go to the site toolbox
+
+GStreamer/C Hello World
+
+From BluWiki
+
+This would guide you on your first GStreamer application written in C.
+
+For a quick introduction to GStreamer go GStreamer here.
+
+The code is here.
+
+Contents
+
+  • 1 The Basics
+  • 2 Compilation
+  • 3 The Bus
+  • 4 Enjoy
+  • 5 References
+
+The Basics
+
+We first start creating a playbin, which is a GStreamer element:
+
+GstElement *pipeline;
+pipeline = gst_element_factory_make ("playbin", "player");
+
+Then we specify the URI we want to play, i.e. file://tmp/foobar.mp3
+
+g_object_set (G_OBJECT (pipeline), "uri", uri, NULL);
+
+Now, we would want to play this:
+
+gst_element_set_state (GST_ELEMENT (pipeline), GST_STATE_PLAYING);
+
+But nothing would happen if we don't have a GLib mainloop:
+
+GMainLoop *loop;
+loop = g_main_loop_new (NULL, FALSE);
+g_main_loop_run (loop);
+
+And of course, we need to initialize GStreamer:
+
+gst_init (&argc, &argv);
+
+or, if you don't have argc/argv available:
+
+gst_init (NULL, NULL);
+
+That's it, at the end you should stop the pipeline and free it:
+
+gst_element_set_state (GST_ELEMENT (pipeline), GST_STATE_NULL);
+gst_object_unref (GST_OBJECT (pipeline));
+
+Compilation
+
+Nothing complicated here, pkg-config will tell us all we need to know:
+
+gcc `pkg-config --cflags --libs gstreamer-0.10` hello.c -o gst_hello
+
+The Bus
+
+Great! we have something that plays, but it won't even exit properly, nor show
+any errors.
+
+In order to get messages, errors, and other important information while the
+mainloop is running we need a bus watch from this pipeline:
+
+GstBus *bus;
+bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
+gst_bus_add_watch (bus, bus_call, NULL);
+gst_object_unref (bus);
+
+static gboolean
+bus_call (GstBus *bus,
+          GstMessage *msg,
+          gpointer user_data)
+{
+    switch (GST_MESSAGE_TYPE (msg))
+    {
+        case GST_MESSAGE_EOS: break;
+        case GST_MESSAGE_ERROR: break;
+        default: break;
+    }
+
+    return true;
+}
+
+When we get the EOS message, we would like to exit the application, right?
+
+g_main_loop_quit (loop);
+
+And if we get an ERROR message, we would like to display it, and exit:
+
+gchar *debug;
+GError *err;
+
+gst_message_parse_error (msg, &err, &debug);
+g_free (debug);
+
+g_error ("%s", err->message);
+g_error_free (err);
+
+g_main_loop_quit (loop);
+
+It seems we have everything!
+
+Enjoy
+
+Now you can listen to your music or watch videos with this. And remember, it
+receives a URI, so "test.avi" won't work, you need the whole thing:
+
+./gst_hello "file://$PWD/test.avi"
+
+Or even better!
+
+./gst_hello http://www.xiph.org/vorbis/listen/compilation-ogg-q4.ogg
+
+References
+
+  • GLib
+  • GStreamer
+
+Retrieved from "http://bluwiki.com/go/GStreamer/C_Hello_World"
+
+Site Toolbox:
+
+Search
+
+[                    ]
+[Go][Search]
+Views
+
+  • Page
+  • Discussion
+  • View source
+  • History
+
+Toolbox
+
+  • What links here
+  • Related changes
+  • Special pages
+  • Printable version
+  • Permanent link
+
+Personal tools
+
+  • Log in
+
+Navigation
+
+  • BluWiki: free wiki host
+  • Create a free Wiki
+  • BluWiki Directory
+  • Community Portal
+  • Recent Changes
+  • Donations
+  • Craft Shows
+  • Help
+  • User Help/Questions
+
+                                                                           Powered
+GNU Free      This page was last modified on 19 January 2008, at 14:08.         by
+Documentation         - This page has been accessed 9,528 times.         MediaWiki
+License 1.2                  Disclaimers - About BluWiki                 BluWiki's
+                                                                            simple
+                                                                              skin
+
+Quantcast

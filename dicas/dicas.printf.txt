@@ -1,0 +1,168 @@
+parcialmente do livro "Shell Scripting with Bash" de Ken O. Burtch. Uma das mais completas e didáticas publicações sobre Shell, traduzido e adaptado por mim.
+
+O Shell também é uma poderosa linguagem de programação e a semelhança do C e outras linguagens possui também um comando printf.
+
+O printf possui muitas funcionalidades interessantes quando precisamos fazer scripts que precisam enviar mensagens. Entendam que o printf é como o echo, porém muito mais elaborado e com ele podemos fazer em uma única linha de código o que seria necessário diversas linhas empregando o echo e com a vantagem de não serem abertos shells filhos, o que otimiza a execução de seus scripts.
+
+O %d e o %f
+Estes parâmetros do printf possuem uma função semelhante a de um array em shell script, sendo que o %d captura somente números inteiros e o %f números com casas decimais flutuantes. Exemplos:
+
+$ printf "%d\n" 2
+Sua saída será o numeral 2.
+
+$ printf "%d\n" 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 30 40 50 60 70 80 90 100 200
+Sua saída serão os numerais listados acima dispostos verticalmente.
+
+Em certos casos podemos facilmente substituir um for conjugado com um seq pelo printf como no exemplo acima.
+
+Mas vamos agora ver o parâmetro %f, ele é idêntico ao %d porém captura números com casas flutuantes.
+
+$ printf "%f\n" 2 3 4 5 6
+Sua saída serão os números de 2 até seis com 6 casas decimais.
+
+Os parâmetros acima "descapturam" os parâmetros na mesma ordem em que foram capturados.
+
+$ printf "O número %d é menor que %d que por sua vez é menor que %d que ainda é menor que %d." 1 2 3 4
+
+Sua saída será:
+O número 1 é menor que 2 que por sua vez é menor que 3 que ainda é menor que 4.[root@server]
+
+Observem o prompt logo após a saída. Para termos uma saída mais elegante ao final da linha acrescentamos o parâmetro \n (new line).
+
+$ printf "O número %d é menor que %d que por sua vez é menor que %d que ainda é menor que %d.\n" 1 2 3 4
+
+Podemos ainda fazer uma arrumação em nosso exemplo, exibindo-o em diversas linhas, notem a diferença.
+
+$ printf "O número %d\né menor que %d\nque por sua vez é menor que %d\nque ainda é menor que %d.\n" 1 2 3 4
+
+A saída do camando acima será...
+
+O número 1
+é menor que 2
+que por sua vez é menor que 3
+que ainda é menor que 4.
+
+Podemos ainda conjugar %d com %f:
+
+$ printf "O número %d\né menor que %d\nque por sua vez é menor que %d\nque ainda é menor que %d.\nE %f é um decimal\n" 1 2 3 4 5.25
+
+Vejam como será sua saída!
+
+O número 1
+é menor que 2
+que por sua vez é menor que 3
+que ainda é menor que 4.
+E 5.250000 é um decimal
+
+O parâmetro %g ( geral )
+Idêntico aos %d e %f, sendo a única diferença que ele não faz distinção entre números inteiros e com casa decimais.
+
+O parâmetro %s
+O %s é pau para toda obra, podemos manipular qualquer coisa.
+
+Observem os comandos:
+
+$ variavel=TESTE
+$ printf "%s\n" "Captura qualquer coisa que se passe como parâmetro" "Linha 2" "Linha 3" "$variavel"
+
+Sua saída será:
+
+Captura qualquer coisa que se passe como parâmetro
+Linha 2
+Linha 3
+TESTE
+
+O parâmetro %q
+O %q é muito parecido com o %s só que fornece a saída com espaços separados por \ paar que estes possam ser interpretados pelo shell quando inseridos em um script. Exemplo:
+
+$ printf "%q" "Diretório ao estilo M$"
+
+Sua saída será:
+
+Diretório\ ao\ estilo\ M\$[root@server]:~#
+
+Notem o erro acima "M\$" Isso por que o $ (dólar) é uma caracter interpretado pelo shell. Devemos ter cuidado ao empregar estes caracteres, pois eles são "lidos" pelo shell antes de serem entregues ao printf.
+
+Os parâmetros %a e %A
+Estes parâmetros são idênticos ao %f porém exibem a saída em hexadecimal com ponto flutuante, sendo que o %a exibe a saída em letras minúsculas e o %A em maiúsculas.
+
+Exemplo:
+
+O comando printf "%A\n" 1.25 32.478 2500.2356 dará uma saída assim:
+
+0XAP-3
+0X8.1E978D4FDF3B646P+2
+0X9.C43C504816F0069P+8
+
+OBS: Os parâmetros %A e %a somente aceitam a entrada de parâmetros em números decimais (com casas decimais) e hexadecimais também com casas decimais e somente fazem a conversão de base 10 para 16 ( Hex ) e não o contrário.
+
+Os parâmetros %x %X
+Idênticos aos anteriores, porém tratam somente de números hexadecimais inteiros. Exemplo:
+
+$ printf "%X\n" 0xFF 255
+
+Sua saída será:
+
+FF
+FF
+
+Notem que os %x notem a conversão de 255 decimal para hexadecimal, Apenas lembrando que em shell representações hexadecimais devem ser precedidas de "0x".
+
+Este parâmetro é muito útil quando precisamos fazer scripts que tenham que tratar valores hexadecimais como por exemplo scripts de firewall ou controle de banda, onde os pacotes devem receber marcas notadas em hexadecimal.
+
+O parâmetro %o
+O "o" é de octal, ele captura números decimais inteiros e os converte para a base 8. Exemplo:
+
+$ printf "%o\n" 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+
+Sua saída será:
+
+1
+2
+3
+4
+5
+6
+7
+10
+11
+12
+13
+14
+15
+16
+17
+20
+
+O parâmetro %e
+Este parâmetro é empregado na manipulação de números decimais em ponto flutuante em forma exponencial ou notação científica. É a forma de exibir grandezas de alta magnitude. Exemplo:
+
+$ printf "%e\n" 150000000000000000000000000000000
+
+Sua saída será:
+
+1.500000e+32
+
+Ou seja, 1.5 multiplicado por 10 elevado a 32.
+
+Assim como como podemos exibir grandezas astronômicas, também podemos exibir gradezas subatômicas:
+
+$ printf "%e\n" 0.00000000000000000000000000000000000000000000000015
+
+Sua saída será:
+
+1.500000e-49, ou seja, 1.5 multiplicado por 10 elevado a -49.
+
+Se estiver desenvolvendo um script para física de partículas ou astronomia o %e é o seu parâmetro!
+
+O parâmetro %%
+Ele é usado apenas para exibir um caracter "%" (porcentagem).
+
+O printf possui também chaves de posicionamento de cursor. Estas são:
+
+    * \b - backspace
+    * \f - formfeed
+    * \n - new line (mencionado acima)
+    * \v - tabulação vertical (usado com a chave \n produz tantos saltos de linha entre uma linha e outra quantas forem sua inserções. Ex: \n\v salta uma linha, \n\v\v saltam duas e assim por diante. 
+
+

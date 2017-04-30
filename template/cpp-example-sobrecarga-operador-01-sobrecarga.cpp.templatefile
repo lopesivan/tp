@@ -1,0 +1,36 @@
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+enum Semana
+{
+    DOM,
+    SEG,
+    TER,
+    QUA,
+    QUI,
+    SEX,
+    SAB
+};
+
+Semana& operator++ (Semana& dia)	 //pr-incremento
+{
+    return dia = static_cast<Semana> ((dia + 1) % 7);
+}
+
+//ps-incremento
+Semana& operator++ (Semana& dia, int)
+{
+    return dia = static_cast<Semana> ((dia + 1) % 7);
+}
+
+int main ()
+{
+    Semana dia = SEX;
+    cout << dia << endl;		 // SEX (5)
+    cout << ++dia << endl;		 // SAB (6)
+    cout << ++dia << endl;		 // DOM (0)
+    dia++;						 // SEG (1)
+    cout << dia << endl;
+}

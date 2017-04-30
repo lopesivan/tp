@@ -1,0 +1,26 @@
+#include <stdio.h>
+#include "person.h"
+
+int
+main ()
+{
+    /*
+     * Instantiates 2 persons
+     */
+    person *person1 = new_person ("Murilo", 21);
+    person *person2 = new_person ("Rovane", 47);
+
+    /*
+     * print
+     */
+    _(person1)->print ();
+    _(person2)->print ();
+
+    /*
+     * free
+     */
+    _(person1)->free ();
+    _(person2)->free ();
+
+	return 1;
+}

@@ -1,0 +1,27 @@
+#$ android create avd -n Android_2.2 -t 8 -c 128M
+#$ android list avd
+
+###
+## emulator
+#
+
+#$ emulator -avd Android_2.2
+
+# ndk
+# cd /home/ivan/workspace/android-ndk-r5b/samples/hello-jni
+# $ android update project -p . -s
+# $ ndk-build
+# $ ant debug
+# $ emulator -avd Android_2.2 &
+# $ adb install bin/HelloJni-debug.apk
+
+#android create project \
+#--target 1 \
+#--name MyAndroidApp \
+#--path ./MyAndroidAppProject \
+#--activity MyAndroidAppActivity \
+#--package com.example.myandroid
+
+#android update project --name <project_name> --target <target_ID>
+#--path <path_to_your_project>
+

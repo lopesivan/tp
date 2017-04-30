@@ -1,0 +1,46 @@
+= ============ =
+= no server... =
+= ============ =
+
+sudo -s # root
+su git
+repo=repo_name
+mkdir ${repo}.git
+cd ${repo}.git
+git --bare init
+
+= =========== =
+= no host ... =
+= =========== =
+git config --global user.email lopesivan@poli.ufrj.br
+git config --global user.name "Ivan Carlos Da Silva Lopes"
+
+repo=repo_name
+mkdir $repo && cd $repo
+git init
+echo "Inicializando o repositório $repo" > readme
+git add .
+git commit -m "inicializando $repo"
+git remote add origin git@mygit:repositories/${repo}.git
+git push origin master
+
+
+= ============ =
+= no host2 ... =
+= ============ =
+git clone  git@mygit:repositories/repo.git
+cd repo
+echo "mais mais mais" >> readme
+git add .
+git commit -m 'fazendo uma modificacao'
+git push origin
+
+
+Cloning and Creating a Patch
+
+$ git clone git://github.com/git/hello-world.git
+$ cd hello-world
+$ (edit files)
+$ git add (files)
+$ git commit -m 'Explain what I changed'
+$ git format-patch origin/master

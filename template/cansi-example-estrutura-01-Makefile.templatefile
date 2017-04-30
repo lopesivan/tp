@@ -1,0 +1,9 @@
+# Makefile: A standard Makefile for estrutura.c
+
+#LIBS        = -L/usr/X11R6/lib -lGL -lGLU -lglut -lXi -lXmu -lXext -lX11 -lm
+#LDFLAGS    += $(LIBS)
+
+all  : estrutura
+clean:
+	/bin/rm -rf estrutura estrutura.o 
+# END OF FILE

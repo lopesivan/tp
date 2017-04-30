@@ -1,0 +1,10 @@
+digraph G {
+	node  [ fontname = "Vera" ]
+	edge  [ fontname = "Vera" ]
+
+	"Hilda Lopes"  -> "Ivan Lopes"    [ label=12 ]
+	"Ivan Lopes"   -> "Hilda Lopes"   [ label=12 ]
+	"Hilda Lopes"  -> "Ivan Carlos"   [ label=12 ]
+	"Ivan Lopes"   -> "Ivan Carlos"   [ label=12 ]
+	"Ivan Carlos"  -> "*"             [ label=12 ]
+}

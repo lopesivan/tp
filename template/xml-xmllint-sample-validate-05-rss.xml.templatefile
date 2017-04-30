@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE rss SYSTEM "rss0.91.dtd">
+
+<rss version="0.91">
+
+	<channel>
+		<title>UML Headlines</title>
+		<description>Recent news about the Unified Modeling Language (UML).  </description>
+		<language>en­us</language>
+		<link>http://xmlmodeling.com</link>
+		<managingEditor>editor@xmlmodeling.com</managingEditor>
+		<skipDays>
+			<day>Saturday</day><day>Sunday</day>
+		</skipDays>
+		<pubDate>July 1, 2000</pubDate>
+		<image>
+			<title>UML Headlines</title>
+			<url>http://xmlmodeling.com/images/xmlmodeling.jpg</url>
+			<link>http://xmlmodeling.com</link>
+			<width>88</width>
+			<height>31</height>
+		</image>
+
+		<item>
+			<title>UML version 1.3 adopted by the OMG</title>
+			<link>http://www.omg.org</link>
+			<description>The OMG's UML specification is the industry standard for
+				analysis and design.</description>
+		</item>
+		<item>
+			<title>Rational Rose 2000e released</title>
+			<link>http://www.rational.com</link>
+			<description>Rational announced the release of Rational Rose
+				2000e.</description>
+		</item>
+		<item>
+			<title>TogetherJ 4.0 released</title>
+			<link>http://www.togethersoft.com</link>
+			<description>The Together 4.0 product line is now shipping.</description>
+		</item>
+	</channel>
+</rss>

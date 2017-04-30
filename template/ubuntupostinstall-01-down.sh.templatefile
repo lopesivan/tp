@@ -1,0 +1,20 @@
+#! /bin/bash
+
+a=(
+ffmpeginstall-with-webm.sh
+ffmpeginstall.sh
+ffmpegupdate.sh
+firefoxpostinstall.sh
+gstreamerinstall.sh
+qosboxpostinstall.sh
+ratcompostinstall.sh
+ubuntupostinstall.sh
+vlcinstall.sh
+)
+
+url=http://svn.nicolargo.com/ubuntupostinstall/trunk/
+
+for f in ${a[*]}; do
+	echo wget ${url}${f}
+	wget ${url}${f}
+done

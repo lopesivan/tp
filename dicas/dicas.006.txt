@@ -1,0 +1,52 @@
+Como fazer cópias físicas de um dispositivo usando dd
+@=@=@006
+@
+@
+Existe um comando no Linux que consegue fazer uma cópia fiel um dispositivo
+ligado ao sistema. Seu nome é dd.
+
+Por exemplo:
+
+Se eu preciso copiar um disquete (todos os bytes dele, não somente os arquivos
+dele), poderei usar:
+
+dd if=/dev/fd0 of=arquivo_de_imagem
+
+O dd irá tomar como arquivo de entrada (if, input file) o dispositivo
+/dev/fd0, que é a unidade A: no mundo Windows e usará um arquivo com o nome
+“arquivo_de_imagem” (ou qualquer outro nome que você quiser) como destino (of,
+output file). Para gravar de volta em outro disco, use o inverso do comando:
+
+dd if=arquivo_de_imagem of=/dev/fd0
+
+Assim, o dd irá ler o arquivo_de_imagem e gravar o conteúdo dele no
+dispositivo do disquete.
+
+Esta imagem de disco é tão perfeita, que pode ser acessada como se fosse um
+disquete normal, bastando montá-la assim:
+
+mount -t vfat arquivo_de_imagem diretorio -o loop
+
+Onde “-t vfat” é o sistema de arquivos que o disco foi formatado (vfat é do
+DOS/Windows, ext2 do Linux, etc), “diretório” é um diretório vazio (que deve
+ser criado antes de executar este comando) onde o conteúdo do arquivo será
+acessado e “-o loop” é para informar que o arquivo não é um dispositivo
+físico.
+
+Para deixar a dica mais “interessante”, vocês podem usar o dd para gerar
+imagens de cd (.iso), bastanto alterar o arquivo de entrada para o dispositivo
+do seu cdrom (normalmente é /dev/cdrom, mas isto pode variar de instalação
+para instalação):
+
+dd if=/dev/cdrom of=imagem.iso
+
+E depois montar a imagem como se fosse um cd:
+
+mount -t iso9660 imagem.iso diretorio -o loop
+
+Esta ultima parte da dica também pode ser útil para testarmos imagens de cd
+baixadas da Internet antes de queimar um cd. Se não montar é porque a imagem
+pode estar com problemas e talvez seja necessário baixa-la novamente.
+
+Obs: o dispositivo do disquete/cdrom NÃO precisa ser montado antes da operação
+de cópia com o dd.

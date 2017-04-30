@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <curses.h> /* widget lib */
+
+#include "incurse.h"
+
+void screen_init(WINDOW *widget, WINDOW *screen)
+{
+
+  widget = initscr();
+
+  noecho();
+  cbreak();
+  nodelay(widget, TRUE);
+  refresh();
+
+  wrefresh(widget);
+
+  screen = newwin(13, 27, 1, 1);
+
+  box(screen, ACS_VLINE, ACS_HLINE);
+}
+
+void update_display(WINDOW *screen)
+{
+
+  struct tm *localtime;
+
+  getlocaltime(localtime);
+
+  curs_set(0);
+
+  mvwprintw(screen, 1,  1, "-------- HEADER --------");
+  mvwprintw(screen, 3,  6, "TIME: %d:%d:%d", localtime->tm_hour,
+            localtime->tm_min,
+            localtime->tm_sec);
+
+  mvwprintw(screen, 5,  6, "DATE: %d-%d-%d", localtime->tm_mday,
+            localtime->tm_mon  + 1,
+            localtime->tm_year + 1900);
+
+  mvwprintw(screen, 7,  6, "PRESS q TO END");
+  mvwprintw(screen, 10, 1, "-------- FOOTER -------");
+
+  wrefresh(screen);
+  refresh();
+}
+
+void screen_end(void)
+{
+  endwin();
+}
+
+void getlocaltime(struct tm *localtime_tm)
+{
+
+  time_t now;
+
+  /* Get the current date/time */
+  now          = time (NULL);
+  localtime_tm = localtime (&now);
+}

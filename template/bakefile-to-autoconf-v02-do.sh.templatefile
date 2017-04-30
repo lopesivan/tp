@@ -1,0 +1,7 @@
+#!/bin/sh
+haml hello.haml hello.bkl
+bakefile -f autoconf hello.bkl
+aclocal -I . -I /usr/local/share/aclocal/
+autoconf
+bakefilize --copy
+exit 0

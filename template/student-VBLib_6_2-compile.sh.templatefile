@@ -1,0 +1,84 @@
+#!/bin/bash
+# vi:set nu nowrap:
+# compile.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: compile.sh
+#        Date: Sun 17 Aug 2008 11:00:06 PM BRT
+# Description:
+#
+#
+
+# ----------------------------------------------------------------------------
+#sbvb_home=$path_to_sbVB/VBLib_6_2
+
+[ "$sbvb_home" ] || {
+	echo "error: define sbvb_home" >&2
+	exit 1
+}
+
+   CXXFLAGS="-fPIC -O3 -fno-strict-aliasing"
+INCLUDE_DIR="-I$sbvb_home/include -I$sbvb_home/test"
+    SRC_DIR=$sbvb_home/src
+       SRCS="
+VBBinaryData.cpp
+VBClock.cpp
+VBCrossDLL.cpp
+VBDate.cpp
+VBException.cpp
+VBFileDirectory.cpp
+VBLib.cpp
+VBMD5.cpp
+VBString.cpp
+VBProcessArgs.cpp
+"
+
+for src in $SRCS; do
+	echo Compiling $src ...
+	echo g++ $CXXFLAGS $INCLUDE_DIR -c $SRC_DIR/VBLib/$src
+	g++ $CXXFLAGS $INCLUDE_DIR -c $SRC_DIR/VBLib/$src
+done
+
+LIBNAME=VBLib
+VERSION=6.2
+OBJS="`echo $SRCS| sed 's/\.cpp/.o/g'`"
+
+echo Linking lib${LIBNAME}-${VERSION}.so.0 ...
+echo g++ -Wl,-soname,lib${LIBNAME}-${VERSION}.so\
+    -Wl,--strip-all                        \
+    -shared                                \
+    -o lib${LIBNAME}-${VERSION}.so.0       \
+    $OBJS
+
+g++ -Wl,-soname,lib${LIBNAME}-${VERSION}.so\
+    -Wl,--strip-all                        \
+    -shared                                \
+    -o lib${LIBNAME}-${VERSION}.so.0       \
+    $OBJS
+
+echo chmod -x lib${LIBNAME}-${VERSION}.so.0
+chmod -x lib${LIBNAME}-${VERSION}.so.0
+
+echo Archiving lib${LIBNAME}-${VERSION}.a
+echo ar rcs lib${LIBNAME}-${VERSION}.a $OBJS
+ar rcs lib${LIBNAME}-${VERSION}.a $OBJS
+
+##############################################################################
+
+echo Compiling test.cpp ...
+echo g++ $CXXFLAGS $INCLUDE_DIR -c $SRC_DIR/test/test.cpp
+g++ $CXXFLAGS $INCLUDE_DIR -c $SRC_DIR/test/test.cpp
+
+echo Compiling VBCrossDll_test.cpp ...
+echo g++ $CXXFLAGS $INCLUDE_DIR -c $SRC_DIR/test/VBCrossDll_test.cpp
+g++ $CXXFLAGS $INCLUDE_DIR -c $SRC_DIR/test/VBCrossDll_test.cpp
+
+echo Linking test ...
+echo g++ -rdynamic -o test  test.o  VBCrossDll_test.o -lVBLib-6.2 -ldl -L./
+g++ -rdynamic -o test  test.o  VBCrossDll_test.o -lVBLib-6.2 -ldl -L./
+echo Build complete.

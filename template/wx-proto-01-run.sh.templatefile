@@ -1,0 +1,9 @@
+# !/bin/bash
+
+if test -e template.mk;
+then
+	make -f template.mk
+	./proto.prj
+else
+	echo template.mk not found.
+fi

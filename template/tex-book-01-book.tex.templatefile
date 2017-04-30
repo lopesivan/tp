@@ -1,0 +1,119 @@
+\documentclass[a4paper,12pt,twoside]{book}
+        % twoside = no cabeçalho, as páginas pares são diferentes das páginas ímpares
+        % report = forma de relatório, tese
+        % além de report temos: book, article, beamer, letter,...
+        % openright = só funciona com twoside, faz com que o capítulo inicie sempre na página
+        %             da direita. Não é necessário na classe book.
+ 
+%==Referências==
+%* www.lac.inpe.br/~margarete/download/MET200-0/apostila_latexpdf.pdf
+\usepackage[brazil]{babel}    % dá suporte para os termos na língua portuguesa do Brasil
+%\usepackage[latin1]{inputenc} % dá suporte para caracteres especiais como acentos e cedilha
+%\usepackage[T1]{fontenc}      % Lê a codificação de fonte T1 (font encoding default é 0T1).
+%\usepackage{ae}               % Fonte "Almost European"
+% \usepackage{lmodern}        % Fonte "Latin Modern", experimente no lugar de ae
+% \usepackage{times}          % Fonte "Times New", experimente no lugar de ae
+ \usepackage[utf8]{inputenc} % acentuação em UTF8 (comente as linhas de inputenc, fontenc e ae)
+                              % Caso tenha problemas ao usar UTF-8, experimente \usepackage{ucs}
+%\usepackage{indentfirst}      % indenta os primeiros parágrafos
+\usepackage{amssymb,amsmath}   % simbolos matemáticos providos pela AMS
+\usepackage[dvipdfm]{graphicx} % para inclusão de figuras (png, jpg, gif, bmp)
+\usepackage{graphics}          % figuras gráficas
+\usepackage{color}             % para letras e caixas coloridas
+\usepackage{makeidx}           % índice remissivo
+%\usepackage{a4wide}           % Formatação que deforma o padrão latex menos de 66 caracteres por linha
+\usepackage{setspace}          % para a distância entre linhas
+ 
+\usepackage{pifont}
+\newcommand{\dica}[1]{{{\Large \ding{42}}}}
+% para inserir uma mãozinha digite \dica
+ 
+%#!/bin/bash
+%# script para instalar \LaTeX\
+ 
+%apt-get install -y texlive-generic-recommended
+%apt-get install -y texlive-latex-extra
+%apt-get install -y texlive-doc-base
+%apt-get install -y texlive-pstricks
+%apt-get install -y texlive-base-bin
+%apt-get install -y texlive-font-utils
+%apt-get install -y texlive
+%apt-get install -y texlive-lang-latin
+%apt-get install -y texlive-fonts-recommended
+%apt-get install -y texlive-bibtex-extra
+%apt-get install -y texlive-fonts-extra
+%apt-get install -y texlive-latex-recommended
+%apt-get install -y texlive-pictures
+%apt-get install -y preview-latex-style
+%apt-get install -y tetex-bin
+%apt-get install -y texlive-publishers
+%apt-get install -y texlive-latex-base
+%apt-get install -y tcl8.4
+%apt-get install -y texlive-lang-portuguese
+%apt-get install -y tetex-extra
+%apt-get install -y texlive-math-extra
+%apt-get install -y texlive-lang-other
+%apt-get install -y libpoppler2
+%apt-get install -y tex-common
+%apt-get install -y texlive-common
+ 
+ 
+% página do tex-br
+% http://www.tex-br.org/index.php/P%C3%A1gina_inicial
+ 
+ 
+\hyphenation{es-ta-be-le-ci-do a-de-qua-da-men-te pro-ble-mas
+   di-men-sio-na-men-to mo-de-lo
+   }
+ 
+\makeindex
+ 
+%\includeonly{modulo.tex}
+ 
+ 
+\begin{document}
+%   \pagenumbering{roman} % páginas em algarismos romanos
+%    \include{Capa.tex}
+%   \renewcommand{\baselinestretch}{2.0} % espaçamento duplo entre linhas
+%   \onehalfspace  % espaçamento 1.5 entre linhas
+%   \singlespace   % espaçamento simples entre linhas
+%    \doublespace     % espaçamento duplo entre linhas
+\addcontentsline{toc}{chapter}{\contentsname}
+\tableofcontents   % Sumário
+\addcontentsline{toc}{chapter}{\listfigurename}
+%\listoffigures  % Lista de Figuras
+\addcontentsline{toc}{chapter}{\listtablename}
+%\listoftables  % Lista de Tabelas
+\pagenumbering{arabic}  % fim da numeração das páginas em algarismos romanos
+%\include{modulo1.tex}
+%\include{modulo2.tex}
+%\include{modulo3.tex}
+%\addcontentsline{toc}{chapter}{\appendixname} %
+%\appendix
+%\input{apendiceA.tex}
+%\input{apendiceB.tex}
+%\addcontentsline{toc}{chapter}{Referências Bibliográficas}
+% abnt-num.bst voce encontra em pacotes do abnTeX - absurdas normas para TeX
+%\bibliographystyle{abnt-num.bst}   %\bibliographystyle{plain}
+%\bibliography{bibname.bib} % bibname=nome do seu arquivo BibTeX
+%\addcontentsline{toc}{chapter}{\indexname}
+%\printindex  % índice remissivo
+ 
+\chapter{Introdução}
+O inkscape é um software livre, seu código fonte e regido sob as normas
+da licença GNU, ou seja, pode ser copiado e redistribuido livremente,
+os ciclos de evolução do inskcape são basntante rápidos, o formato padrão
+de arquivos do inkscape é SVG ``Scalar Vector Graphics'', um padrão
+para desenhos vetoriais recomendado pelo consórcio W3C, um consórcio
+internacional para a padronização de formatos de arquivos.
+ 
+O inkscape abre em poucos segundos e embora não tenha todos os recursos
+de softwares como o CorelDraw ele é capaz de produzir trabalhos basntante
+profissionais. Sua divulgação está sendo muito rápida dentre outras coisas
+pela qualidade e pela comunidade muito ativa, o site oficial do inkscape é:
+www.inkscape.org.
+ 
+ 
+ 
+\end{document}
+% vim: tw=72:ft=latex

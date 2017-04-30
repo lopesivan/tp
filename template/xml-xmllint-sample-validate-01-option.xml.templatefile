@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE option-list[
+<!ELEMENT option-list (option)+>
+<!ELEMENT option      (arguments?,short,long,description)>
+<!ELEMENT arguments   (#PCDATA)>
+<!ELEMENT short       (#PCDATA)>
+<!ELEMENT long        (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+
+<!ATTLIST long suffix CDATA #IMPLIED >
+]>
+
+<option-list>
+
+	<option>
+		<short> u </short>
+		<long> uniform-spacing </long>
+		<description>
+one space between words, two after sentences
+		</description>
+	</option>
+
+	<option>
+		<arguments> STRING </arguments>
+		<short> p </short>
+		<long suffix="="> prefix </long>
+		<description>
+reformat only lines beginning with STRING, reattaching the prefix to reformatted lines
+		</description>
+	</option>
+
+</option-list>
+

@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from sympy import *
+
+x, y, z = symbols('xyz')
+k, m, n = symbols('kmn', integer=True)
+f, g, h = map(Function, 'fgh')
+
+def main():
+	f = x**2 / y + 2 * x - ln(y)
+	ans = diff(f,x)
+	print ans
+
+	ans = diff(f,y)
+	print ans
+
+	ans = diff(diff(f,x),y)
+	print ans
+
+	ans = integrate(6*x**5, x)
+	print ans
+
+	Plot(cos(x*3)*cos(y*5)-y)
+
+
+# end def main
+
+##############################################################################
+#                                                                            #
+# ---------------------------------- Main ---------------------------------- #
+#                                                                            #
+##############################################################################
+
+if __name__ == "__main__":
+	main()
+# end if
+

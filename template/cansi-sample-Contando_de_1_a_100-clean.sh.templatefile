@@ -1,0 +1,4 @@
+#! /bin/bash
+
+file=seq
+test -e $file && rm $file

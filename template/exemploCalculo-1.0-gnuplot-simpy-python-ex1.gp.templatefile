@@ -1,0 +1,25 @@
+set title 'Gráfico de (x+3)*(5-x)*sin(x/2.) e seus polinomios de Taylor'
+print 'Griáfico de (x+3)*(5-x)*sin(x/2.) e seus polin^mios de Taylor'
+print 'f(x)=(x+3)*(5-x)*sin(x/2.) '
+print 'Aperte enter para continuar!'
+pause -2
+system 'clear'
+
+    f(x) = (x+3)*(5-x)*sin(x/2.)
+ diff(x) = (5-x)*sin(x/2.) - (x+3)*sin(x/2.) + 0.5*(x+3)*(5-x)*cos(x/2.)
+diff2(x) = -sin(x/2.) + 0.5*(5-x)*cos(x/2.) - sin(x/2.)\
+		   - 0.5*(x+3)*cos(x/2.) + 0.5*(5-x)*cos(x/2.) - 0.5*(x+3)*cos(x/2.)\
+		   - 0.5*0.5*(x+3)*(5-x)*sin(x/2.)
+a=-3
+print 'a = -3'
+pol(x) = f(a) + diff(a)*(x-a) + 0.5*diff2(a)*(x-a)*(x-a)
+print 'Aperte enter para continuar!'
+pause -2
+system 'clear'
+a = 5
+print 'a = 5'
+pol(x) = f(a) + diff(a)*(x-a) + 0.5*diff2(a)*(x-a)*(x-a)
+print 'Aperte enter para continuar!'
+pause -2
+system 'clear'
+

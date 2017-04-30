@@ -1,0 +1,18 @@
+#ifndef _DEBUG_H_
+#define _DEBUG_H_
+
+/*****************************************************************************
+ * Defines
+ *****************************************************************************/
+
+#define DEBUG_FILENAME "userdebug"
+void close_debug(void);
+char * get_debug_path(void);
+
+#ifdef __GNUC__
+void D(char *fmt, ...) __attribute__((format(printf,1,2)));
+#else
+void D(char *fmt, ...);
+#endif
+
+#endif

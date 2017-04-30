@@ -1,0 +1,44 @@
+/*
+    toggle_led.c
+    Micah Carrick - email@micahcarrick.com
+    04.25.2005
+    
+    Toggles an LED on Pin 1 of PORTB on a PIC16F627.  Written
+    as a sample for the article on using SDCC and GPSIM in
+    Linux. http://www.micahcarrick.com/v2/content/view/14/4/
+    
+    Compile:    sdcc --debug -mpic14 -p16f627 toggle_led.c
+    Simulate:   gpsim -pp16f627 -s toggle_led.cod toggle_led.asm
+
+*/
+
+/* Define processor and include header file. */
+#define __16f627
+#include"pic/pic16f627.h"
+
+/* Setup chip configuration */
+typedef unsigned int config;
+config at 0x2007 __CONFIG = _CP_OFF & 
+                          _WDT_OFF & 
+                          _BODEN_OFF & 
+                          _PWRTE_OFF & 
+                          _ER_OSC_CLKOUT & 
+                          _MCLRE_ON & 
+                          _LVP_OFF;
+
+#define b1          0x02    /* pin 1 on PORTB */
+#define B_OUTPUTS   0xFD    /* value used to setup TRISB */
+
+void main(void) {
+
+    /* PORTB.1 is an output pin */    
+    TRISB = B_OUTPUTS;       
+ 
+
+    while(1) {/* Loop forever */
+            
+        /* toggle bit 1 */
+        PORTB = (PORTB ^ b1);   
+            
+    }
+}

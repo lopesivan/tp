@@ -1,0 +1,60 @@
+###############
+# get source. #
+###############
+cmd='--swig-wraper-python-03'
+n=$(expr "$(tp list ${cmd}| nl| tail -2| head -1)" : '[[:blank:]]*\([0-9]*\)')
+
+arr=( empty empty `tp list ${cmd} | sed -n "2,${n}s/.*-//p"` ) && seq -f"tp %g " 2 $n | sed 's/tp \([0-9]\+\)/& > ${arr[\1]}/' > prj
+cat << EOF >> prj
+
+swig -python example.i
+swig -c++ -python example.i
+
+cat << _EOF > setup.py
+"""
+setup.py file for SWIG example
+"""
+
+from distutils.core import setup, Extension
+
+
+example_module = Extension('_example',
+                           sources=['example_wrap.c', 'example.c'],
+                           )
+
+setup (name        = 'example',
+       version     = '0.1',
+       author      = "SWIG Docs",
+       description = """Simple swig example from docs""",
+       ext_modules = [example_module],
+       py_modules = ["example"],
+       )
+_EOF
+
+cat << _FF > README
+$ python
+Python 2.6.5 (r265:79063, Apr 16 2010, 13:09:56)
+[GCC 4.4.3] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+Could not open PYTHONSTARTUP
+IOError: [Errno 2] No such file or directory: '/home/ivan/.pythonrc'
+>>> import example
+>>> example.fact(4)
+24
+>>>
+_FF
+
+echo puthon setup.py build, or
+echo python setup.py build_ext --inplace
+python setup.py build_ext --inplace
+
+EOF
+
+# run
+. prj
+
+# clean
+history | tail -1 | sed 's/.*\./rm prj  /'| sh
+
+# restore
+tp list ${cmd}-00| sed '1iRestore build template mode:\nUsage: tp 1 > a; . a'

@@ -1,0 +1,18 @@
+METHOD 1 WITH VLC: 
+1. Start VLC: 
+/Applications/VLC.app/Contents/MacOS/VLC -I dummy  ~/work/crtmpserver-trunk/media/tbs.mp4 --sout='#rtp{dst=0.0.0.0,sdp=rtsp://0.0.0.0:2323/test.sdp}' 
+2. add the following external source inside crtmpserver config file 
+{ 
+        uri="rtsp://127.0.0.1:2323/test.sdp", 
+        localStreamName="gigi" 
+}, 
+
+3. Start the crtmpserver 
+4. You can now access the stream: 
+rtmp://localhost/live/gigi 
+METHOD 2 WITH ffmpeg: 
+1. Start the crtmpserver (it is already configure to listen on 6666 for inbound live FLV. Bare in mind: THIS IS NOT RTMP) 
+2. Start ffmpeg: 
+ffmpeg -i ~/work/crtmpserver-trunk/media/tbs.mp4 -acodec copy -vcodec copy -re -f flv -metadata streamName=gigi "tcp://localhost:6666" 
+3. You can now access the stream: 
+rtmp://localhost/live/gigi 

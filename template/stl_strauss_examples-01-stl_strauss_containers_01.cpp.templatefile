@@ -1,0 +1,40 @@
+#include <list>
+#include <string>
+#include <iostream>
+ 
+struct Pessoa
+{
+  std::string _nome;
+  unsigned int _idade;
+
+  Pessoa(std::string nome, unsigned int idade):
+    _nome(nome), _idade(idade)
+  {
+  }
+};
+ 
+int main()
+{
+  std::list<Pessoa> pessoas;
+ 
+  //
+  // podemos inserir um itens no final..
+  //
+  pessoas.push_back(Pessoa("José João", 26));
+ 
+  //
+  // ... e no início, da mesma forma que com o vetor
+  //
+  pessoas.push_front(Pessoa("João José", 28));
+
+  std::cout << "Primeira pessoa: "<< pessoas.front()._nome << std::endl;
+  std::cout << "Segunda pessoa: " << pessoas.back()._nome << std::endl;
+
+ 
+  //
+  // mas isso não funciona, ao contário do vector
+  //
+  //pessoas[0];
+ 
+  return 0;
+}

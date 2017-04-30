@@ -1,0 +1,91 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+
+typedef struct
+{
+    int dia, mes, ano;
+} data;
+
+typedef struct
+{
+    char nome[60];
+    char sexo;
+    data nascimento;
+    char naturalidade[60];
+} pessoa;
+
+void
+trim (char *s)
+{
+    s[strlen (s) - 1] = 0;
+}
+
+int
+main ()
+{
+
+    pessoa *p, *q;
+    char tmp[20], *s;
+    int i, n = 1;
+
+    p = (pessoa *) malloc (sizeof (pessoa));
+
+    do
+    {
+        q = &p[n - 1];
+        printf ("Nome ?\n");
+        fgets (q->nome, 60, stdin);
+        trim  (q->nome);
+
+        if (!strcmp (q->nome, "fim"))
+        {
+            n--;
+            break;
+        }
+
+        do
+        {
+            printf ("Sexo ?\n");
+            fgets (tmp, 20, stdin);
+            q->sexo = toupper (tmp[0]);
+        }
+        while (strchr ("MF", q->sexo) == NULL);
+
+        printf ("Nascimento (DD/MM/AAAA) ?\n");
+
+        fgets (tmp, 20, stdin);
+
+        sscanf (tmp, "%d/%d/%d",
+                &(q->nascimento.dia),
+                &(q->nascimento.mes), &(q->nascimento.ano));
+
+        printf ("Naturalidade ?\n");
+
+        fgets (q->naturalidade, 60, stdin);
+
+        trim (q->naturalidade);
+
+        n++;
+
+        p = (pessoa *) realloc (p, n * sizeof (pessoa));
+
+    }
+    while (1);
+
+    for (i = 0; i < n; i++)
+    {
+        q = &p[i];
+
+        printf ("Nome: [%s]\n", q->nome);
+        printf ("Sexo: [%c]\n", q->sexo);
+        printf ("Nascimento: [%.2d/%.2d/%.4d]\n",
+                q->nascimento.dia, q->nascimento.mes, q->nascimento.ano);
+        printf ("Naturalidade: [%s]\n\n", q->naturalidade);
+    }
+
+    free (p);
+
+    return 0;
+}

@@ -1,0 +1,16 @@
+\begin{frame}{Getting output}
+\small
+\begin{block}<1->{Windows}
+If on windows using the {\tt winedt} text editor, one should press the ''texify'' (or pdf texify) button, depending
+on whether one is using postscript or not.
+\end{block}
+\begin{block}<2->{Linux, postscript}
+{\tt latex filename} (twice) \\
+{\tt dvips filename -o} \\
+{\tt ps2pdf13 filename}
+\end{block}
+\begin{block}<3->{Linux, pdf}
+{\tt pdflatex filename} (twice)
+\end{block}
+\note<1>{Note the use of incremental display of different blocks.}
+\end{frame}

@@ -1,0 +1,38 @@
+: ${application_name:=wx}
+: ${HEADER_DIR:=include}
+: ${ID_F_HEADER_MYFRAME:=MyFrame.hpp}
+: ${ID_C_MYFRAME:=MyFrame}
+
+: ${ID_M_ONQUIT:=OnQuit}
+: ${ID_M_ONABOUT:=OnAbout}
+
+MK_MYFRAME_HPP     ()
+{
+cat << __EOF__ | sed 's/[ \t]*$//; /./,/^$/!d' > ${application_name}/${HEADER_DIR}/${ID_F_HEADER_MYFRAME}
+$(comment.cpp.box $ID_F_HEADER_MYFRAME)
+
+#ifndef $(echo $ID_F_HEADER_MYFRAME | tr '[a-z.]' '[A-Z_]')
+#define $(echo $ID_F_HEADER_MYFRAME | tr '[a-z.]' '[A-Z_]')
+
+#include "wx/wx.h"
+
+// Declare our main frame class
+class ${ID_C_MYFRAME} : public wxFrame
+{
+public:
+	// Constructor
+	${ID_C_MYFRAME}(const wxString&);
+
+	// Event handlers
+	void ${ID_M_ONQUIT} (wxCommandEvent&);
+	void ${ID_M_ONABOUT}(wxCommandEvent&);
+private:
+	// This class handles events
+	DECLARE_EVENT_TABLE()
+};
+
+#endif				// $(echo $ID_F_HEADER_MYFRAME | tr '[a-z.]' '[A-Z_]')
+__EOF__
+}
+
+MK_MYFRAME_HPP

@@ -1,0 +1,27 @@
+digraph test {
+	node  [ fontname = "Vera" ]
+	edge  [ fontname = "Vera" ]
+	graph [ ranksep  = 3      ]
+
+	// MyApp.hpp
+	"wx/wx.h"     -> "MyFrame.hpp" [ label = 12 ]
+
+	// MyFrame.cp
+	"MyFrame.hpp" -> "MyFrame.cpp" [ label = 12 ]
+
+	// MyApp.hpp
+	"wx/wx.h"     -> "MyApp.hpp"   [ label = 12 ]
+	"MyFrame.hpp" -> "MyApp.hpp"   [ label = 12 ]
+
+	// MyApp.cpp
+	"MyApp.hpp"   -> "MyApp.cpp"   [ label = 12 ]
+
+	// app.hpp
+	"sample.xpm"  -> "app.hpp"     [ label = 12 ]
+	"MyFrame.hpp" -> "app.hpp"     [ label = 12 ]
+	"MyApp.hpp"   -> "app.hpp"     [ label = 12 ]
+
+	// app.cpp
+	"app.hpp"     -> "app.cpp"     [ label = 12 ]
+
+}

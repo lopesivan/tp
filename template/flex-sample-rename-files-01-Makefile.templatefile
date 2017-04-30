@@ -1,0 +1,16 @@
+prog    = main
+testDir = myfile
+
+all: $(prog)
+
+lex.yy.c:
+	flex sample.y
+
+$(prog) : lex.yy.c
+	cc $^ -o $@
+
+test:
+	./test.sh $(testDir)
+
+clean:
+	/bin/rm -rf lex.yy.c $(prog) $(testDir)

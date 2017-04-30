@@ -1,0 +1,22 @@
+#!/bin/bash
+# vi:set nu nowrap:
+# install-wx.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: install-wx.sh
+#        Date: Thu 20 May 2010 01:48:43 PM BRT
+# Description:
+#
+#
+
+VERSION=2.8
+# ----------------------------------------------------------------------------
+sudo apt-get install -y libwxgtk${VERSION}-dev wx${VERSION}-headers wx-common
+# ----------------------------------------------------------------------------
+
+exit 0

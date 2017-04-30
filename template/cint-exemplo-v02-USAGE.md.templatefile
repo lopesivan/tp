@@ -1,0 +1,12 @@
+and you load it as
+
+	$  cint ateval.cxx
+   cint> .
+   cint> string a="abcdefg"
+   cint> int x=12345
+   cint> a
+   abcde                      ## output of G__ateval(string&)
+   (string)137023776          ## output of cint interactive interface
+   cint> x
+   12345                      ## output of G__ateval(int)
+   cint>

@@ -1,0 +1,8 @@
+set terminal mp color
+set output 'sombrero.mp'
+load 'sombrero.gp'
+set output
+# Appels extérieurs pour transformer le fichier metapost en PDF
+!mpost sombrero.mp
+!mptopdf sombrero.0
+quit

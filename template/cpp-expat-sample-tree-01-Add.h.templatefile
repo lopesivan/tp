@@ -1,0 +1,8 @@
+#include "MathOperator.h"
+
+class Add : public MathOperator {
+public:
+	float getValue() { return left->getValue() + right->getValue(); }
+
+	inline Add(Term *t): MathOperator(t) { }
+};

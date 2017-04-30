@@ -1,0 +1,35 @@
+-- main table
+select * from shop;
+
+-- The Maximum Value for a Column
+-- "What's the highest item number?"
+
+select max(article) as article from shop;
+
+-- The Row Holding the Maximum of a Certain Column
+-- Task: Find the highest price per article.
+select ARTICLE, DEALER, PRICE
+from   shop
+where  price=(select max(price) from shop);
+
+-- Another solution is to sort all rows descending by price and get only the
+-- first row using the MySQL-specific LIMIT clause:
+
+select article, dealer, price
+from shop
+order by price desc
+limit 1;
+
+-- The Rows Holding the Group-wise Maximum of a Certain Field
+-- Task: For each article, find the dealer or dealers with the most expensive price.
+
+select article, dealer, price
+from   shop s1
+where  price=(select max(s2.price)
+	from shop s2
+		where s1.article = s2.article);
+
+-- Using User-Defined Variables
+select @min_price:=min(price),@max_price:=max(price) from shop;
+-- or
+select * from shop where price=@min_price or price=@max_price;

@@ -1,0 +1,54 @@
+graph G {
+graph [ranksep=0.2,nodesep=0.05]
+subgraph cluster_G1 {
+label="Result Nr. 1"
+
+G1_AN1 [shape=plaintext,label="abcd"]
+G1_AN2 [shape=plaintext,label="efgh"]
+G1_AN3 [shape=plaintext,label="ijkl"]
+
+G1_AN1 -- G1_AN2 -- G1_AN3
+
+G1root [shape=point,label=""]
+
+G1Prop_0 [shape=point,label=""]
+G1Prop_1 [shape=point,label=""]
+
+G1Prop_00 [shape=point,label=""]
+G1Prop_01 [shape=point,label=""]
+G1Prop_10 [shape=point,label=""]
+G1Prop_11 [shape=point,label=""]
+
+G1root -- {G1Prop_0 G1Prop_1}
+
+G1Prop_0 -- {G1Prop_00 G1Prop_01}
+G1Prop_1 -- {G1Prop_10 G1Prop_11}
+
+}
+# --- Next Graph ---
+
+subgraph cluster_G2 {
+label="Result Nr. 2"
+
+G2_AN1 [shape=plaintext,label="abcd"]
+G2_AN2 [shape=plaintext,label="efgh"]
+G2_AN3 [shape=plaintext,label="ijkl"]
+
+G2_AN1 -- G2_AN2 -- G2_AN3
+
+G2root [shape=point,label=""]
+
+G2Prop_0 [shape=point,label=""]
+G2Prop_1 [shape=point,label=""]
+
+G2Prop_00 [shape=point,label=""]
+G2Prop_01 [shape=point,label=""]
+G2Prop_10 [shape=point,label=""]
+G2Prop_11 [shape=point,label=""]
+
+G2root -- {G2Prop_0 G2Prop_1}
+
+G2Prop_0 -- {G2Prop_00 G2Prop_01}
+G2Prop_1 -- {G2Prop_10 G2Prop_11}
+}
+}

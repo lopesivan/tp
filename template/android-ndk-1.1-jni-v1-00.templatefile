@@ -1,0 +1,45 @@
+###############
+# get source. #
+###############
+cmd='--android-ndk-1.1-jni-v1'
+n=$(expr "$(tp list ${cmd}| nl| tail -2| head -1)" : '[[:blank:]]*\([0-9]*\)')
+
+arr=( empty empty `tp list ${cmd} | sed -n "2,${n}s/.*-//p"` ) && seq -f"tp %g " 2 $n | sed 's/tp \([0-9]\+\)/& > ${arr[\1]}/' > prj
+cat << EOF >> prj
+
+android create project --name HelloJni --activity HelloJni --path ./hello-jni --package com.examples.hellojni --target 8
+(
+mkdir hello-jni/jni
+mv Android.mk hello_jni.c hello-jni/jni/
+cd hello-jni
+ant debug
+javah -jni -o jni/hello_jni.h -classpath bin/classes com.examples.hellojni.HelloJni
+
+echo 'ndk-build' >  CMD
+echo 'javah -jni -o jni/hello_jni.h -classpath bin/classes com.examples.hellojni.HelloJni' >> CMD
+echo 'ant debug' >> CMD
+echo 'emulator -avd Android_2.2 &'        >> CMD
+echo 'adb install bin/HelloJni-debug.apk' >> CMD
+echo 'adb uninstall com.examples.hellojni' >> CMD
+)
+
+# Modo 1  - Usando scripts
+#chmod +x compile.sh clean.sh
+
+# Modo 2  -  c++ e nao tenho make
+#tp list --makefile-cpp-unrestricted
+#tp 1 > Makefile
+#make
+
+# Modo 3  -  tenho make
+#make
+EOF
+
+# run
+. prj
+
+# clean
+history | tail -1 | sed 's/.*\./rm prj  /'| sh
+
+# restore
+tp list ${cmd}-00| sed '1iRestore build template mode:\nUsage: tp 1 > a; . a'

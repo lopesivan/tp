@@ -1,0 +1,25 @@
+%%% --------------------------------------------------------------------------
+\section*{Title Page}
+%-----------------------------------------------------------------------------
+
+%%% --------------------------------------------------------------------------
+\begin{frame}
+%-----------------------------------------------------------------------------
+
+%%% --------------------------------------------------------------------------
+\titlepage
+%-----------------------------------------------------------------------------
+
+\centering
+\fbox{\begin{minipage}{0.9\textwidth}
+Copyright \copyright{} 2008  Ivan Carlos D. S. Lopes  \\
+\url{http://creativecommons.org/licenses/by-sa/2.0/}  \\
+
+\small
+Trivial source code examples displayed in this tutorial (such as the C files,
+\filename{Makefile.am}s, and \filename{configure.ac}s of all the projects) can
+be reused as if they were in the public domain. \end{minipage}}
+
+%%% --------------------------------------------------------------------------
+\end{frame}
+%-----------------------------------------------------------------------------

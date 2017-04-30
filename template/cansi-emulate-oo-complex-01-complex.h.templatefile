@@ -1,0 +1,97 @@
+/* vi:set nu ts=4 sts=4 sw=4 tw=78 nowrap:
+ * $Id:$
+ * Federal University of Rio de Janeiro
+ *      Author: Ivan carlos da Silva Lopes
+ *        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+ *     License:
+ *    Language: C ansi
+ *        File: complex.h
+ *        Date: Thu 24 May 2007 10:32:01 PM BRT
+ * Description:
+ */
+
+/*****************************************************************************
+ *                                                                           *
+ * ------------------------------- complex.h ------------------------------  *
+ *                                                                           *
+ *****************************************************************************/
+
+#ifndef COMPLEX_H
+#define COMPLEX_H
+
+#include <math.h>
+
+#include "types.h"
+
+/*****************************************************************************
+ *                                                                           *
+ *  Define a structure.                                                      *
+ *                                                                           *
+ *****************************************************************************/
+
+typedef struct Complex_ {
+
+Real             real,
+                 imaginary;
+
+} Complex;
+
+typedef struct Complex_operations_ {
+
+Complex          (*add)(Complex z1, Complex z2);
+
+Complex          (*sub)(Complex z1, Complex z2);
+
+Complex          (*mul)(Complex z1, Complex z2);
+
+Complex          (*div)(Complex z1, Complex z2);
+
+Complex          (*sqrt)(Complex z);
+
+Complex          (*conjugate)(Complex z);
+
+Complex          (*set)(Real real, Real imaginary);
+
+Complex          (*real_mul)(Real x, Complex z);
+
+Real             (*abs)(Complex z);
+
+} Complex_operations;
+
+/*****************************************************************************
+ *                                                                           *
+ *  --------------------------- Public Interface --------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+Complex complex_addition(Complex, Complex);
+
+Complex complex_subtraction (Complex, Complex);
+
+Complex complex_multiplication(Complex, Complex);
+
+Complex complex_division(Complex, Complex);
+
+Complex complex_sqrt(Complex);
+
+Complex complex_conjugate(Complex);
+
+Complex set_complex(Real, Real);
+
+Complex complex_real_multiplication(Real, Complex);
+
+Real complex_abs(Complex);
+
+void init_complex(Complex_operations*, Complex (*)(Complex, Complex),
+                                       Complex (*)(Complex, Complex),
+                                       Complex (*)(Complex, Complex),
+                                       Complex (*)(Complex, Complex),
+                                       Complex (*)(Complex),
+                                       Complex (*)(Complex),
+                                       Complex (*)(Real, Real),
+                                       Complex (*)(Real, Complex),
+                                       Real    (*)(Complex));
+
+Complex_operations *new_complex_operations(void);
+
+#endif /* COMPLEX_H */

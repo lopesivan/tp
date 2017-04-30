@@ -1,0 +1,16 @@
+#include "Term.h"
+
+class Value : public Term {
+public:
+	float
+	getValue()                 { return value;      }
+
+	void
+	setValue (float new_value) { value = new_value; }
+
+	Value (Term *t,float new_value = 0) : Term(t) { value = new_value; }
+
+private:
+	float value;
+
+};

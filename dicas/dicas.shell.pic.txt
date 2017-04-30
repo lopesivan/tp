@@ -1,0 +1,29 @@
+editando el fichero .asm
+
+Antes de programar el pic hay que editar un poco el fichero .asm para decirle que vamos a usar el pic16f84 y la configuración. Arriba del todo añadimos al fichero .asm las siguientes lineas.Link con fichero p16f84.inc
+
+INCLUDE<P16F84.INC>
+
+LIST P=16F84
+__CONFIG _CP_OFF & _WDT_OFF & _XT_OSC
+
+Lo guardamos y ahora si lo compilamos.
+
+$gpasm -p 16f84 fichero.asm
+
+con el parámetro ‘-p 16f84′ le decimos para qué pic queremos el fichero hex.
+
+Una vez compilado tenemos que grabar el .hex en el pic. Para ello usaremos el programa picprog(incluido en los repositorios). Lo primero de todo es borrar el contenido del chip con el comando:
+
+$picprog –erase –burn -d pic16f84 –pic /dev/ttyS0
+
+para luego grabar el fichero .hex que compilamos anteriormente:
+
+$picprog –burn –device=pic16f84 –input led_on.hex –pic /dev/ttyS0
+
+http://www.iearobotics.com/personal/andres/proyectos/picmin/pic1.html
+
+http://gputils.sourceforge.net/
+
+
+http://www.yty.net/pic/

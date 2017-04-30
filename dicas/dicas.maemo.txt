@@ -1,0 +1,10 @@
+Look like several solutions: one short term and one long term.
+http://talk.maemo.org/showthread.php?t=37056 recommend:
+2 reboots (probably it will check and fix vfat) or manually fix vfat:
+1. reboot
+2. open x-term
+3. type root (you will need rootsh package from Extras)
+4. type umount /home/user/MyDocs
+5. type fsck -a /dev/mmcblk0p1
+6. reboot
+

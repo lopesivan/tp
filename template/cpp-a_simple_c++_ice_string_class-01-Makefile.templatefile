@@ -1,0 +1,14 @@
+CXXFLAGS = -g -Wall -pedantic
+
+all: test
+
+test: ice_string.o
+
+dist: clean
+	rm -rf ice_string/ ice_string.tar.gz
+	mkdir ice_string
+	cp Makefile ice_string.h ice_string.cpp test.cpp ice_string/
+	tar cfzv ice_string.tar.gz ice_string/
+
+clean:
+	rm -f test ice_string.o

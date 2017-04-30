@@ -1,0 +1,31 @@
+#ifndef PERSON_H__
+#define PERSON_H__
+
+/* Incomplete type declaration */
+
+typedef struct person_private person_private;
+
+typedef struct person
+{
+    /*
+     * "private" data.
+     */
+    person_private *data;
+
+    /*
+     * "class" functions
+     */
+    void (*free) ();
+    void (*print) ();
+} person;
+
+/* instatiate a new person */
+person *new_person (const char *, int);
+
+/* pointer to the actual person in the context */
+person *__actual_person;
+
+/* sets the actual person */
+person *_(person * obj);
+
+#endif

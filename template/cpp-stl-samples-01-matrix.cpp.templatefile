@@ -1,0 +1,22 @@
+#include <iostream>
+
+using std::cout;
+using std::cin;
+using std::endl;
+
+using namespace std;
+
+#define matalloc(t, x, y, z) \
+  x = new t*[y]; \
+	for (int i = 0; i < y; i++) x[i] = new t[z];
+
+int main ()
+{
+    int** x;
+    matalloc(int, x, 3, 3);
+
+    x[0][0] = 2;
+    x[1][2] = 4;
+
+    cout << x[0][0] << " " << x[1][2] << endl;
+}

@@ -1,0 +1,58 @@
+//////////////////////////////////////////////////////////////////////////////
+//                                                                           /
+// ------------------------------ MyFrame.hpp ------------------------------ /
+//                                                                           /
+//////////////////////////////////////////////////////////////////////////////
+
+#include "mondrian.xpm"
+#include "MyFrame.hpp"
+
+MyFrame::MyFrame(const wxString& title)
+        : wxFrame(NULL, wxID_ANY, title)
+{
+    // Set the frame icon
+    SetIcon(wxIcon(mondrian_xpm));
+
+    // Create a menu bar
+    wxMenu *fileMenu = new wxMenu;
+
+    fileMenu->Append(wxID_EXIT, wxT("E&xit\tAlt-X"),
+                     wxT("Quit this program"));
+
+    // The "About" item should be in the help menu
+    wxMenu *helpMenu = new wxMenu;
+
+    helpMenu->Append(wxID_ABOUT, wxT("&About...\tF1"),
+                     wxT("Show about dialog"));
+
+    // Now append the freshly created menu to the menu bar...
+    wxMenuBar *menuBar = new wxMenuBar();
+
+    menuBar->Append(fileMenu, wxT("&File"));
+    menuBar->Append(helpMenu, wxT("&Help"));
+
+    // ... and attach this menu bar to the frame
+    SetMenuBar(menuBar);
+
+    // Create a status bar just for fun
+    CreateStatusBar(2);
+    SetStatusText(wxT("Welcome to wxWidgets by ICSL!"));
+}
+
+void
+MyFrame::OnAbout(wxCommandEvent& event)
+{
+    wxString msg;
+    msg.Printf(wxT("Hello and welcome to %s"),
+               wxVERSION_STRING);
+
+    wxMessageBox(msg, wxT("About ICSL"),
+                 wxOK | wxICON_INFORMATION, this);
+}
+
+void
+MyFrame::OnQuit(wxCommandEvent& event)
+{
+    // Destroy the frame
+    Close();
+}

@@ -1,0 +1,17 @@
+'''
+Created on Mar 4, 2011
+
+@author: ivan
+'''
+
+import wx
+
+class MyApp(wx.App):
+	'''
+	classdocs
+	'''
+	def OnInit(self):
+		wx.MessageBox("Hello wxPython", "wxApp" )
+		return True
+	# end def OnInit
+# end class MyApp

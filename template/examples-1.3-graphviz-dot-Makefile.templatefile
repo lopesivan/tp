@@ -1,0 +1,34 @@
+dots     = ivan.dot
+EXT      = .ps .png .gif .dia
+#EXT     = .ps .svg .svgz .fig .mif .hpgl .pcl .png .gif .dia .imap .cmapx
+
+.SUFFIXES:                  # Delete the default suffixes
+.SUFFIXES: .dot $(EXT)      # Define our suffix list
+
+DOT      = dot
+DOTFLAGS = -o
+TAR      = @echo tar
+TARFLAGS = cvzf
+
+targets  = $(dots:.dot=)
+
+include rules.mk
+
+all:    $(targets)
+
+#
+# ============================================================================
+# |TARGETS|
+
+ivan:   $(addprefix ivan, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+#
+# ============================================================================
+#
+
+clean:
+	/bin/rm -rf $(addprefix *, $(EXT))
+# END OF FILE
+#
+

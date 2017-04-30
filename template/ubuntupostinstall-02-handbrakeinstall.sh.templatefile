@@ -1,0 +1,34 @@
+#!/bin/bash
+# vi:set nu nowrap:
+# handbrakeinstall.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: handbrakeinstall.sh
+#        Date: Qui 16 Set 2010 04:54:15 BRT
+# Description:
+#
+#
+
+# ----------------------------------------------------------------------------
+sudo apt-get update && \
+sudo apt-get install automake build-essential jam libtool subversion yasm zlib1g-dev libbz2-dev dvdbackup xmlto texinfo gfortran libgtk2.0-dev nasm doxygen libsdl1.2-dev gfortran-multilib gcc-multilib g++-multilib libesd0-dev libfftw3-dev electric-fence
+sudo apt-get install libgudev-1.0-*   libwebkit-dev
+
+. ubuntu_10.04.1_lts_env.sh
+
+test -e $srcDir || mkdir $srcDir
+cd $srcDir
+
+svn co svn://svn.handbrake.fr/HandBrake/trunk HandBrake
+
+cd HandBrake
+cd gtk
+sed -n '7001s/^/#/p' configure
+
+# ----------------------------------------------------------------------------
+exit 0

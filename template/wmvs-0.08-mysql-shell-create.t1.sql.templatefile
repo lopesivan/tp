@@ -1,0 +1,6 @@
+create table t1
+(
+	year year(4),
+	month int(2) unsigned zerofill,
+	day int(2) unsigned zerofill
+)

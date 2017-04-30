@@ -1,0 +1,1 @@
+ctags --langdef=ant --langmap=ant:.xml --regex-ant=/^[ \t]*<[ \t]*project.*name="([a-zA-Z0-9 ]+)".*>/\1/p,project/i --regex-ant=/^[ \t]*<[ \t]*target.*name="([a-zA-Z0-9 ]+)".*>/\1/t,target/i

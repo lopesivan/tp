@@ -1,0 +1,29 @@
+Eu gosto de uma configuração virtualenv quando eu usar o Python para qualquer tipo de projeto. Assim, os sistemas baseados no Debian para instalar o pip e virtualenv
+
+sudo aptitude install python-pip python-virtualenv 
+Então, se usar Markdown python, eu faria o meu ambiente virtual e usar pip para instalar o python-markdown e ElementTree
+
+virtualenv mynewbook 
+pip -E mynewbook install -U Markdown ElementTree 
+Para facilitar a vida Eu costumo definir o meu ambiente para o ambiente virtual local após a mudança para o novo diretório do projeto
+
+cd mynewbook 
+source bin/activate 
+Então, com meu livro na mybook.markdown arquivo com o formato
+
+[TOC] 
+Heading-a 
+========== 
+---text--- 
+Heading-b 
+------------ 
+Eu apenas tenho que correr
+
+markdown mybook.markdown -f mybook.html -x toc 
+Quando você é feito com o ambiente virtual é tão simples como escrever
+
+deactivate 
+
+git clone git://gitorious.org/python-markdown/mainline.git python-markdown 
+cd python-markdown 
+python setup.py install 

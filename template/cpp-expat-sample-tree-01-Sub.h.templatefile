@@ -1,0 +1,8 @@
+#include "MathOperator.h"
+
+class Sub : public MathOperator {
+public:
+	float getValue() { return left->getValue() - right->getValue(); }
+
+	inline Sub(Term *t): MathOperator(t) { }
+};

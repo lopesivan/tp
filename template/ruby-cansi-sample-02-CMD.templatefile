@@ -1,0 +1,10 @@
+swig -ruby libc2.i
+# produces libc2_wrap.c
+ruby extconf.rb --with-tcl-include=/usr/include/tcl8.4
+# produces a Makefile
+make
+# produces the extension, libc.so
+#
+
+# OTHER ...
+ruby dltest.rb

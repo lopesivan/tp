@@ -1,0 +1,20 @@
+/*
+ * http://en.wikibooks.org/wiki/C_Programming/C_Reference/complex.h/carg
+ */
+
+#include<stdio.h>
+#include<complex.h>
+int main()
+{
+	double complex z = -4.4 + 3.3 * I;
+	double radius = cabs(z);
+	double argument = carg(z);
+
+	double x = creal(z);
+	double y = cimag(z);
+
+	printf("cartesian(x,y):(%4.1f,%4.1f)\n", x, y);
+	printf("polar(r,theta):(%4.1f,%4.1f)\n", radius, argument);
+
+	return 0;
+}

@@ -1,0 +1,85 @@
+/********************************************************************************
+*		  EXPRESSION EVALUATOR USING LEX AND YACC			*
+*			    (CALCULATOR)					*
+*							File: Calc.y		*
+*										*
+*	This is a expression evaluator program (calculator) with addition,	*
+* Multiplication, Division, Subtraction functionalities. It is also capable 	*
+* of handling user precedence using '(',')' and handling new variable decla- 	*
+* ration and evaluating expressions involving variables.			*
+*										*
+*										*
+*			AUTHOR - ARINDAM PAUL					*
+*			ENROLL - BT06CSE018					*
+*			7TH SEMESTER, CSE DEPT.					*
+*		     VNIT NAGPUR, NAGPUR - 440010				*
+*			DATE - 16TH AUG. 2009					*
+*		   All Rights Reserved @ Arindam Paul				*
+*********************************************************************************/
+
+
+	/* Start of Global and C declarations */
+
+%{
+
+int yylex(void);		/* Call the lex for returing tokens */
+void yyerror(char *);		/* Error handling during parse */
+int vars[30];
+
+%}
+
+%token INT VAR
+
+	/* We are using Left-associative Evaluation Process using %left and a Precedence order too.
+	Precedence order is determined by listing order of operators. Over here, '*' and '/' have
+	more preference than '+' and '-' */
+
+%left '+' '-'
+%left '*' '/'
+
+
+	/* End of Global and C declarations */
+
+%%
+
+	/* Define the grammer */
+
+	/* A program to be evaluated can be a statement follwed by \n */
+
+pgm:
+	pgm stmt '\n' 
+	|
+	;
+
+	/* A statement can be a expression or a variable declarations (assignments) */
+
+stmt:
+	expr	{ printf("%d\n", $1); }
+	| VAR '=' expr	{ vars[$1] = $3; }
+	;
+
+	/* An expression can be all possible operations , ordered expressions or variables */
+
+expr:
+	INT { $$ = $1; }
+	| VAR { $$ = vars[$1]; }
+	| expr '+' expr { $$ = $1 + $3; }
+	| expr '-' expr { $$ = $1 - $3; }
+	| expr '*' expr { $$ = $1 * $3; }
+	| expr '/' expr { $$ = $1 / $3; }
+	| '(' expr ')' { $$ = $2; }
+	;
+	
+	/*End of the grammer */
+
+
+%%
+
+void yyerror(char *s) {
+	//fprintf(stderr, "%s\n", s);
+	return 0;
+}
+int main(void) {
+	yyparse();
+	return 0;
+}

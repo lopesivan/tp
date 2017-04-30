@@ -1,0 +1,35 @@
+target   = app
+sources  = ogl_sprite_overlay.cpp sprite.cpp
+
+.SUFFIXES:                  # Delete the default suffixes
+.SUFFIXES: .cpp .o          # Define our suffix list
+
+CC       = g++
+LD       = $(CC)
+
+CFLAGS   = -c
+LDFLAGS  = -o
+GDBFLAGS = -g
+LIBS     = -L/usr/X11R6/lib -lGL -lGLU -lglut -lXi -lXmu -lXext -lX11 -lm
+
+objects  = $(sources:.cpp=.o)
+targets  = tags $(target)
+
+# Compile
+#
+.cpp.o:
+	$(CC) $(GDBFLAGS) $(CFLAGS) $<
+
+all: $(targets)
+
+tags:
+	/bin/rm -rf tags
+	ctags -R --c++-kinds=+p --fields=+iaS --extra=+q $(sources)
+
+$(target): $(objects)
+	$(CC) $(LDFLAGS) $@ $^ $(LIBS)
+
+clean:
+	/bin/rm -rf $(target) $(objects) *.orig
+
+# END OF FILE

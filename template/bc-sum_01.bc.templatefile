@@ -1,0 +1,40 @@
+/*
+ * sum(1,oo) (1+sin(n^2))/sqrt(n)
+ */
+
+scale = 8
+
+define showsum(sum) {
+	print "sum : ", sum, "\n"
+}
+
+define showterm(term) {
+	print "term: ", term, "\n"
+}
+
+define term(n){
+	return 1 + s(n^2)/sqrt(n)
+}
+
+define dosum() {
+
+	/* initialize */
+	n       = 1
+	sum     = 0
+	term    = term(n)
+
+	while (sum < 2000) {
+
+		/* variable term is not equal function term() */
+		term = term(n)
+
+		sum    += term
+		/*silence = showterm(term)*/
+		silence = showsum(sum)
+
+		/* increment n by 1*/
+		n += 1
+  	}
+}
+
+dosum()

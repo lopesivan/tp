@@ -1,0 +1,15 @@
+variable = <<-GG
+asdasdasdasdasd
+asdasdasdasdasdas
+dasdasdasdasdasdasdasdasdasdasd
+asdasdasd
+asdasdasdasdasd
+asdasdad
+GG
+
+puts <<BEGIN + variable + <<END
+This is the beginning:
+BEGIN
+And now it is over!
+END
+

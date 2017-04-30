@@ -1,0 +1,56 @@
+# Jouer le fichier (audio et video)
+gst-launch filesrc location=~/Vidéos/shutterisland-tlr1r2r_h720p.mov ! decodebin name=decoder \
+ decoder. ! queue ! audioconvert ! audioresample ! autoaudiosink \
+ decoder. ! queue ! ffmpegcolorspace ! autovideosink
+
+# Encode le fichier dans un format ligne (theora/vorbis) 
+# Qualite basse
+gst-launch filesrc location=~/Vidéos/shutterisland-tlr1r2r_h720p.mov ! decodebin name=decoder \
+ decoder. ! queue ! audioconvert ! vorbisenc ! queue ! \
+ oggmux name=muxer \
+ decoder. ! queue ! ffmpegcolorspace ! theoraenc ! queue ! \
+ muxer. muxer. ! queue ! filesink location=~/Vidéos/shutterisland-tlr1r2r_h720p_lq.ogv
+# Qualite moyenne
+gst-launch filesrc location=~/Vidéos/shutterisland-tlr1r2r_h720p.mov ! decodebin name=decoder \
+ decoder. ! queue ! audioconvert ! vorbisenc ! queue ! \
+ oggmux name=muxer \
+ decoder. ! queue ! ffmpegcolorspace ! theoraenc quality=32 ! queue ! \
+ muxer. muxer. ! queue ! filesink location=~/Vidéos/shutterisland-tlr1r2r_h720p_mq.ogv
+# Qualite haute
+gst-launch filesrc location=~/Vidéos/shutterisland-tlr1r2r_h720p.mov ! decodebin name=decoder \
+ decoder. ! queue ! audioconvert ! vorbisenc ! queue ! \
+ oggmux name=muxer \
+ decoder. ! queue ! ffmpegcolorspace ! theoraenc quality=48 ! queue ! \
+ muxer. muxer. ! queue ! filesink location=~/Vidéos/shutterisland-tlr1r2r_h720p_hq.ogv
+
+# Encode en MPEG-4
+# Qualite basse
+gst-launch filesrc location=~/Vidéos/shutterisland-tlr1r2r_h720p.mov ! decodebin name=decoder \
+ decoder. ! queue ! audioconvert ! faac profile=2 ! queue ! \
+ ffmux_mp4 name=muxer \
+ decoder. ! queue ! ffmpegcolorspace ! x264enc pass=4 quantizer=30 subme=4 threads=0 ! queue ! \
+ muxer. muxer. ! queue ! filesink location=~/Vidéos/shutterisland-tlr1r2r_h720p_lq.mp4
+# Qualite moyenne
+gst-launch filesrc location=~/Vidéos/shutterisland-tlr1r2r_h720p.mov ! decodebin name=decoder \
+ decoder. ! queue ! audioconvert ! faac profile=2 ! queue ! \
+ ffmux_mp4 name=muxer \
+ decoder. ! queue ! ffmpegcolorspace ! x264enc pass=4 quantizer=25 subme=5 me=2 ref=3 threads=0 ! queue ! \
+ muxer. muxer. ! queue ! filesink location=~/Vidéos/shutterisland-tlr1r2r_h720p_mq.mp4
+# Qualite haute
+gst-launch filesrc location=~/Vidéos/shutterisland-tlr1r2r_h720p.mov ! decodebin name=decoder \
+ decoder. ! queue ! audioconvert ! faac profile=2 ! queue ! \
+ ffmux_mp4 name=muxer \
+ decoder. ! queue ! ffmpegcolorspace ! x264enc pass=4 quantizer=20 subme=6 me=2 ref=3 threads=0 ! queue ! \
+ muxer. muxer. ! queue ! filesink location=~/Vidéos/shutterisland-tlr1r2r_h720p_hq.mp4
+
+# Thumbnails (bash)
+
+for i in `ls shutterisland*.mov shutterisland*.mp4`
+do
+  ffmpeg  -itsoffset -20 -i $i -vcodec mjpeg -vframes 1 -an -f rawvideo -s 640x272 $i.jpg
+done
+for i in `ls shutterisland*.ogv`
+do
+  oggThumb -t 20 -s 320x0 $i
+  mv ${i%.*}_0.jpg $i.jpg
+done

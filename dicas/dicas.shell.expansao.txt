@@ -1,0 +1,6 @@
+cadeia=12345
+$ echo ${cadeia/#1/inicio >>> }
+inicio >>> 2345
+$ echo ${cadeia/%5/ <<< fim}
+1234 <<< fim
+

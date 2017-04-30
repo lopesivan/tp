@@ -1,0 +1,30 @@
+main           = cobra.c
+prerequisite   = cobra.c
+
+# ----------------------------------------------------------------------------
+
+program        = $(main:.c=)
+sources        = $(prerequisite)
+objects        = $(sources:.c=.o)
+
+dependences    = $(prerequisite:.c=.o)
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+CC          = gcc
+WARNINGS    = -Wall
+GDBFLAGS    = -g
+LDLIBS      = -lncurses
+INCLUDES    =
+DEFINEFLAGS =
+
+CFLAGS      = $(WARNINGS) $(GDBFLAGS) $(INCLUDES)
+
+all:          $(program)
+
+$(program):   $(dependences)
+
+clean:
+	/bin/rm -rf $(program) $(objects)

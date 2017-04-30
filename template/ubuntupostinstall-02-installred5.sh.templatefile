@@ -1,0 +1,78 @@
+# vi:set nu nowrap:
+# installred5.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: installred5.sh
+#        Date: Qui 23 Set 2010 04:27:20 BRT
+# Description:
+#
+#
+# ----------------------------------------------------------------------------
+
+source ubuntu_10.04.1_lts_env.sh
+
+deps() {
+	sudo apt-get install sun-java6-jre sun-java6-jdk ant ant-optional subversion ivy
+	sudo apt-get install java-package
+}
+
+#sudo ln -s /usr/share/java/ivy-2.1.0-rc2.jar /usr/share/ant/lib/
+
+init() {
+
+deps
+
+test -e $srcDir || mkdir $srcDir
+
+cd $srcDir
+}
+
+download() {
+
+echo '***download***'
+wget http://www.red5.org/downloads/0_9/red5-0.9.1.tar.gz
+
+tar xvfz red5-0.9.1.tar.gz
+mv red5-0.9.1 red5
+cd red5
+}
+
+testRed5() {
+
+echo 'firefox http://localhost:5080/'
+cat << EOF
+test:
+netstat -ntlp
+telnet localhost 5080
+EOF
+}
+
+automatize() {
+
+cd /tmp/
+
+cat > red5.sh << EOF
+#! /bin/bash
+cd $srcDir/red5
+sh red5.sh
+EOF
+
+sudo cp red5.sh /etc/init.d/
+sudo chmod +x /etc/init.d/red5.sh
+sudo update-rc.d red5.sh defaults 98 02
+}
+
+#=================================== main ====================================
+
+#init
+#download
+automatize
+testRed5
+
+# ----------------------------------------------------------------------------
+exit 0

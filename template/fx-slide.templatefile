@@ -1,0 +1,417 @@
+#! /bin/bash
+          TARGET=`which xulrunner`
+ aplication_name=play_slide
+      start_page=slideplay
+    project_name=SlidePlay
+        winTitle="Ivan Carlos Da Silva Lopes"
+         id_link=LinkInterno
+        language=en-US
+         version=0.1
+
+##############################################################################
+##############################################################################
+
+line_comment_html ()
+{
+    if test $# -ne 1; then
+
+	    echo |\
+	    sed   \
+	    ':begin;s/^.\{69\}$/&/;tend;s/$/*/;tbegin;:end;s/.*/<!-- & -->/'
+    else
+	    echo "$*" |\
+	    sed ':begin;s/^.\{69\}$/&/;tend;s/$/ /;tbegin;:end;s/.*/<!-- & -->/'
+    fi
+
+}
+
+##############################################################################
+id_link=$(echo $id_link | tr '[A-Z]' '[a-z]')
+
+##############################################################################
+
+mkdir -p ${aplication_name}/chrome/content/${aplication_name}           \
+         ${aplication_name}/chrome/locale/${language}/${aplication_name}\
+         ${aplication_name}/defaults/preferences
+
+##############################################################################
+
+cat  >   ${aplication_name}/chrome/chrome.manifest << __EOF__
+content  ${id_link} file:content/${aplication_name}/
+locale   ${id_link} ${language} file:locale/${language}/${aplication_name}/
+__EOF__
+
+##############################################################################
+
+cat  > ${aplication_name}/defaults/preferences/prefs.js << __EOF__
+pref("toolkit.defaultChromeURI", "chrome://${id_link}/content/${start_page}.xul");
+pref("general.useragent.extra.${aplication_name}", "${project_name}/${version}");
+__EOF__
+
+##############################################################################
+
+cat  > ${aplication_name}/chrome/locale/${language}/${aplication_name}/${start_page}.dtd << __EOF__
+<!ENTITY ${aplication_name}.title   "MyBrowser">
+<!ENTITY ${aplication_name}.back    "Back"     >
+<!ENTITY ${aplication_name}.forward "Forward"  >
+<!ENTITY ${aplication_name}.reload  "Reload"   >
+<!ENTITY ${aplication_name}.stop    "Stop"     >
+<!ENTITY ${aplication_name}.go      "Go"       >
+<!ENTITY ${aplication_name}.console "Console"  >
+__EOF__
+
+##############################################################################
+
+cat  > ${aplication_name}/application.ini << __EOF__
+[App]
+;
+; This field specifies your organization's name.  This field is recommended,
+; but optional.
+Vendor=ICSL
+;
+; This field specifies your application's name.  This field is required.
+Name=${project_name}
+;
+; This field specifies your application's version.  This field is optional.
+Version=${version}
+;
+; This field specifies your application's build ID (timestamp).  This field is
+; required.
+BuildID=`date +%y%m%d`
+;
+; This field specifies a compact copyright notice for your application.  This
+; field is optional.
+Copyright=Copyright (c) 2006 Ivan Carlos da Silva Lopes
+;
+; This ID is just an example.  Every XUL app ought to have it's own unique ID.
+; You can use the microsoft "guidgen" or "uuidgen" tools, or go on
+; irc.mozilla.org and /msg botbot uuid.  This field is optional.
+ID={`uuidgen`}
+
+[Gecko]
+;
+; This field is required.  It specifies the minimum Gecko version that this
+; application requires.  Specifying 1.8 matches all releases with a version
+; prefixed by 1.8 (e.g., 1.8a4, 1.8b, 1.8.2).
+MinVersion=1.8
+;
+; This field is optional.  It specifies the maximum Gecko version that this
+; application requires.  It should be specified if your application uses
+; unfrozen interfaces.  Specifying 1.8 matches all releases with a version
+; prefixed by 1.8 (e.g., 1.8a4, 1.8b, 1.8.2).
+MaxVersion=1.9.0.*
+__EOF__
+
+cat  > ${aplication_name}/chrome/content/${aplication_name}/${start_page}.js << __EOF__
+// nsIWebProgressListener implementation to monitor activity in the browser.
+function WebProgressListener()
+{
+}
+
+WebProgressListener.prototype = {
+_requestsStarted: 0,
+_requestsFinished: 0,
+
+// We need to advertize that we support weak references.  This is done simply
+// by saying that we QI to nsISupportsWeakReference.  XPConnect will take
+// care of actually implementing that interface on our behalf.
+	QueryInterface: function(iid) {
+		if (iid.equals(Components.interfaces.nsIWebProgressListener)   ||
+	    	    iid.equals(Components.interfaces.nsISupportsWeakReference) ||
+	    	    iid.equals(Components.interfaces.nsISupports))
+
+			return this;
+
+		throw Components.results.NS_ERROR_NO_INTERFACE;
+	},
+
+	  // This method is called to indicate state changes.
+	onStateChange: function(webProgress, request, stateFlags, status) {
+		const WPL = Components.interfaces.nsIWebProgressListener;
+
+		var progress = document.getElementById("progress");
+
+		if (stateFlags & WPL.STATE_IS_REQUEST) {
+			if (stateFlags & WPL.STATE_START) {
+				this._requestsStarted++;
+			} else if (stateFlags & WPL.STATE_STOP) {
+				this._requestsFinished++;
+			}
+			if (this._requestsStarted > 1) {
+				var value = (100 * this._requestsFinished) / this._requestsStarted;
+				progress.setAttribute("mode", "determined");
+				progress.setAttribute("value", value + "%");
+			}
+		}
+
+		if (stateFlags & WPL.STATE_IS_NETWORK) {
+			var stop = document.getElementById("stop");
+			if (stateFlags & WPL.STATE_START) {
+				stop.setAttribute("disabled", false);
+				progress.setAttribute("style", "");
+			} else if (stateFlags & WPL.STATE_STOP) {
+				stop.setAttribute("disabled", true);
+				progress.setAttribute("style", "display: none");
+				this.onStatusChange(webProgress, request, 0, "Done");
+				this._requestsStarted = this._requestsFinished = 0;
+			}
+		}
+	},
+
+	// This method is called to indicate progress changes for the currently
+	// loading page.
+	onProgressChange: function(webProgress, request, curSelf, maxSelf,
+		                   curTotal, maxTotal) {
+		if (this._requestsStarted == 1) {
+			var progress = document.getElementById("progress");
+			if (maxSelf == -1) {
+				progress.setAttribute("mode", "undetermined");
+			} else {
+				progress.setAttribute("mode", "determined");
+				progress.setAttribute("value", ((100 * curSelf) / maxSelf) + "%");
+			}
+		}
+	},
+
+	// This method is called to indicate a change to the current location.
+	onLocationChange: function(webProgress, request, location) {
+		var urlbar   = document.getElementById("urlbar");
+		urlbar.value = location.spec;
+
+		var browser  = document.getElementById("browser");
+		var back     = document.getElementById("back");
+		var forward  = document.getElementById("forward");
+
+		back.setAttribute("disabled", !browser.canGoBack);
+		forward.setAttribute("disabled", !browser.canGoForward);
+	},
+
+	// This method is called to indicate a status changes for the currently
+	// loading page.  The message is already formatted for display.
+	onStatusChange: function(webProgress, request, status, message) {
+		var status = document.getElementById("status");
+		status.setAttribute("label", message);
+	},
+
+	// This method is called when the security state of the browser changes.
+	onSecurityChange: function(webProgress, request, state) {
+		const WPL = Components.interfaces.nsIWebProgressListener;
+
+		var sec = document.getElementById("security");
+
+		if (state & WPL.STATE_IS_INSECURE) {
+		  sec.setAttribute("style", "display: none");
+		} else {
+			var level = "unknown";
+			if (state & WPL.STATE_IS_SECURE) {
+				if (state & WPL.STATE_SECURE_HIGH)
+					level = "high";
+				else if (state & WPL.STATE_SECURE_MED)
+					level = "medium";
+				else if (state & WPL.STATE_SECURE_LOW)
+					level = "low";
+			} else if (state & WPL_STATE_IS_BROKEN) {
+				level = "mixed";
+			}
+			sec.setAttribute("label", "Security: " + level);
+			sec.setAttribute("style", "");
+		}
+	}
+};
+
+var listener;
+
+function go() {
+	var urlbar  = document.getElementById("urlbar");
+	var browser = document.getElementById("browser");
+
+	browser.loadURI(urlbar.value, null, null);
+}
+
+function back() {
+	var browser = document.getElementById("browser");
+	browser.stop();
+	browser.goBack();
+}
+
+function forward() {
+	var browser = document.getElementById("browser");
+	browser.stop();
+	browser.goForward();
+}
+
+function reload() {
+	var browser = document.getElementById("browser");
+	browser.reload();
+}
+
+function stop() {
+	var browser = document.getElementById("browser");
+	browser.stop();
+}
+
+function showConsole() {
+	window.open("chrome://global/content/console.xul", "_blank",
+		    "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar");
+}
+
+function onload() {
+	var urlbar   = document.getElementById("urlbar");
+	urlbar.value = "chrome://linkinterno/content/groff-pic-01-pt_br.html";
+
+	listener     = new WebProgressListener();
+
+	var browser  = document.getElementById("browser");
+
+	browser.addProgressListener(listener,
+		Components.interfaces.nsIWebProgress.NOTIFY_ALL);
+
+	go();
+}
+
+addEventListener("load", onload, false);
+__EOF__
+
+cat  > ${aplication_name}/chrome/content/${aplication_name}/${start_page}.xul << __EOF__
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<!DOCTYPE window SYSTEM "chrome://${id_link}/locale/${start_page}.dtd">
+
+<window
+	id     = "${aplication_name}"
+	title  = "&${aplication_name}.title;"
+	width  = "800"
+	height = "600"
+	xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<script src="${start_page}.js"/>
+
+`line_comment_html open hbox`
+	<hbox>
+
+`line_comment_html`
+		<button
+			id       = "back"
+			label    = "&${aplication_name}.back;"
+			oncommand= "back();"
+			disabled = "true"
+		/>
+
+`line_comment_html`
+		<button
+			id       = "forward"
+			label    = "&${aplication_name}.forward;"
+			oncommand= "forward();"
+			disabled = "true"
+		/>
+
+`line_comment_html`
+		<button
+			id       = "reload"
+			label    = "&${aplication_name}.reload;"
+			oncommand= "reload();"
+		/>
+
+`line_comment_html`
+		<button
+			id       = "stop"
+			label    = "&${aplication_name}.stop;"
+			oncommand= "stop();"
+			disabled = "true"
+		/>
+`line_comment_html`
+		<textbox
+			id      = "urlbar"
+			value   = ""
+			flex    = "1"
+			onchange= "go();"
+		/>
+`line_comment_html`
+		<button
+			id       = "go"
+			label    = "&${aplication_name}.go;"
+			oncommand= "go();"
+		/>
+
+`line_comment_html close hbox`
+	</hbox>
+
+`line_comment_html browser`
+		<browser
+			flex= "1"
+			id  = "browser"
+			src = ""
+			type= "content-primary"
+		/>
+
+`line_comment_html open statusbar`
+	<statusbar>
+			<statusbarpanel
+				id   = "status"
+				label= ""
+				crop = "end"
+				flex = "1"
+			/>
+
+			<progressmeter
+				id   = "progress"
+				mode = "determined"
+				value= "0%"
+				style= "display:none
+			"/>
+
+			<statusbarpanel
+				id   = "security"
+				label= ""
+				style= "display: none"
+			/>
+
+	</statusbar>
+`line_comment_html close statusbar`
+</window>
+__EOF__
+
+cat > ${aplication_name}/run.sh << __EOF__
+#! /bin/bash
+# vi:set nu nowrap:
+
+   TARGET=${TARGET}
+XULRUNNER=\$TARGET
+ OPTFLAGS=
+# ----------------------------------------------------------------------------
+\$XULRUNNER \${OPTFLAGS} application.ini
+# ----------------------------------------------------------------------------
+exit 0
+__EOF__
+
+chmod +x  ${aplication_name}/run.sh
+
+##############################################################################
+exit 0
+
+# __create jar files__
+
+(
+cd ${aplication_name}/chrome/;
+zip -r ${aplication_name}.jar content;
+rm -rf content
+)
+
+cat  >   ${aplication_name}/chrome/chrome.manifest << __EOF__
+content  ${id_link} jar:${aplication_name}.jar!/content/${aplication_name}/
+__EOF__
+
+(
+cd ${aplication_name}/chrome/;
+zip -r ${language}.jar locale;
+rm -rf locale
+)
+
+cat  >>  ${aplication_name}/chrome/chrome.manifest << __EOF__
+locale   ${id_link} ${language} jar:${language}.jar!/locale/${language}/${aplication_name}/
+__EOF__
+
+##############################################################################
+
+exit 0

@@ -1,0 +1,42 @@
+: ${ID_F_SOURCE_APP:=app}
+: ${ID_F_SOURCE_MYFRAME:=MyFrame}
+: ${ID_F_SOURCE_MYAPP:=MyApp}
+
+MK_MAKEFILE()
+{
+cat << __EOF__ | sed 's/[ \t]*$//; /./,/^$/!d' > ${application_name}/${SOURCE_DIR}/Makefile
+main          := ${ID_F_SOURCE_APP}
+prerequisite  := ${ID_F_SOURCE_MYFRAME} ${ID_F_SOURCE_MYAPP}
+WXCONFIG       = ${WXWIDGETS_PATH}/bin/wx-config
+
+program        = \$(main:.cpp=)
+sources        = \$(wildcard *.cpp)
+objects        = \$(sources:.cpp=.o)
+
+dependences    = \$(prerequisite:.cpp=.o)
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+CXX         = g++
+WARNINGS    = -Wall
+GDBFLAGS    = -g
+LDLIBS      = \`\$(WXCONFIG) --libs\`
+INCLUDE     = ../${HEADER_DIR}
+CPPFLAGS    = \`\$(WXCONFIG) --cppflags\` \$(WARNINGS) \$(GDBFLAGS) -I\$(INCLUDE)
+#\$(INCLUDE) \$(DEFINEFLAGS)
+
+all:          \$(program) tags
+
+\$(program):  \$(dependences)
+
+tags:
+	ctags -R --c++-kinds=+p --fields=+iaS --extra=+q \$(sources) ../${HEADER_DIR}/*.hpp
+
+clean:
+	/bin/rm -rf \$(program) \$(objects) tags *.orig
+__EOF__
+}
+
+MK_MAKEFILE

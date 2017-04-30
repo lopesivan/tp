@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <math.h>
+#include <time.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+
+/* widget lib */
+#include <curses.h>
+
+#include "incurse.h"
+
+/*****************************************************************************
+ *                                                                           *
+ * --------------------------------- main ---------------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+int main (void)
+{
+
+    int current_getch,
+		doloop = 1;
+
+	WINDOW *widget;
+    WINDOW *screen;
+
+    screen_init(widget, screen);
+
+    while (doloop)
+    {
+        current_getch = getch();
+
+        if (current_getch == 113)
+        {
+            doloop = 0;
+        }
+
+        update_display(screen);
+
+        sleep(1);
+    }
+
+    screen_end();
+
+    printf("TEST ENDS\n");
+
+    return 0;
+}

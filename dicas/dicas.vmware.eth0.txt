@@ -1,0 +1,51 @@
+
+
+I wanted to check out the latest Ubuntu release, so I downloaded the following VMWare image:
+http://isv-image.ubuntu.com/vmware/Ubuntu-7.10-server-i386.zip
+
+After extracting the 2 files, I opened Ubuntu-7.10-server-i386.vmx in VMWare
+Player. A dialog appeared asking me if I had moved or copied the image opened,
+so I selected "I copied it".
+
+After which, I received an "error" saying something like "This CPU is
+VT-Capable but VT is not enabled ...". It appears that even though the image I
+downloaded was for an i386 machine, it was defined as a 64-bit machine in the
+vmx file. After the OS loaded, I logged in (ubuntu/ubuntu) and did a shutdown:
+
+sudo shutdown -h now
+
+I edited Ubuntu-7.10-server-i386.vmx and changed guestOS = "ubuntu-64" to
+guestOS = "ubuntu". I reopened the file in VMWare Player and then all was
+fine...
+
+After logging in again, I discovered that I had no network connectivity. I did
+an ifconfig and noticed that eth0 was missing. So, I tried a sudo ifup eth0
+and got the following error:
+
+eth0: ERROR while getting interface flags: No such device
+
+...
+
+SIOCSIFADDR: No such device
+eth0: ERROR while getting interface flags: No such device
+eth0: ERROR while getting interface flags: No such device
+Bind socket to interface: No such device
+Failed to bring up eth0
+
+I did a bunch of Google searches and tried a bunch of different "fixes", but
+ended up finding the real problem. [Background]: When VMWare Player starts up,
+it generates a MAC address as well as an UUID for the system (in the vmx
+file).
+
+Well, it turns out that in /etc/udev/rules.d/70-persistent-net.rules file, the
+MAC address that VMWare generated (ethernet0.generatedAddress) was being
+assigned to eth1 and therefore, the eth0 MAC address was incorrect. So I
+edited the file and removed the first entry:
+
+# PCI device 0x8086:0x100f (e1000)
+SUBSYSTEM=="net", DRIVERS=="?*", ATTRS{address}="[bad mac]", NAME="eth0"
+
+Then I edited the line with the correct MAC address and changed eth1 to eth0.
+I read about some commands to run that would make eth0 start working, but I
+ended up just restarting the OS. After it came back up...eth0 was alive!!!
+

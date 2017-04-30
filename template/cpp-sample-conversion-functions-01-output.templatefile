@@ -1,0 +1,15 @@
+The output is as follows:
+
+
+MyString ms is Hello World!
+MyString ms is hehehe
+ms matches const char * !!!
+ms matches std::string !!!
+
+
+As we can see, the conversion function allowed MyString to be treated as const
+char *. In use case 1, the streaming operator converts ms. In use case 2, we
+have the equality operator calling the conversion. In use case 3, however,
+std::string's equality operator does not call the conversion function. Hence,
+we need to cast it explicitly. Without the conversion function in MyString, the
+three use cases would have generated compilation errors.

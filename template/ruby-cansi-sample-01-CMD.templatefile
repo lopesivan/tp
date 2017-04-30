@@ -1,0 +1,9 @@
+swig -ruby libc.i
+# produces libc_wrap.c
+$ ruby extconf.rb
+# produces a Makefile
+$ make
+# produces the extension, libc.so
+#
+# OTHER ...
+$ ruby dltest.rb

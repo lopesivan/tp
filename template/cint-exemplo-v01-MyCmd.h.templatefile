@@ -1,0 +1,3 @@
+/* MyCmd.h */
+void MyCallBack(char *args);
+void MyCommandInit();

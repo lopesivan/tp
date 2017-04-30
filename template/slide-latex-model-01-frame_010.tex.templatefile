@@ -1,0 +1,24 @@
+\begin{frame}[fragile=singleslide]{Handouts}
+To print out a presentation (with notes) for handouts, I use the following:
+\tiny
+\begin{verbatim}
+\documentclass[handout,dvips,11pt,gray]{beamer}
+\usetheme[secheader]{Boadilla}
+\setbeameroption{show notes}
+
+\usefonttheme[onlylarge]{structurebold}
+\setbeamerfont*{frametitle}{size=\normalsize,series=\bfseries}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{note page}[plain]
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{pst-all}              % PStricks
+
+\usepackage{pgfpages}
+\pgfpagesuselayout{4 on 1}[letterpaper,landscape,border shrink=5mm]
+\end{verbatim}
+\note<1>{Note that if you are not using PStricks, one can use pdfLaTeX and remove dvips option in documentclass.}
+\end{frame}

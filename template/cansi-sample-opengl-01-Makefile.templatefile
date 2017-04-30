@@ -1,0 +1,9 @@
+# Makefile: A standard Makefile for calc.c
+
+LIBS        = -L/usr/X11R6/lib -lGL -lGLU -lglut -lXi -lXmu -lXext -lX11 -lm
+LDFLAGS    += $(LIBS)
+
+all  : calc
+clean:
+	/bin/rm -rf calc calc.o 
+# END OF FILE

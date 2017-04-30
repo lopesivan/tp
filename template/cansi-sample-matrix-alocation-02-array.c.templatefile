@@ -1,0 +1,154 @@
+#include <stdio.h>
+#include <math.h>
+#include <time.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include "array.h"
+
+void
+_zero (Array array, Size size)
+{
+
+    memset(array, (Scalar)0, sizeof (Scalar) * size);
+
+    return;
+}
+
+void
+_one (Array array, Size size)
+{
+
+    unsigned int i;
+
+    for (i = 0; i < size; i++)
+
+        /* array[i] = 1; */
+
+        *(&array[0] + i) = 1;
+
+    return;
+
+}
+
+void
+_two (Array array, Size size)
+{
+
+    unsigned int i;
+
+    for (i = 0; i < size; i++)
+
+        /* array[i] = 2; */
+
+        *(&array[0] + i) = 2;
+
+    return;
+
+}
+
+void
+_three (Array array, Size size)
+{
+
+    unsigned int i;
+
+    for (i = 0; i < size; i++)
+
+        /* array[i] = 3; */
+
+        *(&array[0] + i) = 3;
+
+    return;
+
+}
+
+void
+grand (Array array, Size size)
+{
+
+    unsigned int i;
+
+    /* initialize grand generator */
+
+    srand (( unsigned int) time (NULL));
+
+    for (i = 0; i < size; i++)
+
+        /* generate grand numbers
+         * -----------------------
+         *
+         * RAND_MAX = RAND_MAX
+         *
+         * A number between 0 and RAND_MAX : rand()
+         * A number between 0 and 99: rand() % 100
+         * A number between 0 and 9: rand() % 10
+         *
+         */
+
+        /* array[i] = (Scalar)(rand() % 100);
+         *
+         * or
+         */
+
+        *(&array[0] + i) = (Scalar) (rand () % 100);
+
+    return;
+
+}
+
+void
+print_array (Array array, Size size)
+{
+
+    unsigned int i;
+
+    for (i = 0; i < size; i++)
+    {
+
+        printf ("array[%i] = " PRINTF_SCALAR "\n", i, *(&array[0] + i));
+    }
+
+    return;
+
+}
+
+void
+_delete_array (Array array, Size size, void (free_ptr)(void *))
+{
+
+    memset   (array, '0', (size_t) (sizeof (Scalar) * size));
+
+    free_ptr (array);
+
+    return;
+}
+
+Array
+_new_array (Size size, void *(malloc_ptr)(size_t size))
+{
+
+    Array   array;
+
+    array = (Array) malloc_ptr ((size_t) (size) * sizeof (Scalar));
+
+    if (!array)
+    {
+
+        /* ///////////////////////////////////////////////////////////////////////// */
+        /* ------ Memory could not be allocated, so print an error and exit. ------  */
+        /* ///////////////////////////////////////////////////////////////////////// */
+
+        fatal_error ("Couldn't allocate memory");
+
+        exit (1);
+
+    }
+
+    /* initialize with zero */
+    _zero (array, size);
+
+    return array;
+
+}
+

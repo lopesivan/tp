@@ -1,0 +1,32 @@
+    1 – Baixe um arquivo .deb da internet
+    $ sudo wget -c http://ftp.debian.org/debian/pool/main/s/sl/sl_3.03-16_i386.deb
+
+    2 – Exiba informações do Pacote que será instalado:
+    $ sudo  dpkg -I sl_3.03-16_i386.deb
+
+    3 – Liste onde serão instalados todos os arquivos do Pacote que será instalado:
+    $ sudo dpkg -c sl_3.03-16_i386.deb
+
+    4 – Instale o pacote:
+    $ sudo dpkg -i sl_3.03-16_i386.deb
+
+    5 – Como usuário root teste o programa instalado:
+    $ sudo /usr/games/sl
+
+    6 – Verificar se um pacote esta instalado:
+    $ sudo dpkg -l sl
+
+    7 – Listar todos os arquivos do pacote instalado:
+    $ sudo dpkg -L sl
+
+    8 – Verificar o status do pacote instalado:
+    $ sudo dpkg -s sl
+
+    9 – Remover o pacote instalado:
+    $ sudo dpkg -r sl
+
+    10 – Remover o pacote e os arquivos de configuração:
+    $ sudo dpkg -P sl
+
+    11 – Verificar a qual pacote o binario pertence:
+    $ sudo dpkg -S /bin/ls

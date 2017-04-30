@@ -1,0 +1,32 @@
+main           = app.cpp
+prerequisite   = MyFrame.cpp MyApp.cpp
+
+WXCONFIG       = ${ICSL_DEPS}/compiled/wxWidgets-2.8.7/bin/wx-config
+
+program        = $(main:.cpp=)
+sources        = $(wildcard *.cpp)
+objects        = $(sources:.cpp=.o)
+
+dependences    = $(prerequisite:.cpp=.o)
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+CXX         = g++
+WARNINGS    = -Wall
+GDBFLAGS    = -g
+LDLIBS      = `$(WXCONFIG) --libs`
+
+CPPFLAGS    = `$(WXCONFIG) --cppflags` $(WARNINGS) $(GDBFLAGS)
+#$(INCLUDE) $(DEFINEFLAGS)
+
+all:          $(program) tags
+
+$(program):   $(dependences)
+
+tags:
+	ctags -R --c++-kinds=+p --fields=+iaS --extra=+q $(sources)
+
+clean:
+	/bin/rm -rf $(program) $(objects) tags *.orig

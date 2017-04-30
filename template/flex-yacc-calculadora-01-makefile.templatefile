@@ -1,0 +1,29 @@
+#/********************************************************************************
+#*		  EXPRESSION EVALUATOR USING LEX AND YACC			 *
+#*			    (CALCULATOR)					 *
+#*							File: makefile		 *
+#*										 *
+#*	This is a expression evaluator program (calculator) with addition,	 *
+#* Multiplication, Division, Subtraction functionalities. It is also capable 	 *
+#* of handling user precedence using '(',')' and handling new variable decla- 	 *
+#* ration and evaluating expressions involving variables.			 *
+#*										 *
+#*										 *
+#*			AUTHOR - ARINDAM PAUL					 *
+#*			ENROLL - BT06CSE018					 *
+#*			7TH SEMESTER, CSE DEPT.					 *
+#*		     VNIT NAGPUR, NAGPUR - 440010				 *
+#*			DATE - 16TH AUG. 2009					 *
+#*		   All Rights Reserved @ Arindam Paul				 *
+#*********************************************************************************/
+
+
+calculator: lex.yy.c y.tab.c y.tab.h calc.l calc.y
+	gcc lex.yy.c y.tab.c -o calculator
+	
+lex.yy.c: y.tab.h calc.l
+	lex calc.l
+
+y.tab.c y.tab.h: calc.y
+	yacc -d calc.y
+

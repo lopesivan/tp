@@ -1,0 +1,18 @@
+!!!
+%html
+  %head
+    %title My Sinatra Website
+    %link(rel="stylesheet" href="style.css")
+  %body
+    #container
+      #head
+        #header
+          %h1 Header
+      #menubar_horizontal Menubar
+      #content
+        #leftpanel
+          #menubar_vertical Menubar Vertical
+          #news News
+        #body Body
+      #footer Footer
+

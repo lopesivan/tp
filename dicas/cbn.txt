@@ -1,0 +1,27 @@
+vlc 'mmsh://wm-sgr-ondemand.globo.com/_aberto/sgr/1/cbn/2010/colunas/conyxexeo_100915.wma?MSWMExt=.asf'
+
+rio
+vlc 'mmsh://wm-sgr-live.globo.com/sgr_off_cbnfmrj_live.wma?MSWMExt=.asf'
+mmsh://wm-sgr-live.globo.com/sgr_off_cbnbsb_live.wma?MSWMExt=.asf
+mmsh://wm-sgr-live.globo.com/sgr_off_cbnbh_live.wma?MSWMExt=.asf
+http://www.cbn.com.br/spots/audio_cbnsp_3gen_100901.wma
+mmsh://wm-sgr-live.globo.com/sgr_off_cbnfmsp_live.wma?MSWMExt=.asf
+mmsh://wm-sgr-live.globo.com/sgr_off_cbnfmrj_live.wma?MSWMExt=.asf
+
+
+
+http://imagens.globoradio.globo.com/cbn/podcast/comentaristas/merval-pereira.xml
+http://imagens.globoradio.globo.com/cbn/podcast/comentaristas/max-gehringer.xml
+http://imagens.globoradio.globo.com/cbn/podcast/comentaristas/cony-xexeo-viviane-mose.xml
+http://imagens.globoradio.globo.com/cbn/podcast/comentaristas/arnaldojabor.xml
+http://imagens.globoradio.globo.com/cbn/podcast/comentaristas/gilbertodimenstein.xml
+http://imagens.globoradio.globo.com/cbn/podcast/comentaristas/luciahippolito.xml
+http://imagens.globoradio.globo.com/cbn/podcast/comentaristas/miriamleitao.xml
+
+
+
+http://imagens.globoradio.globo.com/cbn/rss/comentaristas/arnaldojabor.xml
+http://imagens.globoradio.globo.com/cbn/rss/comentaristas/gilbertodimenstein.xml
+http://imagens.globoradio.globo.com/cbn/rss/comentaristas/luciahippolito.xml
+http://imagens.globoradio.globo.com/cbn/rss/comentaristas/miriamleitao.xml
+

@@ -1,0 +1,329 @@
+Contents
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Linguagem C - Entrada e Saida
+
+  • ARQUIVOS EM DISCO
+      □ Entrada e Saída
+      □ Funções que realizam E/S em console
+      □ E/S ANSI -- Stream/ Arquivo
+      □ Open de Arquivos
+      □ Escrevendo um Caracter
+      □ Lendo um Caracter
+      □ Encontrando fim de Arquivo
+      □ Fechando um Arquivo
+      □ Função Erro e Rewind
+      □ Exemplo de uso da funções de E/S
+      □ Exemplo de cópia de arquivos - disco
+      □ Funções getw() e putw()
+      □ Funções fgets() e fputs()
+      □ Funções fread() e fwrite()
+      □ Função fseek()
+      □ Exemplo: Programa DUMP
+
+  • Contents
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARQUIVOS EM DISCO
+
+Entrada e Saída
+
+
+STREAMS são usados para ler e escrever em C.
+Um STREAM pode ser uma dispositivo padrão do sistema ou um arquivo específico.
+STREAM texto, quando o sistema operacional manipula os dados antes de entregar
+ao programa C
+STREAM binário, não tem transformação pelo sistema operacional o que vem do
+Programa e vai para o arquivo é igual.
+Existem uma associação do STREAM ao arquivo na hora do open. Nem todos os
+arquivos suportam todas as operações.
+O Close desassocia o STREAM do arquivo e força a transferência da área de
+buffer para o arquivo.
+
+Funções que realizam E/S em console
+
+
+        Getchar()       Lê um caracter do teclado; aguarda um enter
+        Getche()        Lê um caracter com eco; não aguarda enter
+        Getch()         Lê um caracter sem eco; não aguarda enter
+        Putchar()       Escreve um caracter na tela
+        Gets()          Lê um string do teclado
+        Puts()          Escreve um string para a tela
+
+        E/S  Formatada
+        Printf()
+        Scanf()
+
+
+E/S ANSI -- Stream/ Arquivo
+
+
+        fopen()         Abre um STREAM (arquivo)
+        fclose          fecha um STREAM (arquivo)
+        putc()          Escreve um caracter
+        getc()          Lê um caracter
+        fseek()         Procura por um byte específico
+        fprintf()       Igual ao printf() do console.
+        fscanf()        Igual ao scanf() do console
+        feof()          Retorna verdadeiro se encontrou fim arquivo
+        ferror()        Retorna verdadeiro se ocorreu erro
+        fread()         le um bloco de dados
+        fwrite          escreve um bloco de dados
+        rewind()        reposiciona o lacalizador no inicio do arquivo
+        remove()        apaga um arquivo
+
+No Open de arquivos, Valores legais para o modo:
+
+        "r"             abre um arquivo para leitura
+        "w"             cria uma arquivo para escrita
+        "a"             acrescenta dados a um arquivo já existente
+        "rb"            abre um arquivo binário para leitura
+        "wb"            cria um arquivo binário para escrita
+        "ab"            acrescenta dados a um arq binário existente
+        "r+"            abre um arquivo para leitura/escrita
+        "w+"            cria um arquivo para leitura/escrita
+        "a+"            acrescenta dados/cria um arq para leit/escrita
+        "r+b"           abre um arquivo binario para leitura/escrita
+        "w+b"           cria um arquivo binário para leitura/escrita
+        "a+b"           acrescenta ou cria um arq bin para leit/escrita
+        "rt"            abre um arquivo texto para leitura
+        "wt"            cria um arquivo texto para leitura
+        "at"            acrescenta dados a um arquivo texto
+        "r+t"           abre um arquivo texto para leitura/escrita
+        "w+t"           cria um arquivo texto para leitura/escrita
+        "a+t"           acrescenta  ou cria arq. texto para leit/escrita
+
+
+Open de Arquivos
+
+
+protótipo da função: FILE *fopen(char *nome_de_arquivo, char *modo)
+
+        FILE *fp;
+        if ((fp=fopen("teste", "w")) == NULL)
+                { puts("nao posso abrir o arquivo\n");
+                   exit(1);
+                }
+
+
+
+Escrevendo um Caracter
+
+
+protótipo da função : int putc(int ch, FILE *fp);
+
+Lendo um Caracter
+
+
+protótipo da função : int getc(FILE *fp);
+
+        ch = getc(fp);
+        while (ch!=EOF)  {
+                    ch = getc(fp);
+                     }
+
+
+Encontrando fim de Arquivo
+
+
+Determina fim de arquivos para leitura binária (em especial).
+protótipo da função: int feof(FILE *fp);
+
+
+        while (!feof(fp)) ch = getc(fp);
+
+
+Fechando um Arquivo
+
+
+protótipo da função: int fclose(FILE *fp);
+
+Função Erro e Rewind
+
+
+protótipo da função: int ferror(FILE *fp);
+void rewinf(FILE *fp);
+
+Exemplo de uso da funções de E/S
+
+
+/* Ktod - cria arquivo em disco..  */
+#include <stdio.h>
+#include <stdlib.h>
+main (int argc, char *argv[])
+{
+  FILE *fp;
+  char ch;
+  if (argc !=2) { printf ("Falta nome do arquivo \n");
+                               exit (1);
+                               }
+  if ((fp=fopen (argv[1], "w")) == NULL)
+                             {
+                  printf ("o arquivo naopode ser aberto\n");
+                  exit (1);
+                   }
+  do
+      {
+      ch = getchar ();
+      if (EOF == putc(ch,fp))
+                       {
+                       printf("Erro no arquivo durante gravacao");
+                       break;
+                       }
+      }
+      while (ch!= '$');
+      fclose (fp);
+      return 0;
+ }
+
+
+Exemplo de cópia de arquivos - disco
+
+
+/*  Copia de um arquivo   */
+/* COPYARQ copia  arquivo em disco..  */
+#include <stdio.h>
+#include <stdlib.h>
+main (int argc, char *argv[])
+{
+  FILE *entr, *saida;
+  char ch;
+  if (argc !=3) { printf ("Falta nome do arquivo \n");
+                               exit (1);
+                            }
+  if ((entr=fopen (argv[1], "rb")) == NULL)
+               {
+                printf ("o arquivo entrada nao pode ser aberto\n");
+                exit (1);
+                }
+  if ((saida=fopen (argv[2], "wb")) == NULL)
+               {
+                printf ("o arquivo saida nao pode ser aberto\n");
+               exit (1);
+               }
+  /*  copiando o arquivo   */
+  while(!feof(entr))
+               {
+               ch = getc (entr);
+               if(ferror(entr)) {
+                         printf("erro lendo o arquivo");f
+                                       break;
+                                 }
+               putc (ch, saida);
+               if(ferror(saida)) {
+                          printf("erro na gravacao do arquivo");
+                                  break;
+                                 }
+               }
+fclose (entr);
+fclose (saida);
+return 0;
+}
+
+
+Funções getw() e putw()
+
+
+São funções não padrão ANSI usadas para ler e escrever inteiros de e para
+arquivos em disco.
+
+protótipos:    int putw(int i, FILE *fp);
+               int getw(FILE *fp);
+
+
+Funções fgets() e fputs()
+
+
+São funções para ler e escrever strings.
+
+protótipo :    char *fputs(char *str, FILE *fp);
+               char *fgets(char *str, int tamanho, FILE *fp);
+
+Funções fread() e fwrite()
+
+
+São funções que permitem ler e gravar blocos de dados.
+
+protótipo :    unsigned fread(void *buffer, int num_bytes
+               int count,FILE *fp);
+               unsigned fwrite(void *buffer, int num_bytes,
+               int count,FILE *fp);
+
+
+Função fseek()
+
+
+Para acesso randomico.
+protótipo : int fseek(FILE *fp, long numbytes, int origem);
+origem pode ser:
+
+               Começo do arquivo        SEEK_SET        0
+               Posição corrente         SEEK_CUR        1
+               Fim do arquivo           SEEK_END        2
+
+
+Exemplo: Programa DUMP
+
+
+
+
+/*  DUMP :  Um utilitario para visualizar disco
+  usando fseek  -   do livro Turbo C , Schildt
+  pag. 228   */
+#include <stdio.h>
+#include <ctype.h> /* devido ao isprint() */
+#include <stdlib.h> /* devido ao exit() */
+#define TAMANHO 128
+char buf [TAMANHO];
+void display (int numlido);
+main (int argc, char *argv[])
+{
+ FILE *fp;
+ int setor, numlido;
+ /* verifica num de argumentos */
+ if (argc != 2)
+              {
+              printf("use: dump nome do arquivo\n");
+              exit(1);
+              }
+ if ((fp=fopen(argv[1], "rb")) == NULL)
+              {
+              printf("o arquivo nao pode ser aberto \n");
+              exit (1);
+              }
+ for(;;)
+    {
+    printf("informe o setor (-1 para terminar): ");
+    scanf("%ld", &setor);
+    if(setor < 0) break;
+    if(fseek(fp, setor*TAMANHO, SEEK_SET))
+       printf("erro de busca\n");
+    if((numlido=fread(buf, 1, TAMANHO, fp)) != TAMANHO)
+                               printf("EOF encontrado \n");
+    display(numlido);
+    }
+ return 0;
+}
+/* funcao para exibir arquivo  */
+void display(int numlido)
+{
+   int i, j;
+   for(i=0; i< numlido/16; i++)
+      {
+       for (j=0; j<16; j++) printf("%3X", buf [i*16+j]);
+       printf("|");
+
+      for (j=0; j<16; j++)
+          {
+     if (isprint (buf [i*16 + j])) printf("%c",
+buf[i*16+j]);
+          else printf(".");
+          }
+      printf("\n");
+   }
+}
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

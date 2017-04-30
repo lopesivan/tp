@@ -1,0 +1,434 @@
+Índice
+
+  • 1 "Char strings" e Strings
+  • 2 Funções de caracteres úteis.
+  • 3 Strings em C++
+  • 4 Comparando formas de operar strings em C e C++
+      □ 4.1 Funções uteis para o uso de strings
+      □ 4.2 Copiando strings
+      □ 4.3 Unir strings
+      □ 4.4 comparar frases
+      □ 4.5 Convertendo C-string e número
+
+[editar] "Char strings" e Strings
+
+Os caracteres são entendidos como sendo números que geralmente têm oito bits,
+esses números são traduzidos na tabela ASCII de 128 caracteres, como existem
+inúmeras regiões no mundo com caracteristicas linguísticas próprias, a tabela
+ASCII é estendida por um bloco de caracteres acima dos 128 mais baixos que
+varia de acordo com as necessidades de cada língua. A parte superior da tabela
+ASCII é conhecida como parte estendida e é referenciada por páginas de códigos
+para cada propósito linguístico, isso quer dizer que podemos ter os mesmos
+números significando caracteres diferentes para cada região do mundo.
+
+No estilo da linguagem C quando queremos representar um conjunto de caracteres
+colocamos todos eles em uma matriz sequenciada na memória:
+
+Endereço relativo 0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x08 0x09 0x0A
+      Dado         U    m    a         f    r    a    s    e    .
+
+Por exemplo, para declarar um espaço na memória que contenha 20 caracteres
+fazemos:
+
+char dados[20];
+
+Este é o estilo de strings usado pela linguagem C pura. Para manipular este
+tipo de string é preciso ter certo cuidado, pois a matriz sempre tem um tamanho
+definido e caso façamos um acesso a um endereço fora da matriz invadiremos
+outras áreas de memória que não temos como definir o que são, e portanto
+poderemos fazer o programa parar de funcionar, em muitos sistemas pode também
+haver danos aos outros programas e até mesmo ao próprio sistema operacional,
+porém em sistemas operacionais mais sofisticados como o GNU/Linux, que possuem
+gerenciamento de memória com proteção de memória, apenas o programa que causou
+a falha irá parar de funcionar.
+
+Para manipular este tipo de string a biblioteca padrão da linguagem C dispõe de
+diversas funções, para mais detalhes consulte o livro Programar em C.
+
+No estilo C++, como era de se esperar, as strings são objetos, eles podem ser
+criados facilmente através da biblioteca padrão referenciada pelo arquivo de
+cabeçalho <string>. As strings são objetos com recursos que permitem manipular
+os seus caracteres com as funcionalidades das funções da linguagem C e mais
+algumas características próprias possibilitadas pela orientação a objetos.
+
+
+[editar] Funções de caracteres úteis.
+
+As seguintes funções estão no cabeçalho da biblioteca <cctype>
+
+toupper() – (to+upper) retorna a maiúscula de uma letra. é uma função de um
+argumento – o caractere. no caso do argumento não ser uma letra, a função
+retorna o mesmo caractere que é argumento.
+
+tolower() – (to+lower) o mesmo comportamento que toupper(), porém com o
+resultado em minúscula.
+
+ #include <iostream>
+ #include <cctype>
+ using namespace std;
+
+ int main(void)
+ {
+   char ch;
+   do {
+      cout << "Pressionar S ou s para sair, \nqualquer outra tecla para continuar: ";
+      cin.get(ch);
+      ch = toupper(ch);
+      if (ch != '\n')
+         cin.ignore();
+      if (ch != 'S')
+         cout << "Deseja continuar?\n";
+      else
+         cout << "Saindo...";
+   } while (ch != 'S');
+
+#ifdef WIN32
+  system ("pause");
+#endif
+
+   return 0;
+ }
+
+Funções que verificam o caractere. Estas funções recebem apenas um argumento, o
+caractere e retornam um valor booleano.
+
+Função                                 Descrição
+isalpha Retorna verdadeiro se o argumento é uma letra do alfabeto; falso em
+        caso contrário.
+isalnum Retorna verdadeiro se o argumento é uma letra do alfabeto ou um dígito;
+        falso em caso contrário.
+isdigit Retorna verdadeiro se o argumento é um dígito; falso em caso contrário.
+islower Retorna verdadeiro se o argumento é uma letra minúscula, falso em caso
+        contrário.
+isprint Retorna verdadeiro se o argumento é um caractere imprimível (incluíndo
+        espaços); falso em caso contrário.
+        Retorna verdadeiro se o argumento é um sinal de pontuação (caracteres
+ispunct imprimíveis que não sejam letras, dígitos ou espaço); falso em caso
+        contrário.
+isupper Retorna verdadeiro se o argumento é uma letra maiúscula; falso em caso
+        contrário.
+isspace Retorna verdadeiro se o argumento é um espaço, tabulação ou nova linha;
+        falso em caso contrário.
+
+[editar] Strings em C++
+
+As cadeias de caracteres da linguagem C podem formatar um novo tipo de dados,
+porém criar tipos de dados mais sofisticados não é possível nesta linguagem, as
+strings em C++ são objetos da classe string, o que isso traz de novo para o
+tratamento de textos em programas? A primeira coisa a notar quando criamos
+strings em C++ é a maneira de criá-las, a classe disponibiliza uma série de
+construtores:
+
+1 string ( );
+2 string ( const string& st );
+3 string ( const string& st, size_t position, size_t n = npositions );
+4 string ( const char * ps, size_t n );
+5 string ( const char * ps );
+6 string ( size_t n, char ch );
+
+Isto torna possível, basicamente, criar string de seis maneiras diferentes:
+
+ 1. Podemos definir um objeto string vazio, para futuramente usarmos de acordo
+    com a necessidade;
+ 2. Podemos criar um objeto string com uma cópia de outro;
+ 3. Podemos criar um objeto string com uma cópia de uma porção de outra string;
+ 4. Podemos criar um objeto string com uma cópia de uma parte de uma "char
+    string";
+ 5. Podemos criar um objeto string com uma cópia de uma "char string";
+ 6. Podemos criar um objeto string preenchida com uma quantidade definida de um
+    determinado caractere;
+
+Quando manipulamos strings, podemos fazê-lo com operadores, como por exemplo
+"+", "+=", "<<", etc... Isto torna o código um pouco mais intuitivo, vejamos os
+operadores:
+
+1 operator=
+2 operator[]
+3 operator+=
+4 operator+
+5 operator<<
+6 operator>>
+
+Que representam as operações:
+
+ 1. Atribuir o valor de uma string para outra;
+ 2. Acessar caracteres individualmente;
+ 3. Adicionar uma string no final de outra;
+ 4. Concatenar strings;
+ 5. Enviar uma string a um output stream;
+ 6. Receber uma string do input stream.
+
+Apenas com estas poucas informações já é possível operar strings com bastante
+flexibilidade e de uma maneira muito intuitiva, vejamos alguns exemplos:
+
+string a = "Alice e Beto gostam de ",
+       b("chocolate."),
+       c = string("doce de leite."),
+       d = "pipoca.",
+       e(c);
+
+cout << a + b << endl;
+cout << a + c << endl;
+cout << a + d << endl;
+cout << a + e << endl;
+
+Estas operações resultam em:
+
+Alice e Beto gostam de chocolate.
+Alice e Beto gostam de doce de leite.
+Alice e Beto gostam de pipoca.
+Alice e Beto gostam de doce de leite.
+
+[editar] Comparando formas de operar strings em C e C++
+
+Em C, temos diversas funções que são usadas para manipular strings, para mais
+detalhes veja o livro Programar em C, aqui faremos uma comparação dos modos de
+operar strings em C e C++, algumas particularidades da linguagem C++ permitem
+uma operação mais intuitiva das strings e algumas novas formas de tratá-las.
+Vejamos como manipular estes dados tão comuns em qualquer programa.
+
+[editar] Funções uteis para o uso de strings
+
+strlen() – (str=string + len=length)- aceita um argumento que pode ser um array
+(uma cadeia) de caracteres, um ponteiro (que aponta para um array de
+caracteres) ou uma string literal. retorna um número inteiro que representa o
+número de caracteres, não incluindo o caractere "null":
+
+ int len;
+ len = strlen("Jeff") // a extensão é 4
+ char* stinkydog = "Dante";
+ len = strlen(stinkydog);   // a extensão é 5
+ char name[80] = "Devvie";
+ len = strlen(name);  // a extensão é 6
+
+No c++ temos duas funções similares na classe string que são o lenght() e size
+(). Estas funções não tem argumentos pois reportam as informações sobre o
+objeto a quem pertencem, ambas retornar um inteiro que representa o tamanho das
+strings:
+
+ string s = "Jeff Kent";
+ cout << s.length();  // mostra: 9
+ cout << s.size();    // também mostra: 9
+
+[editar] Copiando strings
+
+Se tentássemos copiar strings desta maneira
+
+ char* target = "Jeff Kent";
+ char src[80] = "Micaela";
+ target = src;
+
+O que acontecia é que era a cópia do endereço de src para o ponteiro e não os
+caracteres que estão dentro da matriz.
+
+No entanto existe a função strcpy (estilo C) – ela aceita dois argumentos,
+
+  • O primeiro é para onde vai ser copiada e é passado o ponteiro desse array
+    (não pode ser uma string literal).
+  • O segundo é a frase a ser copiada e pode ser um array, um ponteiro ou um
+    string literal
+
+ char* target = "Jeff Kent";
+ char src[80] = "Micaela";
+ strcpy(target, src);
+
+Note que esta operação é muito arriscada visto que, quando criamos target, a
+quantidade de caracteres que foi reservada para a string era de 9 caracteres
+mais o caractere nulo no final, se fizermos uma cópia de uma string com mais de
+9 caracteres para este endereço, representado por target, ele fatalmente
+causará uma violação de endereço.
+
+Porém em C++ podemos atribuir o valor de uma variável para outra da classe
+string da forma:
+
+   string target = "Jeff Kent";
+   string src = "Micaela";
+   target = src;
+
+Agora, reflitamos no que significa estas operações: Em primeiro lugar "string"
+não é um tipo primitivo de dado, é uma classe, portanto é um tipo de dado mais
+"inteligente", uma das características dos objetos string é que eles são
+redimensionáveis, ou seja, quando atribuímos a uma string um dado maior que seu
+espaço interno de armazenamento ela aumenta o seu espaço interno para comportar
+o novo dado. Outra característica é que a operação "=" para a string é uma
+operação de atribuição de conteúdo, de forma que a string copia a outra quando
+usamos este operador e não apenas o ponteiro que referência o endereço da
+string.
+
+[editar] Unir strings
+
+strcat() – (string+concatenate) – une duas frases. Recebe 2 arguentos, a frase
+primária – o ponteiro para esse array.
+
+   char target[80]  = "Jeff";
+   char* source= " Kent";
+   strcat(target, source);
+   cout << target;    // Mostra "Jeff Kent"
+
+Deve-se observar que strcat é, potencialmente, uma das rotinas mais perigosas
+do C, por um motivo bem simples: a string de destino deve ser pre-dimensionada,
+e deve ter espaço suficiente para receber a string de origem. Um pequeno
+programa como:
+
+   char target[13] = "Regras do C!";
+   char* source = " Mas pode dar resultados imprevisiveis";
+   strcat(target, source);
+
+Escreverá bytes em regiões da memória que não foram previamente alocadas para a
+string. Em c++, este problema é resolvido pelo uso de objetos string.
+
+Ao estilo de c++ podemos fazer.
+
+   string target =  "Regras do C++!\n";
+   string source = " Geralmente não dão resultados imprevisiveis.\n";
+   target += source;
+   cout << target;    // Mostra: Regras do C++!
+                      //         Geralmente não dão resultados imprevisiveis.
+
+Isto porque a classe string prevê o uso do operador "+=" de concatenação e nele
+está embutido um código de verificação de espaço e realocação do mesmo para
+string, caso seja necessário.
+
+[editar] comparar frases
+
+se fizessemos
+
+   char str1[80] = "Devvie Kent";
+   char str2[80] = "Devvie Kent";
+   if (str1 == str2)
+      cout << "The two C-strings are equal";
+   else
+      cout << "The two C-strings are not equal";
+
+o que acontecia é que estariamos a comparar os endereços e não os valores
+
+temos a função strcmp (string+compare) (tem 2 arguentos. retornar 0 se forem
+iguais)
+
+   char str1[80] = "Devvie Kent";
+   char str2[80] = "Devvie Kent";
+   if (!strcmp(str1, str2))
+     cout << "The two C-strings are equal";
+   else
+      cout << "The two C-strings are not equal";
+
+esta comparação pode ser resultar em negativo e positivo e isso tem a ver com o
+jogo de caracteres na tabela ascII. aqui vai um resumo
+
+Resultados de comparações entre strings
+
+Primeira Segunda   strcmp
+ string   string   (str1,                         Razão
+ (str1)   (str2)   str2)
+Jeff     jeff     negativo j tem valor ASCII maior que J
+aZZZ     Zaaa     positivo a tem valor ASCII maior que Z
+                           Os primeiros três caracteres são os mesmos, mas a
+chess    check    positivo quarta letra da primeira string-C, s, tem maior
+                           valor ASCII que a quarta letra da segunda string-C,
+                           c.
+                           Os quatro primeiros caracteres são os mesmos, mas o
+Jeff     Jeffrey  negativo quinto caractere da segunda string-C, r, tem valor
+                           ASCII maior que o caractere nulo na quinta posição
+                           da primeira string-C.
+
+Em C++ podemos comparar duas strings através da função membro da classe string:
+compare(), existem os seguintes formatos (assinaturas) para a função:
+
+1 int compare ( const string& str2 ) const;
+2 int compare ( const char* szc ) const;
+3 int compare ( size_t pos1, size_t n1, const string& str2 ) const;
+4 int compare ( size_t pos1, size_t n1, const char* szc) const;
+5 int compare ( size_t pos1, size_t n1, const string& str2, size_t pos2, size_t n2 ) const;
+6 int compare ( size_t pos1, size_t n1, const char* szc, size_t n2) const;
+
+A função permite os seguintes modos de operação, respectivamente:
+
+ 1. Comparar uma "string" de entrada (str2) com o conteúdo do objeto a qual ela
+    pertence;
+ 2. Comparar uma "C-string" apontada por um ponteiro com o conteúdo do objeto a
+    qual ela pertence;
+ 3. Comparar uma seção começando em (pos1) do objeto, a qual contém (n1)
+    caracteres, com a "string" de entrada (str2);
+ 4. Comparar uma "C-string" apontada por um ponteiro (szc), com uma seção
+    começando em (pos1), a qual contém (n1) caracteres do conteúdo do objeto a
+    qual ela pertence;
+ 5. Comparar uma seção do objeto, iniciada em (pos1) com (n1) caracteres, com
+    uma seção de (str2), iniciada em (pos2) com (n2) caracteres;
+ 6. Comparar uma "C-string" apontada por um ponteiro (szc) de extensão (n2),
+    com uma seção começando em (pos1), a qual contém (n1) caracteres do
+    conteúdo do objeto a qual ela pertence.
+
+O resultado é similar ao da função strcmp() em "C", retornando uma referência
+de valor de acordo com o código ASCII.
+
+[editar] Convertendo C-string e número
+
+No ficheiro (arquivo) cabeçalho da biblioteca cstdlib (c+std+lib) temos várias
+funções de conversão de números em tipologia numérica.
+
+
+atoi (acrônimo para "ASCII to integer") recebe um argumento – c-string) e
+retorna o inteiro que a c-string representa. Não verifica se o argumento pode
+ser convertido:
+
+ int num = atoi("7654");
+
+Programa exemplo:
+
+ #include <iostream>
+ #include <cstring>
+
+ using namespace std;
+
+ int main(void)
+ {
+   char input[80];
+   int num;
+   cout << "Enter an integer: ";
+   cin >> input;
+   for (int x = 0; x < strlen(input); x++)
+   {
+      if (x == 0)
+      {
+         if (!isdigit(input[x]) && input[x] != '-')
+            return 1;
+      }
+      else
+      {
+         if (!isdigit(input[x]))
+            return 2;
+      }
+   }
+   num = atoi(input);
+   cout << num;
+
+#ifdef WIN32
+   system ("pause");
+#endif
+
+   return 0;
+ }
+
+Neste exemplo temos a vantagem de o usuário inserir um dígito para o array de
+caracteres em vez de um inteiro, para evitar um "run-time error" ou "garbage
+data" que aconteceria se a entrada fosse não numérica. Depois o array é
+verificado para ver se representa um número. Se o numero for negativo tem o
+“–“.
+
+
+Em C++ usamos objetos da classe stringstream para armazenar temporariamente os
+caracteres, depois usamos o operador ">>" para converter os caracteres em
+número, bastando para isto criar a variável no formato que desejamos receber o
+número. Mais uma vez temos o uso do poliformismo para resolução de um problema
+comum de programação, a operação do ">>" é diferente para cada tipo de dado,
+selecionada automaticamente pelo compilador de acordo com o tipo de dado da
+variável destino.
+
+ string name = "123";
+ stringstream sst;
+ int i;
+ sst << name << endl;
+ sst >> i;
+
+Os passos acima armazenam o valor 123 na variável "i", todo processo de
+conversão é feito pelo operador ">>".

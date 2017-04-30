@@ -1,0 +1,4 @@
+javac HelloWorldApp.java
+java HelloWorldApp
+groovy HelloWorldAppGroovy.groovy
+groovy HelloWorldAppGroovy

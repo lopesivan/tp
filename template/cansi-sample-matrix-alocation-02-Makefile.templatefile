@@ -1,0 +1,31 @@
+#BOOST_PATH    := /usr/include/boost
+
+sources        = $(wildcard *.c)
+objects        = $(sources:.c=.o)
+program        = app
+
+#INCLUDE        = -I$(BOOST_PATH)
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+CC          = gcc
+LD          = $(CC)
+WARNINGS    = -Wall -ansi
+GDBFLAGS    = -g
+
+CFLAGS      = $(WARNINGS) $(GDBFLAGS) $(INCLUDE) $(DEFINEFLAGS)
+
+all:          $(program) tags
+
+$(program): array.o main.o matrix.o
+	$(CC) $(LDFLAGS) -o $@ $^
+
+tags:
+	ctags -R --c-kinds=+p --fields=+iaS --extra=+q $(sources)
+
+clean:
+	/bin/rm -rf $(program) $(object) tags *.orig *.o
+
+# END OF FILE

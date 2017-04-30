@@ -1,0 +1,13 @@
+#! /bin/bash
+
+OUTFORMAT=png
+
+path="."
+outpath="."
+
+for img in `find $path -name "*.dia"`
+do
+	infile=$img
+	outfile=$outpath/${img%.dia}.$OUTFORMAT
+	dia $infile -e ${outfile,,}
+done

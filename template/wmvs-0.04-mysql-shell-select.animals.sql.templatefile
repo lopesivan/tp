@@ -1,0 +1,2 @@
+SELECT * FROM animals ORDER BY grp,id;
+

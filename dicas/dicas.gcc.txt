@@ -1,0 +1,3 @@
+
+dump macros
+gcc -dM -E - < /dev/null

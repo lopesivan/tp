@@ -1,0 +1,4 @@
+\begin{frame}
+  \titlepage
+\note<1>{Always have a title page!}
+\end{frame}

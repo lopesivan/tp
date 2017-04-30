@@ -1,0 +1,340 @@
+/* vi:set nu ts=4 sts=4 sw=4 tw=78 nowrap:
+ * $Id:$
+ * Federal University of Rio de Janeiro
+ *      Author: Ivan carlos da Silva Lopes
+ *        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+ *     License:
+ *    Language: C ansi
+ *        File: |;n|
+ *        Date: 2007 01:49:26
+ * Description:
+ */
+
+/*****************************************************************************
+ *                                                                           *
+ * ------------------------------- complex.c ------------------------------  *
+ *                                                                           *
+ *****************************************************************************/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#include "types.h"
+#include "complex.h"
+
+/*****************************************************************************
+ *                                                                           *
+ * ----------------------------- complex_add ------------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+Complex complex_addition(Complex z1, Complex z2){
+
+	Complex z;
+
+	/* real */
+
+	z.real = z1.real + z2.real;
+
+	/* imaginary */
+
+	z.imaginary = z1.imaginary + z2.imaginary;
+
+	return z;
+}
+
+/*****************************************************************************
+ *                                                                           *
+ * ----------------------------- complex_sub ------------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+Complex complex_subtraction(Complex z1, Complex z2) {
+
+	Complex z;
+
+	/* real */
+
+	z.real = z1.real - z2.real;
+
+	/* imaginary */
+
+	z.imaginary = z1.imaginary - z2.imaginary;
+
+	return z;
+
+}
+
+/*****************************************************************************
+ *                                                                           *
+ * ----------------------------- complex_mul ------------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+Complex complex_multiplication(Complex z1, Complex z2) {
+
+	Complex z;
+
+	/* real */
+
+	z.real = (z1.real * z2.real) - (z1.imaginary * z2.imaginary);
+
+	/* imaginary */
+
+	z.imaginary = (z1.imaginary * z2.real) + ( z1.real * z2.imaginary);
+
+	return z;
+
+}
+
+/*****************************************************************************
+ *                                                                           *
+ * ----------------------------- complex_div ------------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+Complex complex_division(Complex z1, Complex z2) {
+
+	Complex z;
+
+	Real r,
+		 den;
+
+	if (fabs(z2.real) >= fabs(z2.imaginary)) {
+
+		r = z2.imaginary / z2.real;
+
+		den = z2.real + (r * z2.imaginary);
+
+	/* real */
+
+		z.real = (z1.real + r*z1.imaginary) / den;
+
+	/* imaginary */
+
+		z.imaginary = (z1.imaginary - r*z1.real) / den;
+
+	} else {
+
+		r = z2.real / z2.imaginary;
+
+		den = z2.imaginary + (r*z2.real);
+
+	/* real */
+
+		z.real = (z1.real * (r+z1.imaginary)) / den;
+
+	/* imaginary */
+
+		z.imaginary = ( (z1.imaginary*r) - z1.real) / den;
+	}
+
+	return z;
+
+}
+
+/*****************************************************************************
+ *                                                                           *
+ * ----------------------------- complex_sqrt ------------------------------ *
+ *                                                                           *
+ *****************************************************************************/
+
+Complex complex_sqrt(Complex c) {
+
+	Complex z;
+
+	float w,
+		  r;
+
+	if ((c.real == 0.0) && (c.imaginary == 0.0)) {
+
+		return c;
+
+	} else {
+
+		if (fabs(c.real) >= fabs(c.imaginary)) {
+
+			r = fabs(c.imaginary) / fabs(c.real);
+
+			w = sqrt(fabs(c.real)) * sqrt(0.5 * (1.0 + sqrt(1.0+(r*r))));
+
+		} else {
+
+			r = fabs(c.real) / fabs(c.imaginary);
+
+			w = sqrt(fabs(c.imaginary)) * sqrt(0.5 * (r + sqrt(1.0+(r*r))));
+		}
+		if (c.real >= 0.0) {
+
+			z.real = w;
+
+			z.imaginary = c.imaginary / (2.0 * w);
+
+		} else {
+
+			z.imaginary = (c.imaginary >= 0) ? w : -w;
+
+			z.real = c.imaginary / (2.0 * c.imaginary);
+		}
+
+		return z;
+	}
+
+}
+
+/*****************************************************************************
+ *                                                                           *
+ * -------------------------- complex_conjugate ---------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+Complex complex_conjugate(Complex c) {
+
+	Complex z;
+
+	/* real */
+
+	z.real = c.real;
+
+	/* imaginary */
+
+	z.imaginary = - c.imaginary;
+
+	return z;
+
+}
+
+/*****************************************************************************
+ *                                                                           *
+ * ----------------------------- set_complex ------------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+Complex set_complex(Real real, Real imaginary) {
+
+	Complex z;
+
+	/* real */
+
+	z.real = real;
+
+	/* imaginary */
+
+	z.imaginary = imaginary;
+
+	return z;
+
+}
+
+/*****************************************************************************
+ *                                                                           *
+ * --------------------------- complex_real_mul ---------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+Complex complex_real_multiplication(Real x, Complex c) {
+
+	Complex z;
+
+	/* real */
+
+	z.real = x * c.real;
+
+	/* imaginary */
+
+	z.imaginary = x * c.imaginary;
+
+	return z;
+
+}
+
+/*****************************************************************************
+ *                                                                           *
+ * ----------------------------- Complex_abs ------------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+Real complex_abs(Complex z) {
+
+	if (fabs(z.real) == 0.0)
+
+		return  fabs(z.imaginary);
+
+	else if (fabs(z.imaginary) == 0.0)
+
+		return  fabs(z.real);
+
+	else if (fabs(z.real) > fabs(z.imaginary)) {
+
+		return  fabs(z.real) *
+			sqrt( 1.0 + (fabs(z.imaginary)/fabs(z.real) * fabs(z.imaginary)/fabs(z.real)));
+
+	} else {
+
+		return  fabs(z.imaginary)
+			* sqrt( 1.0 + (fabs(z.real)/fabs(z.imaginary) * fabs(z.real)/fabs(z.imaginary)));
+	}
+
+}
+
+/*****************************************************************************
+ *                                                                           *
+ * ----------------------------- init_complex ------------------------------ *
+ *                                                                           *
+ *****************************************************************************/
+
+void init_complex( Complex_operations *operation, Complex (*add)(Complex z1, Complex z2),
+                                                  Complex (*sub)(Complex z1, Complex z2),
+                                                  Complex (*mul)(Complex z1, Complex z2),
+                                                  Complex (*div)(Complex z1, Complex z2),
+												  Complex (*sqrt)(Complex c),
+												  Complex (*conjugate)(Complex c),
+												  Complex (*set)(Real real, Real imaginary),
+												  Complex (*real_mul)(Real x, Complex c),
+												  Real    (*abs)(Complex z)) {
+
+	operation->add = add;
+
+	operation->sub = sub;
+
+	operation->mul = mul;
+
+	operation->div = div;
+
+	operation->sqrt = sqrt;
+
+	operation->conjugate = conjugate;
+
+	operation->set = set;
+
+	operation->real_mul = real_mul;
+
+	operation->abs = abs;
+
+	return;
+
+}
+
+/*****************************************************************************
+ *                                                                           *
+ * ---------------------- new_complex_operations --------------------------  *
+ *                                                                           *
+ *****************************************************************************/
+
+Complex_operations *new_complex_operations(void) {
+
+	Complex_operations *operations;
+
+	operations = (Complex_operations*)malloc(sizeof(Complex_operations));
+
+	init_complex(operations, complex_addition,
+			                 complex_subtraction,
+                             complex_multiplication,
+							 complex_division,
+							 complex_sqrt,
+							 complex_conjugate,
+							 set_complex,
+							 complex_real_multiplication,
+							 complex_abs);
+
+	return operations;
+
+}

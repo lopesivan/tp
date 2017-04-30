@@ -1,0 +1,275 @@
+Esta é uma lista de exemplos de código Python, que demonstram a funcionalidade
+da linguagem e suas características. Uma das características mais marcantes da
+linguagem, a sintaxe do Python é clara, concisa e elegante, o que facilita a
+manutenção e garante a produtividade.
+
+Índice
+
+  • 1 Programa Olá Mundo
+  • 2 Imprimindo uma lista ordenada com os itens com a primeira letra em
+    maiúscula
+  • 3 Contando palavras em um arquivo
+  • 4 Números perfeitos
+  • 5 Enviando e-mail
+  • 6 Cálculos matemáticos
+  • 7 Sequência de Fibonacci
+  • 8 Retornar o quadrado de um valor
+  • 9 Retornar o quadrado de uma sequência
+  • 10 Somar os cem primeiros naturais
+  • 11 Orientação a objeto
+  • 12 Encapsulamento
+  • 13 Polimorfismo
+  • 14 Compreensão de listas
+  • 15 Closures
+  • 16 Geradores
+  • 17 Ver também
+
+* Programa Olá Mundo
+
+print('Olá, mundo!')
+
+* Imprimindo uma lista ordenada com os itens com a primeira letra em
+maiúscula
+
+lista = ['laranja', 'banana', 'uva']
+lista.sort()
+
+for item in lista:
+    print item.capitalize()
+
+* Contando palavras em um arquivo
+
+arquivo = file('text.txt')
+palavras = arquivo.read().split()
+unicas = set(palavras)
+
+print 'Palavras: %d. Tirando as repetidas: %d' % (len(palavras), len(unicas))
+
+* Números perfeitos
+
+Calcula n números perfeitos.
+
+def is_numero_perfeito(n=0):
+  if n == 0:
+    return False
+
+  return sum(x for x in range(1,n) if not n%x) == n
+
+def numeros_perfeitos(n=0):
+  cont = 0
+  i = 0
+  while cont < n:
+    if is_numero_perfeito(i):
+      print i
+      cont = cont+1
+    i=i+1
+
+numeros_perfeitos(3)
+
+* Enviando e-mail
+
+import smtplib
+server = smtplib.SMTP('mail.xx.net')
+
+# Envio de e-mail da conta @xy para a conta @xx
+
+server.sendmail('leonardo@xy.com', 'leonardo@xx.net',
+"""To: leonardo@xx.net
+From: leonardo@xy.com
+Subject: Teste de envio de email
+Estou lhe enviando este email como um teste.
+""")
+
+server.quit()
+print 'Envio OK'
+
+* Cálculos matemáticos
+
+>>> from math import *
+>>> x = 5
+>>> sqrt(x)
+2.2360679774997898
+
+>>> sin(x)
+-0.95892427466313845
+
+>>> log(x)
+1.6094379124341003
+
+>>> cos(x)
+0.28366218546322625
+
+* Sequência de Fibonacci
+
+valor = int(raw_input("Digite o valor: "))
+a, b = 0, 1
+while b < valor:
+       print b
+       a, b = b, a+b
+
+* Retornar o quadrado de um valor
+
+def pot(a):
+       return(a*a)
+
+* Retornar o quadrado de uma sequência
+
+  [x*x for x in range(1,11)]
+
+* Somar os cem primeiros naturais
+
+>>>sum(x for x in xrange(101))
+>>>5050
+
+ou ainda
+
+sum(range(1,101))
+
+* Orientação a objeto
+
+class A:
+   a = 1 # atributo publico
+
+class B(A): # classe B está herdando A
+   _c = 3 # atributo considerado privado
+
+   def __init__(self): # método especial que pode ser considerado "construtor"
+     print self.a
+     print self._c
+
+a = A()
+print isinstance(a, B) # ''Objeto a'' é uma instância da ''classe B''? Falso.
+
+a = B() # Instancía o ''objeto a'' na ''classe B'' e imprime os atributos da classe.
+print isinstance(a, B) # ''Objeto a'' é uma instância da ''classe B''?Verdadeiro.
+
+b = B() # Instancía o ''objeto b'' na ''classe B'' e imprime os atributos da classe.
+print isinstance(b, B) # ''Objeto b'' é uma instância da ''classe B''? Verdadeiro.
+
+b = A() # Instancía o ''objeto b'' na ''classe A''.
+print isinstance(b, A) # ''Objeto b'' é uma instância da ''classe A''? Verdadeiro.
+
+* Encapsulamento
+
+Em Python não existe proteção dos membros de uma classe ou instância pelo
+interpretador, o chamado encapsulamento. Convenciona-se que atributos com o
+nome começando com um _ são de uso privado da classe, mas não há um
+policiamento do interpretador contra acesso a estes atributos. Uma exceção são
+nomes começando com __, no caso em que o interpretador modifica o nome do
+atributo.
+
+class A:
+    a = 1 # atributo publico
+    _b = 2 # atributo de uso privado
+    __c = 3 # atributo de uso privado, tem o nome modificado para _A__c
+
+a = A()
+print a.a # imprime 1
+print a._b # válido, mas desencorajado
+print a.__c # inválido, atributo inexistente
+print a._A__c # válido, mas *fortemente* desencorajado
+
+* Polimorfismo
+
+class Pessoa:
+
+    def __init__(self, nome ='', idade=0):
+       self.nome = nome
+       self.idade = idade
+
+    def getIdade(self):
+       return self.idade
+
+class PessoaCPF(Pessoa):
+
+    def __init__(self, CPF, nome='', idade=0):
+       Pessoa.__init__(self, nome, idade)
+       self.CPF = CPF
+
+#######################################
+# Expondo o método __init__
+
+a = Pessoa()
+Pessoa.__init__(a, 'Leonardo', 22)
+
+b = PessoaCPF('122.333.332-1', nome='', idade=0)
+
+print a.nome   # imprime Leonardo
+print a.idade  # imprime 22
+print b.CPF    # imprime 122.333.332-1
+
+#######################################
+# Não expondo o método __init__
+
+a = Pessoa('Leonardo', 22)
+b = PessoaCPF('122.333.332-1', a)
+
+print a.nome   # imprime Leonardo
+print a.idade  # imprime 22
+print b.CPF    # imprime 122.333.332-1
+
+* Compreensão de listas
+
+Os exemplos abaixo usam a técnica de compreensão de listas.
+
+Este exemplo calcula as cinco primeiras potências de dois:
+
+powers_of_two = [2**n for n in xrange(1, 6)]
+
+Este exemplo é uma implementação do algoritmo quicksort.
+
+def qsort(L):
+    if L == []:
+        return []
+    pivot = L[0]
+    return (qsort([x for x in L[1:] if x < pivot]) +
+            [pivot] +
+            qsort([y for y in L[1:] if y >= pivot]))
+
+* Closures
+
+O exemplo abaixo demonstra o uso de closures em Python:
+
+# Retorna uma função que aproxima a derivada de f usando o intervalo dx, que deve ser pequeno.
+def derivada(f, dx):
+  def funcao(x):
+    return (f(x + dx) - f(x)) / dx
+  return funcao
+
+* Geradores
+
+Segue exemplo da geração preguiçosa de números primos que usa a técnica de
+gerador:
+
+from itertools import count
+
+def gera_primos(parar_em=0):
+    primos = []
+    for n in count(2):
+        if 0 < parar_em < n:
+            return # lança a exceção StopIteration
+        composto = False
+        for p in primos:
+            if not n % p:
+                composto = True
+                break
+            elif p**2 > n:
+                break
+        if not composto :
+            primos.append(n)
+            yield n
+
+for i in gera_primos():
+    if i > 100:
+        break
+    print i
+
+A definição do gerador aparenta ser idêntica a de uma função, mas difere pela
+palavra-chave yield usada no lugar de return. Na versão 2.4 foi introduzida a
+possibilidade de interagir compreensão de listas com geradores. Dado o gerador
+de números primos acima, pode-se definir a coleção preguiçosa abaixo.
+
+from itertools import islice
+
+primeiro_milhao_de_primos = (i for i in gera_primos() if i < 1000000)
+Primo_dois_mil = islice(primeiro_milhao_de_primos, 2000, 2001).next()

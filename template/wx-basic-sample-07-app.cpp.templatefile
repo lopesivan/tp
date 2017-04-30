@@ -1,0 +1,21 @@
+//////////////////////////////////////////////////////////////////////////////
+//                                                                           /
+// -------------------------------- app.hpp -------------------------------- /
+//                                                                           /
+//////////////////////////////////////////////////////////////////////////////
+
+#include "app.hpp"
+
+// Implements MyApp& GetApp()
+DECLARE_APP(MyApp)
+
+// Event table for MyFrame
+BEGIN_EVENT_TABLE(MyFrame, wxFrame)
+
+    EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
+    EVT_MENU(wxID_EXIT,  MyFrame::OnQuit )
+
+END_EVENT_TABLE()
+
+// Give wxWidgets the means to create a MyApp object
+IMPLEMENT_APP(MyApp)

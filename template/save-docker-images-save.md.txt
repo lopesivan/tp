@@ -1,0 +1,20 @@
+docker save ivan/sharelatex| gzip -9 > ivan/sharelatex.tgz
+docker rmi ivan/sharelatex
+gzip -d ivan/sharelatex.tgz
+docker load -i ./ivan/sharelatex.tar
+docker save ivan/chef-solo-texlive| gzip -9 > ivan/chef-solo-texlive.tgz
+docker rmi ivan/chef-solo-texlive
+gzip -d ivan/chef-solo-texlive.tgz
+docker load -i ./ivan/chef-solo-texlive.tar
+docker save ivan/chef-server| gzip -9 > ivan/chef-server.tgz
+docker rmi ivan/chef-server
+gzip -d ivan/chef-server.tgz
+docker load -i ./ivan/chef-server.tar
+docker save ivan/chef-solo| gzip -9 > ivan/chef-solo.tgz
+docker rmi ivan/chef-solo
+gzip -d ivan/chef-solo.tgz
+docker load -i ./ivan/chef-solo.tar
+docker save ubuntu-debootstrap| gzip -9 > ubuntu-debootstrap.tgz
+docker rmi ubuntu-debootstrap
+gzip -d ubuntu-debootstrap.tgz
+docker load -i ./ubuntu-debootstrap.tar

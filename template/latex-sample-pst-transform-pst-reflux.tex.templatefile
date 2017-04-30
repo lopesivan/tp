@@ -1,0 +1,477 @@
+\csname PSTrefluxLoaded\endcsname
+\let\PSTrefluxLoaded\endinput
+
+\ifx\PSTricksLoaded\endinput\else\input pstricks \fi
+\ifx\PSTtransformLoaded\endinput\else\input pst-transform.tex\fi
+\ifx\PSTGradLoaded\endinput\else\input pst-grad.tex\fi
+\ifx\PstSlopeLoaded\endinput\else\input pst-slpe.tex\fi
+%
+\input{random}
+% RANDOM.TEX       v.1   (Donald Arseneau)
+% Generating "random" numbers in TeX
+%
+\def\fileversion{1.0}
+\def\filedate{07/09/05}
+%
+%% COPYRIGHT 2007 by Manuel Luque
+%% This program can be redistributed and/or modified under the terms
+%% of the LaTeX Project Public License Distributed from CTAN
+%% archives in directory macros/latex/base/lppl.txt.
+%
+\message{`PST-reflux' v\fileversion, \filedate\space (ML)}
+
+\newpsstyle{metal}{fillstyle=solid,fillcolor=cyan!10!gray!90}
+\newpsstyle{boulon}{fillstyle=ccslope,slopebegin=cyan!20!gray!90,
+  slopeend=white}
+\newpsstyle{chauffage}{fillstyle=solid,fillcolor={[HTML]{B6A589}}}
+
+\newpsstyle{solutionballon}{fillstyle=solid,fillcolor=green!50,linecolor=green}
+\newpsstyle{ballonebullition}{fillstyle=gradient,gradbegin=green,gradend=white,gradmidpoint=0,linecolor=green}
+\newpsstyle{solutionampoule}{fillstyle=solid,fillcolor=magenta}
+\newpsstyle{Eau}{fillstyle=solid,fillcolor=\psk@styleColor}
+\newpsstyle{refrigerant}{fillstyle=solid}
+
+\definecolor{maroon}{rgb}{0.65,0.25,0.17}
+\definecolor{bleupale}{rgb}{0.8,0.8,1}
+
+
+% boulons et axes
+\def\boulon{\pscircle[style=\psk@styleBoulon](0,0){0.2}%
+            \pspolygon[style=\psk@styleBoulon](0.15;60)(0.15;120)(0.15;180)(0.15;240)(0.15;300)(0.15;360)}
+\def\axe{\pscircle[style=\psk@styleBoulon](0,0){0.15}}
+\def\tige{\psframe[framearc=1,style=\psk@styleMetal](-2,0)(2,0.5)}
+% molette et vis
+\def\vis{%
+\psframe(-2.5,-0.1)(2.5,0.1)
+\psframe[fillstyle=crosshatch](2.5,-0.75)(3,0.75)
+\psframe[linestyle=none,fillstyle=hlines,hatchangle=60,hatchsep=0.05]%
+            (-1,-0.1)(2,0.1)}
+% base  et plan support
+\def\base{%
+\psframe(-2,-0.25)(2,0.25)
+\pscustom[linestyle=none,style=\psk@styleMetal]{\psline(-2,0.25)(2,0.25)(2,-0.25)(-2,-0.25)(-2,0.25)%
+          \psarc(-0.95,0){0.15}{90}{270}\psline(-0.8,-0.15)(1.7,-0.15)%
+          \psarc(1.7,0){0.15}{-90}{90}
+          \psline(-0.95,0.15)}
+\psline(-2,0.25)(2,0.25)(2,-0.25)(-2,-0.25)(-2,0.25)%
+\psarc(-0.95,0){0.15}{90}{270}\psline(-0.95,-0.15)(1.7,-0.15)%
+\psarc(1.7,0){0.15}{-90}{90}
+\psline(1.7,0.15)(-0.95,0.15)}
+
+% définition du support-boy
+\def\supportboy#1{% #1 angle d'élévation
+% calcul de quelques points
+\pnode(-1.75,0.25){O1}% O1 axe 1
+% O2 milieu de la tige 1 après rotation,
+% O3 extrémité de la tige 1 après rotation.
+\psrotate(O1){#1}{\pnode(0,0.25){O2}\pnode(1.75,0.25){O3}}%
+% récupérer le noeud 4
+\psrotate(O2){-#1}{\pstranslate(0,0.25)(O2){\pnode(-1.75,0.25){O4}}}% récupérer le noeud 4
+\pstranslate(-1.75,0)(O4){\vis}
+% translation et rotation de la tige 1 -> tige 3
+% et récupérer les noeuds 5 et 6
+\psrotate(O3){-#1}{\pstranslate(1.75,0.25)(O3){\tige\pnode(0,0.25){O5}\pnode(-1.75,0.25){O6}}}% tige 3
+% translation et rotation de la tige 1 -> tige 2 et récupérer le noeud 7
+\psrotate(O2){-#1}{\pstranslate(0,0.25)(O2){\tige\pnode(1.75,0.25){O7}}}% tige 2
+% translation et rotation de la tige 1 -> tige 4
+\psrotate(O5){#1}{\pstranslate(0,0.25)(O5){\tige\pnode(1.75,0.25){O8}}}% tige 4
+% rotation  de la tige 1
+\psrotate(O1){#1}{\tige}% tige 1
+% récupérer le noeud milieu du dessus du plan support
+% pour y placer l'appareil de chauffage : O9
+\rput(0,0.25){\base}\pstranslate(-1.75,0)(O6){\base\pnode(0,0.25){O9}}
+\multido{\i=1+1}{6}{\rput(O\i){\boulon}}
+\rput(O8){\axe}\rput(O7){\axe}}
+
+
+
+\def\supportpied{%
+    \psframe[fillstyle=solid,fillcolor=gray!50,framearc=1](-2.85,0.2)(-3.15,14)
+    \psframe[style=\psk@styleMetal](-2.8,0.2)(-3.2,0.4)
+    \pscustom[style=\psk@styleMetal]{%
+    \psline(4,0.6)(-4,0.6)(-4,0)(-3.4,0)\psarcn(-3.2,0.2){0.2}{180}{90}
+    \psline(-3,0.4)(3,0.4)\psarcn(3.2,0.2){0.2}{90}{0}
+    \psline(3.4,0)(4,0)(4,0.6)}}
+
+
+\def\columnright{%
+% partie droite
+    \psline(!eT rB 6 mul neg 2.1 h mul add)(!eT h neg Dh add)
+    \multido{\ry=\Dh+\Dh}{5}{%
+    \psarcn(!eT rR add h neg \ry\space add){\rR}{180}{!180 Angle sub}
+    \psarc(! 0 \ry\space){\rB}{!Angle neg}{!Angle}
+    \psarcn(!eT rR add h \ry\space add){\rR}{!Angle 180 add}{180}}
+    \psarcn(!eT rR add h neg Dh 5 mul add 1 add){\rR}{180}{!180 Angle sub}
+    \psarc(! 0 H){\rB}{!Angle neg}{0}
+    \psline(! rB H)(!rB H 3 rB mul add)
+    \psarcn(!rB rR add H 3 rB mul add){\rR}{180}{135}}
+
+\def\columnleft{%
+% partie gauche
+    \psarcn(!rB rR add neg H 3 rB mul add){\rR}{45}{0}
+    \psline(!rB neg H 3 rB mul add)(! rB neg H)
+    \psarc(! 0 H){\rB}{180}{!180 Angle add}
+    \psarcn(!eT rR add neg h neg Dh 5 mul add 1 add){\rR}{!Angle}{0}
+    \multido{\ry=\Hh+-\Dh}{5}{%
+    \psarcn(!eT rR add neg h \ry\space add){\rR}{0}{!Angle neg}
+    \psarc(! 0 \ry\space){\rB}{!180 Angle sub}{!Angle 180 add}
+    \psarcn(!eT rR add neg h neg \ry\space add){\rR}{!Angle}{0}}
+    \psline(!eT neg h neg Dh add)(!eT neg rB 6 mul neg 2 h mul add)}
+
+\def\Tube{%
+% corps du réfrigérant
+\psarc(!0 1.2 Dh 4 mul add){\h}{0}{180}
+\psline(! h neg 1.2 Dh 4 mul add)(!h neg 1 Dh 4 mul add rR add)
+\psarcn(! h neg rR sub 1 Dh 4 mul add rR add){\rR}{0}{-90}
+\psline(! h neg rR sub 1 Dh 4 mul add)(! 2 h neg mul 1 Dh 4 mul add)
+% sortie de l'eau
+\psarc(! 2 h neg mul 1 Dh 4 mul add 4 eT mul sub){\eTeTeTeT}{90}{180}
+\pscurve(!2 h neg mul 4 eT mul sub 1 Dh 4 mul add 4 eT mul sub)
+        (!2 h neg mul 0.01 sub 4 eT mul sub 1 Dh 4 mul add 5 eT mul sub)
+        (!2 h neg mul 0.01 add 4 eT mul sub 1 Dh 4 mul add 6 eT mul sub)
+        (!2 h neg mul 0.01 sub 4 eT mul sub 1 Dh 4 mul add 7 eT mul sub)
+        (!2 h neg mul 4 eT mul sub 1 Dh 4 mul add 8 eT mul sub)
+\pscurve(!2 h neg mul 2 eT mul sub 1 Dh 4 mul add 8 eT mul sub)%
+        (!2 h neg mul 2 eT mul sub 0.01 add 1 Dh 4 mul add 7 eT mul sub)%
+        (!2 h neg mul 2 eT mul sub 0.01 sub 1 Dh 4 mul add 6 eT mul sub)%
+        (!2 h neg mul 2 eT mul sub 0.01 add 1 Dh 4 mul add 5 eT mul sub)%
+        (!2 h neg mul 2 eT mul sub 1 Dh 4 mul add 4 eT mul sub)
+\psarcn(!2 h neg mul 1 Dh 4 mul add 4 eT mul sub){\eTeT}{180}{90}
+\psline(!2 h neg mul 1 Dh 4 mul add 2 eT mul sub)
+       (! h neg eT sub 1 Dh 4 mul add 2 eT mul sub)
+\psarcn(!h neg eT sub 1 Dh 4 mul add 3 eT mul sub){\eT}{90}{0}
+\psline(!h neg 1 Dh 4 mul add 3 eT mul sub)%
+       (!h neg 0.8 h mul Dh add rR add rB sub)
+% entrée de l'eau
+\psarcn(! h neg rR sub 0.8 h mul Dh add rR add rB sub){\rR}{0}{-90}
+\psline(!h neg rR sub 0.8 h mul Dh add rB sub)%
+       (! 2 h mul neg 0.8 h mul Dh add rB sub)
+\psarc(! 2 h neg mul 0.8 h mul Dh add 4 eT mul sub rB sub){\eTeTeTeT}{90}{180}
+\pscurve(!2 h neg mul 4 eT mul sub 0.8 h mul Dh add 4 eT mul sub rB sub)
+        (!2 h neg mul 0.01 sub 4 eT mul sub 0.8 h mul Dh add 5 eT mul sub rB sub)
+        (!2 h neg mul 0.01 add 4 eT mul sub 0.8 h mul Dh add 6 eT mul sub rB sub)
+        (!2 h neg mul 0.01 sub 4 eT mul sub 0.8 h mul Dh add 7 eT mul sub rB sub)
+        (!2 h neg mul 4 eT mul sub 0.8 h mul Dh add 8 eT mul sub rB sub)
+\pscurve(!2 h neg mul 2 eT mul sub 0.8 h mul Dh add 8 eT mul sub rB sub)%
+        (!2 h neg mul 2 eT mul sub 0.01 add 0.8 h mul Dh add 7 eT mul sub rB sub)%
+        (!2 h neg mul 2 eT mul sub 0.01 sub 0.8 h mul Dh add 6 eT mul sub rB sub)%
+        (!2 h neg mul 2 eT mul sub 0.01 add 0.8 h mul Dh add 5 eT mul sub rB sub)%
+        (!2 h neg mul 2 eT mul sub 0.8 h mul Dh add 4 eT mul sub rB sub)
+\psarcn(!2 h neg mul 0.8 h mul Dh add 4 eT mul sub rB sub ){\eTeT}{180}{90}
+\psline(!2 h neg mul 0.8 h mul Dh add 2 eT mul sub rB sub)%
+       (! h neg eT sub 0.8 h mul Dh add 2 eT mul sub rB sub)
+\psarcn(!h neg eT sub 0.8 h mul Dh add 3 eT mul sub rB sub){\eT}{90}{0}
+\psline(!h neg 0.8 h mul Dh add 3 eT mul sub rB sub)(! h neg Dh rB sub)
+\psarc(!0 Dh rB sub){\h}{180}{240}
+\psline(!h 240 cos mul h 240 sin mul Dh add rB sub)(!h 240 cos mul 0)%
+       (!h 240 cos mul neg 0 rB sub)(!h 240 cos mul neg h 240 sin mul Dh add rB sub)
+\psarc(!0 Dh rB sub){\h}{-60}{0}
+\psline(! h Dh rB sub)(! h 1.2 Dh 4 mul add)}
+
+\def\pstgoutte{%
+\psbezier[linewidth=0.01](0,0)(-0.04,-0.083)(-0.083,-0.22)%
+(0,-0.25)(0.083,-0.22)(0.04,-0.083)(0,0)}
+
+\def\refrigerant{%
+\pscustom[linestyle=none]{\Tube\fill[style=\psk@Water]}
+\Tube%
+\pscustom[linestyle=none]{% colonne à boules
+    \columnright
+    \columnleft
+    \fill[style=\psk@styleRefrigerant]}
+\pscustom{\columnright}
+\pscustom{\columnleft}
+% bouchon
+\pscustom{%
+    \psline(!0.8 h mul rR sub 0)(!0.8 h mul neg rR add 0)
+    \psarc(!0.8 h mul neg rR add rR neg){\rR}{90}{180}
+    \psline(!0.8 h mul neg rR neg)(!0.8 h mul neg -0.5)(!0.8 h mul -0.5)(!0.8 h mul  rR neg)
+    \psarc(!0.8 h mul rR sub rR neg){\rR}{0}{90}
+    \fill[fillstyle=solid,fillcolor=red!50]}
+\psframe[fillstyle=vlines,hatchangle=0,hatchsep=0.1](!0.8 h mul neg -0.5)(!0.8 h mul rR neg)
+\psframe[fillstyle=solid,fillcolor=red!50](! 0.8 h mul neg 0.05 sub -0.55)(! 0.8 h mul 0.05 add -0.5)}%
+
+\def\tuyaux{%
+\pscurve[doubleline=true,doublesep=\eT,doublecolor=\psk@styleColor](eau1)(eau11)(-2,7)(-3.5,4)(-4,1)(-4.2,-1)
+\psline[linewidth=\eT,linecolor=\psk@styleColor](-4.2,-1)(-4.2,-1.95)% jet d'eau
+\pscurve[doubleline=true,doublesep=\eT,doublecolor=\psk@styleColor](eau2)(eau22)(-2,6)(-4,1)(-5.8,1)(-6,2)}
+
+\def\robinet{%
+    \pspolygon[fillstyle=solid,fillcolor=gray](-0.25,0)(-0.2,0.5)(0.2,0.5)(0.25,0)
+    \psframe[fillstyle=solid,fillcolor=gray](1.4,2)(1.6,3)
+    \pspolygon[fillstyle=solid,fillcolor=gray](1.3,2.45)(1.4,2)(1.6,2)(1.7,2.45)
+    \psframe[fillstyle=vlines*,hatchangle=0,fillcolor=gray](1,2.7)(2,2.9)
+    \psline[doubleline=true,doublesep=0.1,linearc=0.2,doublecolor=gray](0,0.5)(0,2.5)(2,2.5)
+    }
+
+\def\pince{\psframe[fillstyle=solid,fillcolor=gray!50,framearc=1](-1.2,-0.1)(-4,0.1)
+            \pscustom[fillstyle=solid,fillcolor=gray!50]{\psline(-1.4,0.2)(-0.7,0.2)(-0.5,0.3)(0.5,0.3)%
+                     \psarcn(0.5,0.2){0.1}{90}{-90}
+                     \psline(0.5,0.1)(-0.5,0.1)(-0.6,0)(-0.5,-0.1)(0.5,-0.1)
+                     \psarcn(0.5,-0.2){0.1}{90}{-90}
+                     \psline(0.5,-0.3)(-0.5,-0.3)(-0.7,-0.2)(-1.4,-0.2)(-1.4,0.2)}
+            \pscircle[style=metal](-1,0){0.15}
+            \pstranslate(0,0)(-1,0){\psrotate(0,0){60}{\psframe[framearc=1,fillstyle=solid,fillcolor=gray!80](-0.5,-0.05)(0.5,0.05)}
+                                  \pscircle(0,0){0.05}}
+            \pscircle[style=metal](-3,0){0.4}%
+             \pstranslate(0,0)(-3,0){\psrotate(0,0){-60}{\psframe[framearc=1,fillstyle=solid,fillcolor=gray!80](-0.7,-0.075)(0.7,0.075)}
+                                    \pscircle(0,0){0.075}}}
+
+\def\ballon{%
+\psline(! eCol rBallon 2 mul)(! eCol 0.05 add rBallon 1.95 mul)
+       (! eCol 0.05 sub rBallon 1.90 mul)(! eCol 0.05 add rBallon 1.85 mul)
+       (! eCol 0.05 sub rBallon 1.80 mul)(! eCol 0.05 add rBallon 1.75 mul)
+\psline(! eCol rBallon 1.7 mul)(!eCol hB)
+\psarc(! eCol rRaccord add hB){\rRaccord}{180}{! 180 AngleB add}
+\psarcn(0,0){\rBallon}{!AngleB}{!180 AngleB sub}
+\psarc(! eCol rRaccord add neg hB){\rRaccord}{! AngleB neg}{0}
+\psline(!eCol neg hB)(! eCol neg rBallon 1.7 mul)
+\psline(! eCol 0.05 add neg rBallon 1.75 mul)(! eCol 0.05 sub neg rBallon 1.80 mul)
+       (! eCol 0.05 add neg rBallon 1.85 mul)(! eCol 0.05 sub neg rBallon 1.90 mul)
+       (! eCol 0.05 add neg rBallon 1.95 mul)(! eCol neg rBallon 2 mul)}%
+
+\newdimen\X
+\newdimen\Y
+
+% Random walk in the unit square (#1 = number of steps)
+% idée empruntée à Denis Girou
+\def\RandomPierrePonce#1{%
+ \multido{\i=1+1}{#1}{%
+ \setrandim\X{-1pt}{1pt}
+ \setrandim\Y{-2pt}{0pt}
+ \psdot[dotstyle=*,dotsize=1pt](\pointless\X,\pointless\Y)}}
+
+\def\ballonencours{%
+\ifPst@bicol\def\Ballon{\ballonbicol}\else\def\Ballon{\ballon}\fi
+\psclip{\pscustom[linestyle=none]{\Ballon}}%
+\psclip{%
+\pscustom[style=\psk@solutionballonebullition]
+{\pscurve(-1.5,0)(-1.375,0.05)%
+         (-1.25,0)(-1.125,-0.05)%
+         (-1,0)(-.875,0.05)%
+         (-.75,0)(-.625,-0.05)%
+         (-.5,0)(-.375,0.05)%
+         (-.25,0)(-0.125,-0.05)%
+         (0,0)(0.125,0.05)%
+         (.25,0)(0.375,-0.05)%
+         (0.5,0)(0.625,0.05)%
+         (0.75,0)(0.875,-0.05)%
+         (1,0)(1.125,0.05)%
+         (1.25,0)(1.375,-0.05)(1.5,0)%
+\psline(1.5,0)(1.5,-1.5)(-1.5,-1.5)(-1.5,0)}}
+\RandomPierrePonce{30}
+\endpsclip%
+\endpsclip%
+\pscustom{\Ballon}
+\ifPst@bicol\rput(H){\psclip{\rput{-45}(0,0){\pscustom[linearc=0.1,linestyle=none]{\corpsampoule}}}\psframe[style=\psk@solutionampoule](! -5 Hampoule 0.10 mul)(!5 Hampoule 0.4 mul)\endpsclip}
+\rput{-45}(H){\psset{linearc=0.1}\ampoule}\fi}
+
+\def\ballondeb{%
+\ifPst@bicol\def\Ballon{\ballonbicol}\else\def\Ballon{\ballon}\fi
+\psclip{\pscustom[linestyle=none]{\Ballon}}%
+    \psframe[style=\psk@solutionballon](-2,-2)(2,0)
+\endpsclip%
+\pscustom{\Ballon}
+\ifPst@bicol\rput(H){\psclip{\rput{-45}(0,0){\pscustom[linearc=0.1,linestyle=none]{\corpsampoule}}}
+\ifPst@End
+%  \psframe*[linecolor=magenta](! -5 Hampoule 0.4 mul)(!5 Hampoule 0.4 mul)
+   \else
+  \psframe[style=\psk@solutionampoule](! -5 Hampoule 0.10 mul)(!5 Hampoule 0.4 mul)
+\fi
+ \endpsclip}
+\rput{-45}(H){\psset{linearc=0.1}\ampoule}\fi}
+
+% ballonbicol
+\def\ballonbicol{%
+% Les calculs pour le ballon bi-col
+\psline(! eCol rBallon 2.5 mul)(! eCol 0.05 add rBallon 2.45 mul)
+       (! eCol 0.05 sub rBallon 2.40 mul)(! eCol 0.05 add rBallon 2.35 mul)
+       (! eCol 0.05 sub rBallon 2.30 mul)(! eCol 0.05 add rBallon 2.25 mul)
+       (! eCol rBallon 2.2 mul)(!eCol hh)
+\psarc(! eCol rRaccord add hh){\rRaccord}{180}{! 180 Angle 2 mul add}
+\psline(!eCol neg hh Rot45)(! eCol neg rBallon 1.5 mul Rot45)
+\psline(! eCol neg rBallon 1.5 mul Rot45)(! eCol 0.05 add neg rBallon 1.55 mul Rot45)%
+       (! eCol 0.05 sub neg rBallon 1.60 mul Rot45)(! eCol 0.05 add neg rBallon 1.65 mul Rot45)%
+       (! eCol 0.05 sub neg rBallon 1.70 mul Rot45)(! eCol 0.05 add neg rBallon 1.75 mul Rot45)(! eCol 0.05 sub neg rBallon 1.80 mul Rot45)
+\psline(! eCol rBallon 1.80 mul Rot45)(! eCol 0.05 add rBallon 1.75 mul Rot45)
+       (! eCol 0.05 sub rBallon 1.70 mul Rot45)(! eCol 0.05 add rBallon 1.65 mul Rot45)
+       (! eCol 0.05 sub rBallon 1.60 mul Rot45)(! eCol 0.05 add rBallon 1.55 mul Rot45)(! eCol rBallon 1.5 mul Rot45)
+\psline(! eCol rBallon 1.5 mul Rot45)(!eCol hh Rot45)%
+\psarc(! eCol rRaccord add hh Rot45){\rRaccord}{135}{!135 Angle add}%
+\psarcn(0,0){\rBallon}{!Angle 45 sub }{!180 Angle sub}
+\psarc(! eCol rRaccord add neg hh){\rRaccord}{! Angle neg}{0}
+\psline(!eCol neg hh)(! eCol neg rBallon 2.2 mul)
+       (! eCol 0.05 add neg rBallon 2.25 mul)(! eCol 0.05 sub neg rBallon 2.30 mul)
+       (! eCol 0.05 add neg rBallon 2.35 mul)(! eCol 0.05 sub neg rBallon 2.40 mul)
+       (! eCol 0.05 add neg rBallon 2.45 mul)(! eCol neg rBallon 2.5 mul)
+}
+
+\def\corpsampoule{%
+\psline(! eColAmp Hampoule)(! eColAmp Hampoule 0.85 mul)
+       (! rAmpoule Hampoule 0.85 mul)(!rAmpoule Hampoule 0.3 mul)
+       (!eT Hampoule 0.25 mul)(!eT rBallon neg)
+\psline(!eT neg rBallon neg)(!eT neg Hampoule 0.25 mul)(! rAmpoule neg Hampoule 0.3 mul)%
+       (! rAmpoule neg Hampoule 0.85 mul)(! eColAmp neg Hampoule 0.85 mul)(! eColAmp neg Hampoule)}
+%% Robinet
+\def\robinetampoule{%
+\rput{30}(! 0 Hampoule 0.15 mul){\psframe[framearc=1,fillstyle=solid,fillcolor=red](-0.5,-0.075)(0.5,0.075)}
+\pscircle[fillstyle=solid,doubleline=true](! 0 Hampoule 0.15 mul){0.2}}
+%% Bouchon
+\def\bouchon{%
+\psframe[fillstyle=solid,fillcolor=red!50](! eCol 1.5 mul neg -0.4)(!eCol 1.5 mul 0.1)
+\psframe[fillstyle=vlines,hatchangle=0,hatchsep=0.1](! eCol 1.5 mul neg -0.4)(!eCol 1.5 mul 0.1)}
+\def\ampoule{\corpsampoule\robinetampoule\bouchon}
+
+
+\def\chauffage{%
+\psframe*(!rChauffage -1.2 mul rChauffage -1.6 mul)(!rChauffage -0.8 mul rChauffage -1.5 mul)
+\psframe*(!rChauffage 1.2 mul rChauffage -1.6 mul)(!rChauffage 0.8 mul rChauffage -1.5 mul)
+\pspolygon*(!rChauffage 1.5 mul rChauffage -1.4 mul)(!rChauffage 1.5 mul rChauffage -1.2 mul)
+           (!rChauffage 1.7 mul rChauffage -1.25 mul)(!rChauffage 1.7 mul rChauffage -1.35 mul)
+\pscurve[linewidth=2\pslinewidth](!rChauffage 1.6 mul rChauffage -1.3 mul)(!rChauffage 2.5 mul rChauffage -1.4 mul)
+                       (!rChauffage 2.5 mul rChauffage -2 mul)(!rChauffage 4 mul rChauffage -2 mul)
+\pscustom[style=\psk@styleChauffage]{\psarcn(0,0){\rChauffage}{0}{180}
+    \psline(!rChauffage neg 0)(!rChauffage -1.5 mul 0.1 add 0)
+    \psarc(!rChauffage -1.5 mul 0.1 add -0.1){0.1}{90}{180}
+    \psline(!rChauffage -1.5 mul rChauffage -1.5 mul)(!rChauffage -1.5 mul rChauffage -1.5 mul)
+           (!rChauffage 1.5 mul rChauffage -1.5 mul)(!rChauffage 1.5 mul 0.1 neg)
+    \psarc(!rChauffage 1.5 mul 0.1 sub -0.1){0.1}{0}{90}
+    \psline(!rChauffage 1.5 mul 0.1 sub 0)(! rChauffage 0)}}
+
+\def\supportchauffage#1{%
+% {C} centre de la cuvette du chauffe-ballon
+\supportboy{#1}\pstranslate(!0 rChauffage -1.6 mul)(O9){\chauffage\pnode(0,0){C}}}
+
+\def\sink{% évier
+    \psline[linearc=0.2,linewidth=0.075](4,0)(-4,0)(-4,-2)(-5,-2)
+    \psline[linestyle=dashed,linewidth=0.075](-5,-2)(-6,-2)
+    \psline[linearc=0.2,linewidth=0.075](-6,-2)(-7,-2)(-7,0)(-8,0)}
+
+
+\def\rBallon{1} % rayon du ballon
+\def\rChauffage{\rBallon} % rayon de la cuvette de chauffage
+
+% les calculs avec le package `fp'
+\FPeval\rB{\rBallon*0.3}
+\def\rRaccord{\rB}
+\FPeval\rR{\rBallon*0.2}
+\FPeval\eT{\rBallon*0.1}
+\FPeval\h{root(2,((\rB)+(\rR))^2-((\eT)+(\rR))^2)}%
+\FPeval\Dh{2*(\h)}%
+\FPeval\Hh{5*(\Dh)}%
+\FPeval{\eTeT}{2*(\eT)}%
+\FPeval{\eTeTeTeT}{4*(\eT)}%
+
+\edef\PstAtCode{\the\catcode`\@} \catcode`\@=11\relax
+%
+\pst@addfams{pst-chauffagereflux}
+% raccorder ou non les tuyaux d'arrivée et sortie de l'eau.
+\newif\ifPst@tuyaux
+\define@key[psset]{pst-chauffagereflux}{tuyaux}[true]{\@nameuse{Pst@tuyaux#1}}
+\psset[pst-chauffagereflux]{tuyaux=true}
+
+\newif\ifPst@boil
+\define@key[psset]{pst-chauffagereflux}{ebullition}[true]{\@nameuse{Pst@boil#1}}
+\psset[pst-chauffagereflux]{ebullition=true}
+
+\newif\ifPst@bicol
+\define@key[psset]{pst-chauffagereflux}{bicol}[true]{\@nameuse{Pst@bicol#1}}
+\psset[pst-chauffagereflux]{bicol=true}
+
+\newif\ifPst@End
+\define@key[psset]{pst-chauffagereflux}{fin}[true]{\@nameuse{Pst@End#1}}
+\psset[pst-chauffagereflux]{fin=false}
+
+\define@key[psset]{pst-chauffagereflux}{styleBallon}{% style solution du ballon
+\edef\psk@solutionballon{#1}}
+
+\define@key[psset]{pst-chauffagereflux}{styleEbullition}{% style solution en ébullition
+\edef\psk@solutionballonebullition{#1}}
+
+\define@key[psset]{pst-chauffagereflux}{styleAmpoule}{% style solution due l'ampoule
+\edef\psk@solutionampoule{#1}}
+
+\define@key[psset]{pst-chauffagereflux}{styleEau}{% style de eau dans le réfrigérant
+\edef\psk@Water{#1}}
+
+\define@key[psset]{pst-chauffagereflux}{styleColor}{% couleur de eau dans le réfrigérant et les tuyaux
+\edef\psk@styleColor{#1}}
+
+\define@key[psset]{pst-chauffagereflux}{styleMetal}{% couleur de l'acier du support
+\edef\psk@styleMetal{#1}}
+
+\define@key[psset]{pst-chauffagereflux}{styleChauffage}{% couleur de l'appareil de chauffage
+\edef\psk@styleChauffage{#1}}
+
+\define@key[psset]{pst-chauffagereflux}{styleRefrigerant}{% couleur de l'intérieur du réfrigérant
+\edef\psk@styleRefrigerant{#1}}
+
+\define@key[psset]{pst-chauffagereflux}{styleBoulon}{% couleur des boulons
+\edef\psk@styleBoulon{#1}}
+
+\psset[pst-chauffagereflux]{styleBallon=solutionballon,%
+                            styleAmpoule=solutionampoule,%
+                            styleEbullition=ballonebullition,%
+                            styleEau=Eau,
+                            styleColor=bleupale,
+                            styleMetal=metal,
+                            styleChauffage=chauffage,
+                            styleRefrigerant=refrigerant,
+                            styleBoulon=boulon}
+
+\def\ChauffageReflux{\@ifnextchar[{\pst@ChauffageReflux}{\pst@ChauffageReflux[]}}%
+\def\pst@ChauffageReflux[#1]#2{{%
+\pst@cntg=#2\relax \ifnum\pst@cntg>50 \typeout{Niveau must be 50 and not
+`\the\pst@cntg'. Value 50 forced.} \pst@cntg=50
+    \else
+   \ifnum\pst@cntg<15 \typeout{Niveau must be 15 and not
+`\the\pst@cntg'. Value 15 forced.} \pst@cntg=15
+\fi\fi
+\SpecialCoor\psset{#1}%
+\pnode(!% le passage des paramètres pour les calculs avec PostScript
+        /rBallon \rBallon\space def
+        /rRaccord 0.3 rBallon mul def % \rRaccord\space def
+        /eCol 0.2 rBallon mul def % \eCol\space def
+        /hB rBallon rRaccord add dup mul eCol rRaccord add dup mul sub sqrt def
+        /AngleB hB eCol rRaccord add atan def
+        /rB  0.3 rBallon mul def %/rB \rB\space def
+        /eT 0.1 rBallon mul def   %/eT \eT\space def
+        /rR 0.2 rBallon mul def   %/rR \rR\space def
+        /h rB rR add dup mul eT rR add dup mul sub sqrt def
+        /hh rBallon rRaccord add dup mul eCol rRaccord add dup mul sub sqrt def
+        /Angle h eT rR add atan def
+        /dh 0 def
+        /Dh 2 h mul dh add def
+        /H 10 h mul 5 dh mul add 1 add def
+        /rChauffage rBallon def %/rChauffage \rChauffage\space def
+        /Hampoule 3 rBallon mul def
+        /eColAmp eCol 0.5 mul def
+        /rAmpoule rBallon 0.25 mul def
+        /Rot45 {2 copy add 0.707 mul 3 1 roll exch sub 0.707 mul} def 0 0){rr}%
+\psset{dimen=middle}%
+\sink\supportpied
+\ifPst@End
+    \rput(0,0.6){\supportchauffage{15}}
+    \pstranslate(0,0)(0,6){\pnode(!0 rBallon 1.80 mul Rot45){H}}
+    \pstranslate(0,0)(0,6){\ballondeb\pnode(! 0 rBallon 2 mul){C'}}
+ \else
+    \rput(0,0.6){\supportchauffage{\the\pst@cntg}}
+    \pstranslate(0,0)(C){\pnode(!0 rBallon 1.80 mul Rot45){H}}
+    \pstranslate(0,0)(C){\ifPst@boil\ballonencours\else\ballondeb\fi\pnode(! 0 rBallon 2 mul){C'}}
+ \fi
+% P milieu du tube réfrigérant
+\pstranslate(0,0)(C'){\refrigerant\pnode(! 0 H 2 div){P}%
+% pour rattacher les tuyaux quelle que soit la position du réfrigérant
+         \pnode(!2 h neg mul eT add 4 eT mul sub 1 Dh 4 mul add 8 eT mul sub){eau1}
+         \pnode(!2 h neg mul eT add 4 eT mul sub 1 Dh 4 mul add 8 eT mul sub 1 sub){eau11}
+         \pnode(!2 h neg mul eT add 4 eT mul sub 0.8 h mul Dh add 8 eT mul sub rB sub){eau2}
+         \pnode(!2 h neg mul eT add 4 eT mul sub 0.8 h mul Dh add 8 eT mul sub rB sub 1 sub){eau22}
+         \pnode(!0 rB 6 mul neg 2 h mul add){G1}\pnode(!0 rB 6 mul neg 2 h mul add 0.3 sub){G2}}
+\ifPst@tuyaux\tuyaux\fi
+\ifPst@boil\rput(G1){\pstgoutte}\rput(G2){\pstgoutte}\fi
+\pstranslate(0,0)(P){\pince}%
+\rput(-7.5,0){\robinet}%
+}}
+
+\catcode`\@=\PstAtCode\relax
+\endinput

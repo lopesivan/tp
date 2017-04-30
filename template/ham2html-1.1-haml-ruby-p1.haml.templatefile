@@ -1,0 +1,8 @@
+%html
+  %head
+    %title Slim Examples
+  %meta{'http-equiv' => 'Content-Type', :content => 'text/html'}
+  %body
+    %h1 Markup examples
+    %div id="content" class="example1"
+    %p Nest by indentation

@@ -1,0 +1,52 @@
+\documentclass{article}
+\usepackage{pstricks-add}
+\usepackage[nomessages]{fp}
+\pagestyle{empty}
+
+\begin{document}
+
+\def\voc{
+\pstVerb{/Xcoord  \ai\space 6 div cos 2.5 mul \ai\space 5 mul 6 div cos 1 mul add  def
+        /Ycoord \ai\space 6 div sin 2.5 mul \ai\space 5 mul 6 div sin 1 mul sub def}%
+\pstVerb{/Xc 2.5 \bi\space cos mul   def
+        /Yc 2.5 \bi\space sin mul   def}%
+
+\rput(0,0){\psline[linecolor=gray,linewidth=0.5pt](! Xc Yc)(! Xcoord Ycoord)}%
+\rput(0,0){\rput(! Xc Yc){\pscircle[linecolor=blue,linewidth=1pt](0,0){0.5}}}%
+\rput(0,0){\rput(! Xcoord Ycoord){\pscircle[fillstyle=solid,fillcolor=red,linecolor=red](0,0){2pt}}}%
+\def\HypoCyc{5*cos(t/6)+2*cos(5*t/6)|5*sin(t/6)-2*sin(5*t/6)}%
+\rput(0,0){\parametricplot[algebraic,plotpoints=500,linewidth=1pt,linecolor=red,unit=0.5]{0}{\di}{\HypoCyc}}%
+}
+
+\FPdiv{\myDeltaA}{2184}{90}%
+\def\ai{0}%
+\FPdiv{\myDeltaB}{364}{90}%
+\def\bi{0}%
+\FPdiv{\myDeltaC}{10.5}{90}%
+\def\ci{0}%
+\FPdiv{\myDeltaD}{37.68}{89}%
+\def\di{0}%
+\FPdiv{\myDeltaE}{6.28}{50}%
+\def\ei{0}%
+\FPdiv{\myDeltaG}{7.2}{50}%
+\def\gi{-3.6}%
+\FPdiv{\myDeltaH}{4.1}{50}%
+\def\hi{0}%
+
+
+\multido{\i=1+1}{90}{%
+ \begin{pspicture}(-5,-4)(5,4)
+  \pscircle[linecolor=gray,linewidth=1pt](0,0){3}
+  \voc%
+ \end{pspicture}
+ \newpage
+ \FPadd{\ai}{\ai}{\myDeltaA}
+ \FPadd{\bi}{\bi}{\myDeltaB}
+ \FPadd{\ci}{\ci}{\myDeltaC}
+ \FPadd{\di}{\di}{\myDeltaD}
+ \FPadd{\ei}{\ei}{\myDeltaE}
+ \FPadd{\gi}{\gi}{\myDeltaG}
+ \FPadd{\hi}{\hi}{\myDeltaH}
+}
+
+\end{document}

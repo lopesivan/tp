@@ -1,0 +1,6 @@
+digraph G {
+	node  [ fontname = "Vera" ]
+	edge  [ fontname = "Vera" ]
+	Hello->World [label=12]
+	Ivan->Carlos [label=12]
+}

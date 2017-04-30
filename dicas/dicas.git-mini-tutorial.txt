@@ -1,0 +1,230 @@
+Stoa
+
+Git-mini-tutorial
+
+De Stoa
+
+Página confiável [ver rascunho]                                             (+/
+                                                                             -)
+Esta é a mais recente edição confiável, aprovada em 3 de agosto de 2009. O
+rascunho possui 3 alterações aguardando revisão.
+Aprovada  Ok
+Ir para: navegação, pesquisa
+
+Tabela de conteúdo
+
+  • 1 Entenda o Git
+  • 2 Usando o Git na linha de comando
+      □ 2.1 Criando um novo repositório
+      □ 2.2 Branching e merging
+      □ 2.3 Tornando um repositório público
+      □ 2.4 Editando um repositório remotamente
+  • 3 Git fora da linha de comando
+      □ 3.1 Git Gui
+      □ 3.2 Eclipse
+
+[editar] Entenda o Git
+
+O Git, diferente do subversion, por exemplo, não é um repositório de dados
+centralizado. Assim, cada pessoa que trabalha no mesmo projeto terá uma cópia
+completa do repositório, portanto, as operções comuns de um repositório de
+dados são feitas localmente. Isso dá a liberdade total para o usuário trabalhar
+com o repositório como quiser, criando branches, fazendo merges, etc... Ao
+final do processo, ele pode enviar um branch mais bem trabalhado e testado ao
+repositório remoto.
+
+Referência: http://akitaonrails.com/2008/10/2/
+entendendo-git-e-instalando-gitorious-git-via-web
+
+[editar] Usando o Git na linha de comando
+
+[editar] Criando um novo repositório
+
+  • Para as suas atualizações no repositório ficarem identificadas, configure o
+    .gitconf na sua home:
+
+       [user]
+               name = seu nome
+               email = seu email
+
+  • Crie o repositório
+
+       $ mkdir projeto
+       $ cd projeto
+       $ git init      # inicia o repositório
+       $ git add .     # inclui todos os arquivos no repositório
+       $ git commit    # submete as suas mudanças e abre um arquivo texto para você comentá-las
+       $ git log       # mostra o histórico de mudanças no repositório
+
+[editar] Branching e merging
+
+  • Criando um novo branch:
+
+       $ git branch novo-branch
+
+  • Para vizualizar os branches:
+
+       $ git branch
+
+O (*) mostra o branch em que você está trabalhando atualmente. Para escolher o
+branch que você criou:
+
+       $ git checkout novo-branch
+
+Agora, voce pode editar o que quiser. Para adicionar suas mudanças ao master:
+
+       $ git checkout master   # volte ao branch principal
+       $ git merge novo-branch
+
+Se houver conflitos, vai ter que resolvê-los. A primeira vez, instale a sua
+ferramenta "diff", meld por exemplo, e fale para git usá-la para resolver os
+conflitos:
+
+       $ sudo apt-get install meld
+       $ git config --global merge.tool meld
+
+Agora, pode fazer
+
+       $git mergetool
+       $git commit
+
+[editar] Tornando um repositório público
+
+  • Suponha que o seu repositório esteja em ~/projeto e você quer torna-lo
+    público:
+
+       $ git clone --bare ~/projeto projeto.git
+       $ touch ~/projeto/projeto.git/git-daemon-export-ok
+
+Pronto, agora você tem um diretório chamado projeto.git que pode
+disponibilizado para outras pessoas.
+
+[editar] Editando um repositório remotamente
+
+  • Copie o repositório
+
+       $ git clone ssh://host/caminho/projeto.git   # cria uma cópia local do repositório.
+
+  • Trabalhe como quiser e, se precisar, atualize o seu repositório local:
+
+       $ git pull ssh://host/caminho/projeto.git
+
+  • Para atualizar o repositório remoto:
+
+       $ git push ssh://host/caminho/projeto.git master   # master é o nome do branch que deseja atualizar
+
+
+Um manual mais detalhado: http://www.akitaonrails.com/2008/4/3/
+micro-tutorial-de-git
+
+Manual completo: http://www.kernel.org/pub/software/scm/git/docs/
+user-manual.html
+
+[editar] Git fora da linha de comando
+
+[editar] Git Gui
+
+  • A interface é bem intuitiva, para iniciar, abra um terminal e digite:
+
+       $ cd ~/projeto
+       $ git gui
+
+  • Podem acontecer alguns conflitos estranhos entre o git e o terminal quando
+    for necessário fornecer senhas para acesso por ssh (aconteceu comigo usando
+    slackware + kde + konsole). Para evita-los, aperte ctrl + z no terminal, e
+    depois digite:
+
+       $ bg
+
+  • Se não houver um repositório local na pasta do projeto, você deverá criar
+    um (se está começando um projeto novo), escolher um já existente em sua
+    máquina ou importar de algum lugar.
+      □ No segundo caso, será pedido o caminho para o repositório que deseja
+        importar (poderá ser, por exemplo: ssh://user@labmap/projeto).
+  • Dentro do Git Gui:
+      □ À esquerda estão os arquivos que você alterou. Você pode selecionar os
+        que deseja atualizar no seu repositório local clicando na figuras ao
+        lado dos nomes, escrevendo uma mensagem e clicando em Commit, no canto
+        inferior.
+      □ Clicando no nome do arquivo você irá vizualizar as mudanças feitas.
+      □ Clicando em Push, no canto inferior, você pode atualizar o repositório
+        original fornecendo o caminho para ele (no nosso exemplo, ssh://
+        user@labmap/projeto).
+      □ No canto superior você pode acessar todas as outras funções do Git,
+        como criar um novo branch, fazer um merge local, atualizar o
+        repositório, etc...
+
+[editar] Eclipse
+
+  • Clique com o botão esquerda no navegador à esquerda e clique em Import.
+  • Escolha "Git Repository" e clique em next.
+  • Digite o caminho para o repositório (por exemplo: ssh://
+    user@labmap.ime.usp.br/caminho/projeto.git) e clique em next.
+  • Selecione o branch.
+  • Em Directory, digite o caminho para o projeto no eclipse (por exemplo: /
+    home/user/workspace/projeto).
+  • Não selecione o check box de "Worspace Import"!
+  • Clique em Finish.
+  • Clique novamente com o botão direito no navegador à direita e selecione
+    "New Project".
+  • Selecione o tipo do projeto e dê o mesmo nome que você escolheu ao importar
+    o repositório ("projeto", no nosso exemplo).
+  • Clique em Finish.
+  • Agora clique com o botão direito no projeto que você criou e escolha Team->
+    Share Project.
+  • Escolha o Git como repositório de dados e clique em Finish.
+  • Pronto, agora você pode acessar as funções do Git apertando com botão
+    direito no projeto que você criou (Team->Commit, Team->Branch, Team->
+    Push...).
+
+Obtido em "http://wiki.stoa.usp.br/Git-mini-tutorial"
+
+Acessos
+
+  • Página estável
+  • Rascunho
+  • Discussão
+  • Editar rascunho
+  • Histórico
+
+Ferramentas pessoais
+
+  • Autenticar-se
+
+ 
+
+Navegação
+
+  • Página principal
+  • Ajuda
+  • Stoa: rede social
+  • Fórum de ajuda
+  • Mudanças recentes
+
+Imprimir/exportar
+
+  • Criar um livro
+  • Baixar como PDF
+  • Versão para impressão
+
+Pesquisa
+
+[                    ] [Ir]  [Pesquisa]
+Ferramentas
+
+  • Páginas afluentes
+  • Alterações relacionadas
+  • Páginas especiais
+  • Link permanente
+
+Powered by MediaWiki
+Attribution-Share Alike 3.0
+
+  • Esta página foi modificada pela última vez às 17h57min, 3 de agosto de
+    2009.
+  • Esta página foi acessada 1 891 vezes.
+  • Conteúdo disponível sob Attribution-Share Alike 3.0 .
+  • Política de privacidade
+  • Sobre Stoa
+  • Alerta de Conteúdo
+

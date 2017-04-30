@@ -1,0 +1,55 @@
+EXPAT_PATH   = $(ICSL_DEPS)/src/expat-2.0.1
+
+elmt_src    := elements.c
+outl_src    := outline.c
+
+libexpat     = $(EXPAT_PATH)/libexpat.la
+
+##############################################################################
+
+elmt_obj     = $(elmt_src:.c=.o)
+outl_obj     = $(outl_src:.c=.o)
+
+sources      = $(elmt_src) $(outl_src)
+
+INCLUDE      = -I$(EXPAT_PATH)/lib
+
+objects      = $(sources:.c=.o)
+
+targets      = $(elmt_src:.c=) $(outl_src:.c=)
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+LINK.o       = $(LIBTOOL) --silent --mode=link $(LD) $(LDFLAGS)
+
+CC           = gcc
+LD           = $(CC)
+
+LIBTOOL      = libtool
+
+WARNINGS     = -Wall
+GDBFLAGS     = -g
+
+DEFINEFLAGS  = -DHAVE_EXPAT_CONFIG_H
+
+LDLIBS       = $(libexpat)
+
+LDFLAGS      = -O2 -Wmissing-prototypes -Wstrict-prototypes -fexceptions \
+               $(WARNINGS) $(GDBFLAGS) $(INCLUDE) $(DEFINEFLAGS)
+
+
+CFLAGS       = -O2 -Wmissing-prototypes -Wstrict-prototypes -fexceptions \
+                  $(WARNINGS) $(GDBFLAGS) $(INCLUDE) $(DEFINEFLAGS)
+
+all     : $(targets)
+
+elements: $(elmt_obj)
+outline : $(outl_obj)
+
+tags:
+	@ctags -R --c++-kinds=+p --fields=+iaS --extra=+q $(sources) $(headers)
+
+clean:
+	/bin/rm -rf $(targets) $(objects) tags *.orig .libs

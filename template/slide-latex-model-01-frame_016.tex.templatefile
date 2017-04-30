@@ -1,0 +1,13 @@
+\begin{frame}{Columns}
+\begin{columns}[c]
+\column{0.45\textwidth}
+\onslide<1-> Exact Solution \\ \onslide<2-> Computed Solution
+\column{0.45\textwidth}
+\begin{center}
+\onslide<1-> \includegraphics[width=0.50\columnwidth,angle=-90]{./img/PIC1} \\
+\onslide<2-> \includegraphics[width=0.50\columnwidth]{./img/PIC1}
+\end{center}
+\end{columns}
+\note<1>[item]{Clever use of columns and external graphics.}
+\note<1>[item]{Graphics are probably too small though.}
+\end{frame}

@@ -1,0 +1,18 @@
+#include <ncurses.h>
+
+int main(void)
+{
+    initscr();
+    addstr("Goodbye, cruel C programming!");
+
+    /*
+     * The problem? You didn't use the refresh() function, which is a common
+     * blunder in NCurses programming. Only by using refresh() is the NCurses
+     * "window" updated and any text written to the screen displayed. So, back to
+     * the editor!
+     */
+    refresh();
+
+    endwin();
+    return 0;
+}

@@ -1,0 +1,19 @@
+user     = selectos_wmvs
+table    = tb_last_image_int
+database = selectos_wmvs
+
+all: create insert select
+
+create:
+	cat $@.$(table).sql | mysql -u $(user) $(database)
+
+insert:
+	cat $@.$(table).sql | mysql -u $(user) $(database)
+
+drop  :
+	cat $@.$(table).sql | mysql -u $(user) $(database)
+
+select:
+	cat $@.$(table).sql | mysql -u $(user) $(database)
+
+clean : drop

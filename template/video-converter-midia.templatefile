@@ -1,0 +1,22 @@
+function ogg2flv()
+{
+
+	out.avi=$1
+	out.ogg=$2
+
+	mencoder                   \
+	-ovc xvid                  \
+	-nosound                   \
+	-xvidencopts bitrate=1100  \
+	-vf scale=640:400          \
+	-o $out.avi $out.ogg
+
+	mencoder $out.avi                                                       \
+	-o out.flv                                                              \
+	-lavfopts i_certify_that_my_video_stream_does_not_use_b_frames          \
+	-of lavf                                                                \
+	-ovc lavc                                                               \
+	-lavcopts vcodec=flv:vbitrate=500:mbd=2:mv0:trell:v4mv:cbp:last_pred=3
+}
+
+ffmpeg -i out.ogg -r 30 -s 640x400 -f flv compizfusion1.flv

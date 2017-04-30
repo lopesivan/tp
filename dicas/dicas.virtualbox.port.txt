@@ -1,0 +1,65 @@
+$ VBoxManage internalcommands setvdiuuid guestOS_circuits_pic.vdi
+$ VBoxManage showvminfo guestOS_circuits_pic
+
+$ VBoxManage sharedfolder add guestOS_circuits_pic -name "shared" -hostpath "/work/VirtualBoxShare/"
+after in winxp guest run> net use x: \\vboxsvr\shared
+
+$ VBoxManage modifyvm  guestOS_circuits_pic -uart1 0x3F8 4           # to set up COM1
+$ VBoxManage modifyvm  guestOS_circuits_pic -uartmode1 /dev/ttyS0    # link it to physical port ttyS0
+
+
+
+VBoxManage showvminfo guestOS_circuits_pic
+VirtualBox Command Line Management Interface Version 2.1.4
+(C) 2005-2009 Sun Microsystems, Inc.
+All rights reserved.
+
+Name:            guestOS_circuits_pic
+Guest OS:        Windows XP
+UUID:            9623ad25-e4e4-479a-85c9-7793ae01780f
+Config file:     /home/ivan/.VirtualBox/Machines/guestOS_circuits_pic/guestOS_circuits_pic.xml
+Memory size:     900MB
+VRAM size:       12MB
+Boot menu mode:  message and menu
+ACPI:            on
+IOAPIC:          off
+PAE:             off
+Time offset:     0 ms
+Hardw. virt.ext: off
+Nested Paging:   off
+VT-x VPID:       off
+State:           powered off (since 2009-02-25T01:49:15.000000000)
+Monitor count:   1
+3D Acceleration: off
+Floppy:          empty
+SATA:            disabled
+IDE Controller:  PIIX4
+Primary master:  /developer/virtualbox/guestOS_circuits_pic.vdi (UUID: 768783c2-f57c-4883-82b2-b7e6fd05de83)
+DVD:             empty
+NIC 1:           MAC: 080027BB7D4B, Attachment: NAT, Cable connected: on, Trace: off (file: none), Type: Am79C973, Reported speed: 0 Mbps
+NIC 2:           disabled
+NIC 3:           disabled
+NIC 4:           disabled
+NIC 5:           disabled
+NIC 6:           disabled
+NIC 7:           disabled
+NIC 8:           disabled
+UART 1:          disabled
+UART 2:          disabled
+Audio:           disabled (Driver: Unknown, Controller: Unknown)
+Clipboard Mode:  Bidirectional
+VRDP:            disabled
+USB:             disabled
+
+USB Device Filters:
+
+<none>
+
+Shared folders:  <none>
+
+Guest:
+
+Statistics update:                   disabled
+
+
+$ VBoxManage sharedfolder add guestOS_circuits_pic -name shared -hostpath /work/VirtualBoxShare/

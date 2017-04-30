@@ -1,0 +1,24 @@
+Hello World!
+%p
+  1+1 é:
+  %b= 1 + 1
+%p
+  Contando de 1 a 5:
+  - for i in (1..5)
+    %i= i
+%br
+%table{:border => 1}
+  %th
+    Grupo G
+  %tr
+    %td
+      Brasil
+  %tr
+    %td
+      Coreia do Norte
+  %tr
+    %td
+      Costa do Marfim
+  %tr
+    %td
+      Portugal

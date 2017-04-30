@@ -1,0 +1,27 @@
+#!/bin/bash
+# vi:set nu nowrap:
+# get-gst.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: get-gst.sh
+#        Date: Fri 14 May 2010 04:27:48 PM BRT
+# Description:
+#
+#
+
+_basename=${0##*/}
+
+[ "$1" ] || {
+	echo Usage: $_basename '<maemo-ip>'
+	exit 1
+}
+
+# ----------------------------------------------------------------------------
+gst-launch tcpclientsrc host=$1 port=5000 ! jpegdec ! autovideosink
+# ----------------------------------------------------------------------------
+exit 0

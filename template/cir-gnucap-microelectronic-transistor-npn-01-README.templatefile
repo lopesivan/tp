@@ -1,0 +1,24 @@
+		    UNIVERSIDADE FEDERAL DO RIO DE JANEIRO
+			  Ivan Carlos da Silva Lopes
+	     echo lopesivan-SPAN-poli.ufrj.br| sed 's/-SPAN-/@/'
+			 Bipolar junction transistor
+
+
+files:
+======
+
+
+npn.bc         - bc script `$ cat npn.bc| bc`
+npn.ckt        - circuit
+npn.gnucap.out - gnucap interactive output
+npn.txt        - math resolution
+out.txt        - general output
+README         - this file
+screenshot2-full.jpg - image of circuit
+
+links:
+======
+
+
+http://en.wikipedia.org/wiki/Bipolar_junction_transistor
+http://paste.milk-it.net/7099

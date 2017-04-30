@@ -1,0 +1,11 @@
+sudo update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby1.8 1
+sudo update-alternatives --install /usr/bin/ri   ri   /usr/bin/ri1.8   1
+sudo update-alternatives --install /usr/bin/rdoc rdoc /usr/bin/rdoc1.8 1
+sudo update-alternatives --install /usr/bin/irb  irb  /usr/bin/irb1.8  1
+
+sudo update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby1.9.1 2
+sudo update-alternatives --install /usr/bin/ri   ri   /usr/bin/ri1.9.1   2
+sudo update-alternatives --install /usr/bin/rdoc rdoc /usr/bin/rdoc1.9.1 2
+sudo update-alternatives --install /usr/bin/irb irb /usr/bin/irb1.9.1    2
+sudo update-alternatives --install /usr/bin/gem gem /usr/bin/gem1.9.1    2
+sudo update-alternatives --install /usr/bin/rake rake /usr/bin/rake1.9.1 2

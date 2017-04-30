@@ -1,0 +1,46 @@
+Tipos integrais do C++
+
+Posted on September 16, 2010 by admin
+
+O C++ têm cinco tipos de inteiros com sinal:
+
+signed char
+short int
+int
+long int
+long long int
+
+Não é definido o tamanho em bits de cada tipo, mas nesta lista cada tipo tem um
+tamanho maior ou igual a do seu predecessor.
+
+O tipo int tem o tamanho natural para a arquitetura de excecução. Os outros
+tipos são usados para casos especiais.
+
+Para cada tipo com sinal existe uma versão sem sinal que tem o mesmo tamanho do
+seu tipo correspondente com sinal.
+
+unsigned char
+unsigned short int
+unsigned int
+unsigned long int
+unsigned long long int
+
+Geralmente quando se quer representar um inteiro com sinal se usa int e inteiro
+sem sinal se usa unsigned int.
+
+Antes da plataforma 64 bits o tipo int tinha o mesmo tamanho em bytes de
+ponteiros. No caso do x86 ambos com 32bits. Isso quebrou programas que tinham o
+presuposto errado de que ints e ponteiros teriam o mesmo tamanho.
+
+O fato é que com a passagem para 64 bits não fazia sentido deixar o int com 64
+bits, primeiro por questões de mémoria, segundo para facilitar a
+compatibilidade, e terceiro porque 32 bits são mais do que necessários para a
+maior parte dos casos. Então o int permaneceu com 32 bits.
+
+Para muitos casos, é importante ter um inteiro do mesmo tamanho de ponteiro e
+para isso existe dois tipos que são size_t e ptrdiff_t que fornecem essa
+garantia.
+
+Quando você quer um inteiro sem sinal do tamanho de um ponteiro use o size_t.
+Quando você quer um inteiro com sinal (subtração de endereços por exemplo)
+utilize ptrdiff_t.

@@ -1,0 +1,6 @@
+\RequirePackage{pstricks}
+\ProvidesPackage{pst-am}[2007/04/28 package wrapper for pst-am.tex ]
+\input{pst-am.tex}
+\ProvidesFile{pst-am.tex}
+  [\filedate\space v\fileversion\space `PST-am']
+\endinput

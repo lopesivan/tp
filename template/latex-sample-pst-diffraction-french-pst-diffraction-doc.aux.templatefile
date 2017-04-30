@@ -1,0 +1,14 @@
+\relax 
+\csname auxWARNINGi\endcsname {\typeout {-34- this file and other auxiliary files require to use the following}}
+\csname auxWARNINGi\endcsname {\typeout {-34- LaTeX packages: frenchle!}}
+\csname auxWARNINGi\endcsname {\typeout {-34- check \protect \usepackage \space or remove these files. Typesetting is aborted!}\stop }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Pr\'esentation et Montage}{2}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}La couleur de la radiation}{2}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Diffraction par une ouverture rectangulaire}{3}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Diffraction par deux fentes parall\`eles identiques}{4}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Diffraction par une ouverture circulaire}{5}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Diffraction par deux trous circulaires}{5}}
+\citation{*}
+\bibstyle{plain}
+\bibdata{pst-diffraction-doc}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Diffraction par un trou triangulaire \'equilat\'eral}{7}}

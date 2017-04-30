@@ -1,0 +1,75 @@
+/* vi:set nu nowrap:
+ * $Id:$
+ * Federal University of Rio de Janeiro
+ *      Author: Ivan carlos da Silva Lopes
+ *        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+ *     License: gpl
+ *    Language: C ansi
+ *        File: test-debug.c
+ *        Date: Ter 12 Out 2010 06:19:24 BRT
+ * Description:
+ */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "debug.h"
+
+int get_output (char *cmd, char *str_stdout )
+{
+    char buf[BUFSIZ];
+    FILE *ptr;
+
+    if ((ptr = popen(cmd, "r")) != NULL)
+        while (fgets(buf, BUFSIZ, ptr) != NULL)
+            printf("%s", buf);
+
+    strcpy(str_stdout, buf);
+
+    return pclose(ptr);
+}
+
+/*****************************************************************************
+ *                                                                           *
+ *  --------------------------------- main --------------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+int
+main (int argc, char *argv[]) {
+
+	int sz;
+    char *home = getenv ("HOME");
+    char *cmd;
+	char str_stdout[1200];
+
+	/* get size command */
+    sz = strlen("ls ")  +
+         strlen("-l ")  +
+         strlen(home);
+
+	/* alloc mem */
+    cmd =  (char *) malloc (sz*sizeof(char) + 1 );
+
+	/* write command */
+    strcat(cmd, "ls ");
+    strcat(cmd, "-l ");
+    strcat(cmd, home);
+
+	/* run cmd */
+	get_output(cmd, str_stdout);
+
+	D("%s\n","Message *with* debug!");
+	D("cmd=%s\n", cmd);
+	D("out=%s\n", str_stdout);
+	printf("out=%s\n", str_stdout);
+
+	/* free mem */
+	free(cmd);
+
+	return EXIT_SUCCESS;
+}
+

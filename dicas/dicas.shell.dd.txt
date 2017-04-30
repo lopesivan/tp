@@ -1,0 +1,36 @@
+Copiando un disco con dd
+
+El comando dd (duplicate disk) es un comando bastante útil para transferir
+datos desde un dispositivo y/o archivo hacia otro dispositivo, archivo, etc.
+
+La sintaxis básica del comando es la siguiente:
+
+dd if=origen of=destino
+
+    * if significa “input file“, es decir, lo que se desea copiar, y
+    * of significa “output file“, es decir, donde se almacenará la información.
+
+Para clonar un disco duro sería:
+
+dd if=/dev/hda of=/dev/hdc
+
+Para clonar una partición seria:
+
+dd if=/dev/hda1 of=/dev/hdc1
+
+Para crear una imagen .iso de un CD sería:
+
+dd if=/media/cdrom of=nombre_imagen.iso
+
+Para copiar un disquete, primero insertamos el disquete que queremos copiar y escribimos lo siguiente en la consola:
+dd if=/dev/fd0 of=/home/alex/disquete.img
+
+Después insertamos un disquete vacío y escribimos lo siguiente:
+
+dd if=/home/alex/disquete.img of=/dev/fd0
+
+Si queremos hacer más copias, solo volvemos a realizar el segundo paso. Cuando ya no queramos hacer más copias, eliminamos el archivo (y no seguir ocupando espacio en el disco duro):
+
+rm -f /home/alex/disquete.img
+Por último, solo queda recomendar tener mucho cuidado, porque los datos del
+disco o de la partición destino serán destruidos por completo

@@ -1,0 +1,25 @@
+!!! XML
+/
+  $Id: hello.bkl 31612 2005-01-27 22:47:37Z VS $
+
+/
+  Document   : hello.bkl
+  Created on : #{Time.new}
+  Author     : ivan
+  Description:
+  Purpose of the document follows.
+
+%makefile
+  %include{:file=>"bakefiles/wxpresets/presets/wx.bkl"}/
+
+  %exe{:id       => "hello",
+       :template => "simple"}
+
+    /
+      Sources Files:
+
+    - sources = Dir.glob("src/*.c")
+    %sources
+      - sources.each do |src|
+        =src
+

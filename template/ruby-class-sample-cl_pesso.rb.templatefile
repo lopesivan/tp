@@ -1,0 +1,18 @@
+#! /usr/bin/ruby
+
+class Pessoa
+	def initialize(nome)
+		@nome = nome
+	end
+
+	def nome
+		@nome
+	end
+
+	def nome=(valor)
+		@nome = valor
+	end
+end
+
+ivan = Pessoa.new("Ivan Carlos Da Silva Lopes")
+puts ivan.nome

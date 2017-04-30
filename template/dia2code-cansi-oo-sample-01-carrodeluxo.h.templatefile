@@ -1,0 +1,24 @@
+#ifndef __CARRODELUXO_H__
+#define __CARRODELUXO_H__
+
+#define CARRODELUXO(OBJ) ((CarroDeLuxo*)OBJ)
+
+#ifndef String
+#define String char*
+#endif
+
+#include "carro.h"
+
+typedef struct _CarroDeLuxo CarroDeLuxo;
+
+struct _CarroDeLuxo {
+Carro super;
+  /** Attributes **/
+  /*public*/
+    String acessorios;
+  /** Associations **/
+/** Operations **/
+};
+
+/** Operations **/
+#endif

@@ -1,0 +1,64 @@
+DEPTH     = ${ICSL_DEPS}/src/firefox/prj/3/mozilla
+topsrcdir = ${ICSL_DEPS}/src/firefox/prj/3/mozilla
+SDK_PATH  = ${DEPTH}/modules/plugin/tools/sdk
+DESTDIR   = ~/.mozilla
+srcdir    = .
+VPATH     = .
+
+
+include $(DEPTH)/config/autoconf.mk
+
+XPIDL_MODULE = npsimple
+LIBRARY_NAME = npsimple
+REQUIRES = xpcom \
+           plugin \
+           java \
+           $(NULL)
+
+NO_DIST_INSTALL = 1
+NO_INSTALL = 1
+
+CPPSRCS = nsScriptablePeer.cpp \
+          plugin.cpp \
+          $(NULL)
+
+XPIDLSRCS = nsISimplePlugin.idl
+XPT       = $(wildcard _xpidlgen/*.xpt)
+
+SHARED_LIBRARY_LIBS = $(SDK_PATH)/samples/common/$(LIB_PREFIX)plugingate_s.$(LIB_SUFFIX)
+
+ifeq ($(OS_ARCH),WINNT)
+DEFFILE = $(win_srcdir)/npsimple.def
+RESFILE = npsimple.res
+endif
+
+include $(topsrcdir)/config/rules.mk
+
+DEFINES += -DMOZILLA_STRICT_API
+
+ifeq ($(OS_ARCH),Linux)
+EXTRA_DSO_LDOPTS +=  $(XLDFLAGS) -rdynamic  -lXi -lXext -lX11 -lm -lXt
+endif
+
+LOCAL_INCLUDES = -I./$(XPIDL_GEN_DIR)          \
+                 -I$(SDK_PATH)/samples/include \
+                 $(NULL)
+
+install-plugin: $(SHARED_LIBRARY)
+ifdef SHARED_LIBRARY
+	$(INSTALL) $(SHARED_LIBRARY) $(DIST)/bin/plugins
+endif
+
+libs:: install-plugin
+
+ifdef SHARED_LIBRARY
+install:: $(SHARED_LIBRARY)
+	$(SYSINSTALL) $(IFLAGS2) $< $(DESTDIR)$(mozappdir)/plugins
+	@cp $< $(DESTDIR)$(mozappdir)/plugins
+	@cp $(XPT) $(DESTDIR)$(mozappdir)/components
+endif
+
+ifdef SHARED_LIBRARY
+unistall:
+	rm $(DESTDIR)$(mozappdir)/plugins/$(SHARED_LIBRARY) $(DIST)/bin/plugins/$(SHARED_LIBRARY) $(subst _xpidlgen,$(DESTDIR)$(mozappdir)/components,$(XPT))
+endif

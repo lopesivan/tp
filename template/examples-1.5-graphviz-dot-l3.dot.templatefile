@@ -1,0 +1,65 @@
+digraph structs {
+	node    [shape=record];
+
+	struct1 [shape=record, label="<p0> |<p1> address"];
+	struct2 [shape=record, label="<p0> |<p1> "];
+	ground  [label=<
+		<table border="0">
+    			<tr>
+				<td>
+					<img src="img/ground_earth.png"/>
+				</td>
+			</tr>
+        		<tr>
+				<td>NULL</td>
+			</tr>
+	    	</table>
+		>
+	];
+
+	struct4 [label=<
+		<table border="0">
+    			<tr>
+				<td>
+					<img src="img/ground_earth.png"/>
+				</td>
+			</tr>
+        		<tr>
+				<td>NULL</td>
+			</tr>
+	    	</table>
+		>
+	];
+
+	struct5 [label=<
+		<table border="4">
+    			<tr>
+				<td> 1 </td>
+				<td> 2 </td>
+				<td> 3 </td>
+				<td> 4 </td>
+			</tr>
+    			<tr>
+				<td colspan="4"> 1 </td>
+			</tr>
+	    	</table>
+		>
+	];
+
+	struct6 [label=<
+		<table
+			border="0"
+			cellborder="1"
+			cellspacing="0"
+		>
+			<tr>
+				<td port="f0">one</td>
+				<td>two</td>
+			</tr>
+		</table>
+		>
+	];
+
+	struct1:p0 -> struct2:p1;
+	struct1:p0 -> struct2:p1;
+}

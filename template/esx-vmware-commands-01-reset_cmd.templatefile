@@ -1,0 +1,1 @@
+vmware-cmd `pwd`/WinXP_sp2_apr2006.vmx reset hard

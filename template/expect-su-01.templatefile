@@ -1,0 +1,43 @@
+#!/usr/bin/expect -f
+
+set timeout -1
+
+# Faz com que o programa não esteja em modo de login do usuário
+log_user 0
+
+# Executa o comando su
+spawn su
+
+# Prepara para receber a senha do usuário. Desabilita o echo do teclado
+system stty -echo
+
+#Mostra ao usuário a string
+send_user "Password: "
+
+#Recebe a digitação da senha
+expect_user -re "(.*)\n"
+
+# Coloca na variável $password o valor digitado pelo usuário
+set password $expect_out(1,string)
+
+# Retorna o echo de caractere
+system stty echo
+
+# Apaga o prompt de requisição de senha
+expect "*Password:"
+
+# Faz com que o programa entre em modo de login do usuário
+log_user 1
+
+# Envia a variável $password
+send "$password\r"
+
+# Trata algum erro que possa acontecer e sai do programa
+expect *Sorry* exit *#*;
+
+# Envia o argumento passado para ser executado
+eval send [lrange $argv 1 end] \\r
+
+# Permite que o usuário interaja com o novo shell e envie novos comandos
+interact
+

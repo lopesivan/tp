@@ -1,0 +1,15 @@
+# -*- coding: utf-8 -*-
+
+'''
+Created on Mar 4, 2011
+
+@author: ivan
+'''
+
+from MyApp import MyApp
+
+if __name__ == '__main__':
+    app = MyApp(False)
+    app.MainLoop()
+# end if
+

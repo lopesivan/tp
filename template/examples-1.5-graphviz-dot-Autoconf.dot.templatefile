@@ -1,0 +1,12 @@
+digraph G {
+	node  [ fontname = "Vera" ]
+
+	"iptv"     -> "src"                [ label=app      ]
+	"iptv"     -> "modules"            [ label=libiptv  ]
+	"modules"  -> "module-Ivan"        [ label=audio    ]
+	"modules"  -> "module-Guilherme"   [ label=video    ]
+	"modules"  -> "module-sbVB"        [ label=math     ]
+
+	label = "\n\nDiagram of Project IPTV";
+	fontsize=20;
+}

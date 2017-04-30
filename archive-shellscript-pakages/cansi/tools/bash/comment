@@ -1,0 +1,5 @@
+#! /bin/bash
+
+TARGET=/workspace/icsl/developer/cpp/book/deitel/workspace/bash
+source ${TARGET}/draw.box
+draw.box 78 $1 '//' ' ' ' ' ' ' ' ' '//'

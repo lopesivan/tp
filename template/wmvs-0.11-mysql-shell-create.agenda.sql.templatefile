@@ -1,0 +1,20 @@
+create table agenda
+(
+	id             smallint unsigned not null auto_increment,
+    cpf            char(18) not null,
+    name           char(50) not null,
+	nascimento     date,
+	endereco       varchar(30),
+	bairro         varchar(30),
+	cep            varchar(10),
+	cidade         varchar(20),
+	uf             varchar(2),
+	tel_fixo       varchar(30),
+	tel_cel        varchar(30),
+	email          varchar(20),
+	instituicao    varchar(20),
+	dia_inscricao  date,
+	hora_inscricao time,
+
+    primary key (id)
+)

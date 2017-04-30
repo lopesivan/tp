@@ -1,0 +1,37 @@
+source         =  example.c
+INCLUDE        = -I/usr/include/python2.6
+
+# ----------------------------------------------------------------------------
+sources        =  $(source) $(source:.c=_wrap.c)
+
+interface      =  $(source:.c=.i)
+objects        =  $(sources:.c=.o)
+library        = _$(source:.c=.so)
+
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+SWIG        = swig
+SWIG_FLAGS  = -python
+
+CC          = gcc
+LD          = ld
+WARNINGS    = -Wall -ansi
+#GDBFLAGS    = -g
+LDFLAGS     = -shared
+CFLAGS      = $(WARNINGS) -fpic $(GDBFLAGS) $(INCLUDE) $(DEFINEFLAGS)
+
+all:        $(library)
+
+$(source:.c=_wrap.c):
+	$(SWIG) $(SWIG_FLAGS) $(interface)
+
+$(library): $(source:.c=_wrap.c) $(objects)
+	$(LD) $(LDFLAGS) $(objects) -o $@
+
+clean:
+	/bin/rm -rf $(library) $(objects)  $(source:.c=.py) $(source:.c=_wrap.c) tags *.orig *.A
+
+# END OF FILE

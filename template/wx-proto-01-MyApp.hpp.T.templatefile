@@ -1,0 +1,26 @@
+: ${ID_C_MYAPP:=MyApp}
+: ${ID_M_ONINIT:=OnInit}
+
+MK_MYAPP_HPP     ()
+{
+cat << __EOF__ | sed 's/[ \t]*$//; /./,/^$/!d' > ${application_name}/${HEADER_DIR}/${ID_F_HEADER_MYAPP}
+$(comment.cpp.box $ID_F_HEADER_MYAPP)
+
+#ifndef $(echo $ID_F_HEADER_MYAPP   | tr '[a-z.]' '[A-Z_]')
+#define $(echo $ID_F_HEADER_MYAPP   | tr '[a-z.]' '[A-Z_]')
+
+#include "wx/wx.h"
+
+// Declare the application class
+class $ID_C_MYAPP : public wxApp
+{
+public:
+
+	// Called on application startup
+	virtual bool ${ID_M_ONINIT}();
+};
+
+#endif				// $(echo $ID_F_HEADER_MYAPP | tr '[a-z.]' '[A-Z_]')
+__EOF__
+}
+MK_MYAPP_HPP

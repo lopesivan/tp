@@ -1,0 +1,67 @@
+\documentclass{article}
+\usepackage{pstricks-add}
+\usepackage[nomessages]{fp}
+
+
+
+\pagestyle{empty}
+\begin{document}
+
+% \section*{A Crank Lever}
+\def\voc{
+\pstVerb{%
+    /Xcoord  \ai\space cos 2 mul def
+    /Ycoord  \ai\space sin 2 mul neg 3 add  def
+    }%
+\pstVerb{%
+    /Xco  12 \ai\space cos mul  \ai\space sin 2 mul neg 3 add div \ai\space cos 2 mul \ai\space sin 2 mul neg 3 add div 2 exp 1 add 0.5 exp div def
+    /Yco 6 \ai\space cos 2 mul  \ai\space sin 2 mul neg 3 add div 2 exp 1 add 0.5 exp div  def
+    }%
+\def\Kurbel{%
+    (12*cos(t)/(3-2*sin(t)))/(1+(2*cos(t)/(3-2*sin(t)))^2)^0.5|6/(1+(2*cos(t)/(3-2*sin(t)))^2)^0.5
+    }%
+    \rput(0,0){%
+        \parametricplot[algebraic,plotpoints=500,linewidth=1pt,linecolor=red]{0}{\di}{\Kurbel}
+        }%
+    \psline[linewidth=1pt](0,3)(!Xcoord Ycoord)
+    \psline[linewidth=2.5pt](0,0)(!Xco Yco)
+    \rput(!Xco Yco){%
+        \pscircle[fillstyle=solid,fillcolor=blue,linecolor=black](0,0){2pt}
+        }%
+    \rput(!Xcoord Ycoord){%
+        \pscircle[linecolor=white](0,0){3pt}
+        }%
+}
+
+\FPdiv{\myDeltaA}{1080}{89}%
+    \def\ai{0}%
+\FPdiv{\myDeltaB}{1080}{89}%
+    \def\bi{0}%
+\FPdiv{\myDeltaC}{2}{89}%
+    \def\ci{0}%
+\FPdiv{\myDeltaD}{18.84}{89}%
+    \def\di{0}%
+\FPdiv{\myDeltaE}{360}{69}%
+    \def\ei{0}%
+\FPdiv{\myDeltaG}{7.2}{50}%
+    \def\gi{-3.6}%
+\FPdiv{\myDeltaH}{4.1}{50}%
+    \def\hi{0}%
+
+\multido{\i=1+1}{90}{
+ \begin{pspicture}(-3,0)(3,6)
+    \pscircle[linecolor=gray,linestyle=dashed](0,3){2}
+    \psline(0,0)(0.25,-0.25)(-0.25,-0.25)(0,0)
+    \rput(0,3){\psline(0,0)(0.25,-0.25)(-0.25,-0.25)(0,0)}
+    \voc
+ \end{pspicture}
+ \newpage
+ \FPadd{\ai}{\ai}{\myDeltaA}
+ \FPadd{\bi}{\bi}{\myDeltaB}
+ \FPadd{\ci}{\ci}{\myDeltaC}
+ \FPadd{\di}{\di}{\myDeltaD}
+ \FPadd{\ei}{\ei}{\myDeltaE}
+ \FPadd{\gi}{\gi}{\myDeltaG}
+ \FPadd{\hi}{\hi}{\myDeltaH}
+}
+\end{document}

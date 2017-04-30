@@ -1,0 +1,8 @@
+#include "MathOperator.h"
+class Mul : public MathOperator {
+public:
+	float getValue() { return left->getValue() * right->getValue(); }
+
+	inline Mul(Term *t): MathOperator(t) { }
+};
+

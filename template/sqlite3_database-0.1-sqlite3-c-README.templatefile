@@ -1,0 +1,34 @@
+O que é SQLite ?
+
+SQLite é uma biblioteca C que implementa um banco de dados SQL embutido ou seja
+SQLite é o servidor. A biblioteca SQLite lê e escreve diretamente para o arquivo
+do banco de dados no disco.
+
+Por que vamos usar SQLite?
+
+SQLite foi escolhido para este artigo por não necessitar de
+configurações complicadas e por sua instalação ser rapida e limpa…
+Suporta bases de dados acima de 2 terabytes,O Banco de Dados é guardado em um único arquivo
+e Sem dependências externas e outros motivos,É facil exportar dados,por ser rapido…
+
+Como instalar ?
+
+caso use windows ou queira instalar direto do tarball http://www.sqlite.org
+linux debianos em geral “apt-get install sqlite3 libsqlite3-dev(biblioteca do C) sqlite3-doc(caso queira ler as doc)”
+Slackers installpkg sqlite3_bla_bla.tgz,chapeis vermelhos e azuis “yum install sqlite”,Daemons,puffers
+procure nos ports. caso use windows instale o cygwin e por ele o GCC…
+
+Quem usa SQLite ?
+Firefox,adobe,symbianOS,amarok entre outros…
+
+Algumas características do SQLite:
+
+. Software livre/domínio público e Multiplataforma;
+. Mecanismo de armazenamento seguro com transações ACID;
+. Não necessita de instalação, configuração ou administração;
+. Implementa a maioria do SQL92;
+. O Banco de Dados é guardado em um único arquivo;
+. Suporta bases de dados acima de 2 terabytes;
+. Sem dependências externas.
+
+antes de continuar treine comandos SQL no SQLite crie tabelas etc…

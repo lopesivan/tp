@@ -1,0 +1,39 @@
+!!! XML
+/
+  $Id: main.bkl 31612 2005-01-27 22:47:37Z VS $
+
+/
+  Document   : main.bkl
+  Created on : #{Time.new}
+  Author     : ivan
+  Description:
+  Purpose of the document follows.
+
+%makefile
+  %include{:file=>"bakefiles/wxpresets/presets/wx.bkl"}/
+
+  %exe{:id=>"main",
+       :template=>"wx"}
+
+    %app-type
+      gui
+    %debug-info
+      on
+    %runtime-libs
+      dynamic
+
+    /
+      Sources Files:
+
+    - sources = Dir.glob("*.cpp")
+    %sources
+      - sources.each do |src|
+        =src
+
+    /
+      Wx Libs:
+
+    - wx_libs = [:core,:base]
+    - wx_libs.each do |wx_lib|
+      %wx-lib
+        =wx_lib

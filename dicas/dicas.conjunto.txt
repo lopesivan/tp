@@ -1,0 +1,8 @@
+Quer implementar um union ?
+(sort -u arquivoA ; sort -u arquivoB) | sort -u
+
+Quer implementar um intersections ?
+grep -f arquivoA arquivoB
+
+Tudo que estah em B mas nao estah em A?
+(grep -f B A ; cat B) | sort | uniq -u

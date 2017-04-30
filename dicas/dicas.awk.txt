@@ -1,0 +1,48 @@
+AWK Reference
+Examples
+
+    * awk '{print $1, $3}' file
+      Prints the first and third columns of file.
+    * ls -lg dir | awk '{ x += $5 } END { print "total K-bytes: " (x + 1023)/1024 }'
+      Prints the total number of kilobytes used by dir.
+    * awk 'NR > 20' file
+      Prints file starting at line 21.
+
+    * awk 'NF > 0' file
+      Prints all lines in file which have at least one field, e.g. blank lines are ignored.
+
+    * awk 'length($0) > 80' file
+      Prints all lines in file longer than 80 characters.
+
+    * awk 'END { print NR }' file
+      Counts the number of lines in file.
+
+    * awk 'BEGIN{ for( item in ENVIRON) print item, ENVIRON[item]}'
+      Print the environment variables (gawk only).
+
+Variables
+
+ARGC        Number of arguments passed on the command line. (nawk)
+ARGIND      Index in `ARGV' of the current file.            (gawk)
+ARGV        An array containing command-line arguments.     (nawk)
+CONVFMT     C-style format to convert numbers to strings.
+ENVIRON     Associative array with environment variables.   (gawk)
+ERRNO       Error description string                        (gawk)
+FILENAME    The current filename.
+FNR         The record number in the current file.          (nawk)
+FS          The field separator.
+IGNORECASE  Boolean indicating case-independent matching.   (gawk)
+NF          Number of fields in the current record.
+NR          Number of the current record (e.g. line number).
+OFMT        Number conversion format when using print.      (nawk)
+OFS         Output field separator.
+ORS         Output record separator.
+RLENGTH     Length of string matched.                       (nawk)
+RS          Record separator.
+RSTART      Position in string of match.                    (nawk)
+RT          Input text matching text denoted by `RS'.       (gawk)
+SUBSEP      Separator character for array subscripts.       (nawk)
+$0
+$n
+
+Here, nawk is a newer version of awk which may not be available on all systems, and gawk is the Free Software Foundation implementation of awk. All the features in nawk are avaliable in gawk. 

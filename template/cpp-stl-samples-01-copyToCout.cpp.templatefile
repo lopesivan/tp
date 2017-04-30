@@ -1,0 +1,20 @@
+#include <iostream>				 //para cout
+#include <iterator>				 //para ostream_iterator
+#include <vector>
+
+using namespace std;
+
+int main ()
+{
+    vector<int> v (5);
+    v[0] = 1;
+    v[1] = 1;
+    v[2] = 2;
+    v[3] = 3;
+    v[4] = 5;
+
+    //copia todo o vetor [begin () -> end ()) pro cout com um  ", " de delimitador
+    copy (v.begin (), v.end (), ostream_iterator<int> (cout, ", "));
+
+    std::cout << "\n";
+}

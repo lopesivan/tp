@@ -1,0 +1,61 @@
+/* hello.c: A standard "Hello, world!" program */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "carrodeluxo.h"
+#include "carro.h"
+
+int
+main (int argc, char *argv[])
+{
+	Carro       *MyCar       = (Carro*) malloc ((size_t) (1) * sizeof (Carro));
+	CarroDeLuxo *MySecondCar = (CarroDeLuxo*) malloc ((size_t) (1) * sizeof (CarroDeLuxo));
+
+	if (!MySecondCar) {
+		fprintf(stderr, "!!ERROR!!");
+	}
+
+	if (!MyCar) {
+		fprintf(stderr, "!!ERROR!!");
+	}
+
+	MyCar->modelo= "Astra";
+	MyCar->ano   = 2010;
+	MyCar->placa = 85601;
+
+	printf (" -- Main --\n"\
+"Modelo : %s\n"\
+"Placa  : %d\n"\
+"Ano    : %d\n",
+			MyCar->modelo,
+			MyCar->placa,
+			MyCar->ano
+	);
+
+	Carro_dirigir(MyCar);
+
+	free(MyCar);
+
+	MySecondCar->acessorios   = "Som e TV";
+	MySecondCar->super.modelo = "Toiota";
+	MySecondCar->super.ano    = 2012;
+	MySecondCar->super.placa  = 984285601;
+
+	printf (" -- Main --\n"\
+"Acessorios : %s\n"\
+"Modelo     : %s\n"\
+"Placa      : %d\n"\
+"Ano        : %d\n",
+	MySecondCar->acessorios ,
+	MySecondCar->super.modelo,
+	MySecondCar->super.ano,
+	MySecondCar->super.placa
+	);
+
+	Carro_dirigir( (Carro*)MySecondCar );
+
+	free(MySecondCar);
+
+	return 0;
+}

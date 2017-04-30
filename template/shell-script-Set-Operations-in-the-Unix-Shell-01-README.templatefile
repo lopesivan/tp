@@ -1,0 +1,89 @@
+$ cat set_A
+a
+b
+c
+e
+g
+i
+l
+m
+n
+o
+q
+s
+
+$ cat set_B
+b
+c
+d
+f
+n
+o
+p
+
+$ paste <( at set_A) <( at set_B)
+a       b
+b       c
+c       d
+e       f
+g       n
+i       o
+l       p
+m
+n
+o
+q
+s
+
+$ cat <(grep -vxF -f set_A set_B) <(grep -vxF -f set_B set_A)| sort
+a
+d
+e
+f
+g
+i
+l
+m
+p
+q
+s
+
+# intercessão
+# A∩B
+$ sort set_A set_B| uniq -d
+b
+c
+n
+o
+
+#
+# AUB - A∩B
+$ cat <(grep -vxF -f set_A set_B) <(grep -vxF -f set_B set_A)
+d
+f
+p
+a
+e
+g
+i
+l
+m
+q
+s
+
+# set_B - set_A
+$ grep -vxF -f set_A set_B
+d
+f
+p
+
+# set_A - set_B
+$ grep -vxF -f set_B set_A
+a
+e
+g
+i
+l
+m
+q
+s

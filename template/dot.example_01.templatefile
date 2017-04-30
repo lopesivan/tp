@@ -1,0 +1,9 @@
+DOT is a super cool and simple to use graphing language. Here’s an example:
+
+Create a new text file hello.dot containing
+
+digraph hello { hello -> world; }
+
+Compile it:
+
+dot -Tsvg hello.dot -O -v

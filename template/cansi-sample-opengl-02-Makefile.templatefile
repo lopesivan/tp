@@ -1,0 +1,9 @@
+# Makefile: A standard Makefile for forca.c
+
+LIBS        = -L/usr/X11R6/lib -lGL -lGLU -lglut -lXi -lXmu -lXext -lX11 -lm
+LDFLAGS    += $(LIBS)
+
+all  : forca
+clean:
+	/bin/rm -rf forca forca.o
+# END OF FILE

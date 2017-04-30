@@ -1,0 +1,16 @@
+\section{Slides with \LaTeX}
+
+\subsection*{}
+
+\begin{frame}{Why \LaTeX ?}
+\begin{itemize}
+\item Mathematicians use \LaTeX\ for papers.
+\item \LaTeX\ typesets mathematics much better than Powerpoint or Word.
+\item The \LaTeX\ system is \alert{free}!
+\item Worry about the content, not font size, placement, etc. 
+\item The \LaTeX\ system is \alert{FREE}!!
+\item The end result is an Adobe PDF file, which is extremely portable and can be
+displayed on almost any platform.
+\end{itemize}
+\note<1>{\LaTeX\ is not really a system, but a set of macros built on top of the \TeX\ language.}
+\end{frame}

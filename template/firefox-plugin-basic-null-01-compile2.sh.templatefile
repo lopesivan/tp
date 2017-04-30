@@ -1,0 +1,67 @@
+#! /bin/bash
+FIREFOXPLUGINCONFIG=${ICSL_DEPS}/compiled/firefox3/bin/
+
+LIBNAME=libnullplugin
+PLUGINS_PATH=~/.mozilla/plugins/
+deps=.deps
+
+make clean
+
+test -d ${deps} && rm -rf ${deps}
+
+mkdir ${deps}
+
+#
+# Compile npshell.c
+#
+`${FIREFOXPLUGINCONFIG}/firefox-plugin --deps_npunix`
+echo gcc `${FIREFOXPLUGINCONFIG}/firefox-plugin --cflags` -Wp,-MD,.deps/npshell.pp npshell.c -o npshell.o
+gcc `${FIREFOXPLUGINCONFIG}/firefox-plugin --cflags` -Wp,-MD,.deps/npshell.pp npshell.c -o npshell.o
+
+#
+# Compile nullplugin.c
+#
+`${FIREFOXPLUGINCONFIG}/firefox-plugin --deps_nullplugin`
+echo gcc `${FIREFOXPLUGINCONFIG}/firefox-plugin --cflags` -Wp,-MD,.deps/nullplugin.pp nullplugin.c -o nullplugin.o
+gcc `${FIREFOXPLUGINCONFIG}/firefox-plugin --cflags` -Wp,-MD,.deps/nullplugin.pp nullplugin.c -o nullplugin.o
+
+#
+# Compile npunix.c
+#
+
+`${FIREFOXPLUGINCONFIG}/firefox-plugin --deps_npshell`
+echo gcc `${FIREFOXPLUGINCONFIG}/firefox-plugin --cflags` -Wp,-MD,.deps/npunix.pp npunix.c -o npunix.o
+gcc `${FIREFOXPLUGINCONFIG}/firefox-plugin --cflags` -Wp,-MD,.deps/npunix.pp npunix.c -o npunix.o
+
+#
+# remove local shared library
+#
+test -e ${LIBNAME}.so && rm -f ${LIBNAME}.so
+
+#
+# Link edit
+#
+echo g++ `${FIREFOXPLUGINCONFIG}/firefox-plugin --ldflags --libs` -o ${LIBNAME}.so npshell.o nullplugin.o npunix.o
+g++ `${FIREFOXPLUGINCONFIG}/firefox-plugin --ldflags --libs` -o ${LIBNAME}.so npshell.o nullplugin.o npunix.o
+
+#
+# change to execute permission
+#
+chmod +x ${LIBNAME}.so
+
+#
+# if exist shared library clean
+#
+test -e ${PLUGINS_PATH}/${LIBNAME}.so && make unistall
+
+#
+# Copy shared library
+#
+echo cp ${LIBNAME}.so $PLUGINS_PATH
+cp ${LIBNAME}.so $PLUGINS_PATH
+
+#
+# nsinstall
+#
+echo `${FIREFOXPLUGINCONFIG}/firefox-plugin --nsinstall` -R ${LIBNAME}.so `${FIREFOXPLUGINCONFIG}/firefox-plugin --plugins-dir`
+`${FIREFOXPLUGINCONFIG}/firefox-plugin --nsinstall` -R ${LIBNAME}.so `${FIREFOXPLUGINCONFIG}/firefox-plugin --plugins-dir`

@@ -1,0 +1,36 @@
+Deploying a website using Git via SSH remote
+
+Git has a concept of "remotes" (tracked repositories), which allows to have
+arbitrary alternate remote locations besides the typical "origin" remote, like "web".
+
+The basic idea is to setup a user on the remote server ($SSH_DEPLOYUSER) which
+is allowed to login via SSH (e.g. by adding your public SSH key to the deploy
+user's ~/.ssh/authorized_keys file) and will be used to checkout what you want
+to deploy.
+
+To accomplish this you have to setup the Git working directory on the server and
+add a "post-receive" hook, which will be invoked by Git after you have pushed
+to the repository:
+
+Code:
+	$ mkdir /path/to/repo-checkout
+	$ cd /path/to/repo-checkout
+	$ git init
+	# Create the post-receive file/hook (Ctrl-D to end the input to "cat"):
+	$ cat > .git/hooks/post-receive
+	#!/bin/sh
+	export GIT_DIR=$(pwd)
+	cd ..
+	git checkout -f
+	git submodule update --init --recursive
+	$ chmod +x .git/hooks/post-receive
+	$ git config --add receive.denyCurrentBranch ignore
+	$ chown $SSH_DEPLOYUSER -R .
+
+On the local side you have to add a "remote" (named "web" in this case):
+
+The final step is to initially push to it (which requires to specify the "refspec" once - following deployments can be done by just doing a "git push web"):
+
+Code:
+	$ git remote add web ssh://$DEPLOYUSER@host.example.com/path/to/repo-checkout/.git
+	$ git push web +master:refs/heads/master

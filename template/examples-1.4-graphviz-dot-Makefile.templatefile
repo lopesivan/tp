@@ -1,0 +1,160 @@
+dots     =\
+	abstract.dot       \
+	alf.dot            \
+	awilliams.dot      \
+	class.dot          \
+	clust1.dot         \
+	clust2.dot         \
+	clust3.dot         \
+	clust4.dot         \
+	clust5.dot         \
+	clust.dot          \
+	cluster.dot        \
+	crazy.dot          \
+	ctext.dot          \
+	dfa.dot            \
+	fig6.dot           \
+	FileUtilities.dot  \
+	fsm.dot            \
+	GnuCoreutils.dot   \
+	grammar.dot        \
+        ER.dot             \
+        Heawood.dot        \
+        ngk10_4.dot        \
+        Petersen.dot       \
+        process.dot        \
+	graph.dot          \
+	hashtable.dot      \
+	hello.dot          \
+	honda-tokoro.dot   \
+	ivan.dot           \
+	jcctree.dot        \
+	jsort.dot          \
+	KW91.dot           \
+	ldbxtried.dot      \
+	list.dot           \
+	longflat.dot       \
+	mike.dot           \
+	NaN.dot            \
+	newarrows.dot      \
+	nhg.dot            \
+	pgram.dot          \
+	pm2way.dot         \
+	pmpipe.dot         \
+	polypoly.dot       \
+	proc3d.dot         \
+	proj.dot           \
+	record2.dot        \
+	records.dot        \
+	rowe.dot           \
+	shells.dot         \
+	ShellUtilities.dot \
+	states.dot         \
+	struct.dot         \
+	structs.dot        \
+	TextUtilities.dot  \
+	train11.dot        \
+	trapeziumlr.dot    \
+	tree.dot           \
+	triedds.dot        \
+	try.dot            \
+	unix2.dot          \
+	unix2k.dot         \
+	unix.dot           \
+	viewfile.dot       \
+	world.dot
+
+EXT      = .png .gif
+#EXT     = .ps .svg .svgz .fig .mif .hpgl .pcl .png .gif .dia .imap .cmapx
+
+.SUFFIXES:                  # Delete the default suffixes
+.SUFFIXES: .dot $(EXT)      # Define our suffix list
+
+DOT      = dot
+DOTFLAGS = -o
+TAR      = @echo tar
+TARFLAGS = cvzf
+
+targets  = $(dots:.dot=)
+
+include rules.mk
+
+all:    $(targets)
+
+#
+# ============================================================================
+# |TARGETS|
+
+abstract       : $(addprefix abstract,       $(EXT))
+alf            : $(addprefix alf,            $(EXT))
+awilliams      : $(addprefix awilliams,      $(EXT))
+class          : $(addprefix class,          $(EXT))
+clust1         : $(addprefix clust1,         $(EXT))
+clust2         : $(addprefix clust2,         $(EXT))
+clust3         : $(addprefix clust3,         $(EXT))
+clust4         : $(addprefix clust4,         $(EXT))
+clust5         : $(addprefix clust5,         $(EXT))
+clust          : $(addprefix clust,          $(EXT))
+cluster        : $(addprefix cluster,        $(EXT))
+crazy          : $(addprefix crazy,          $(EXT))
+ctext          : $(addprefix ctext,          $(EXT))
+dfa            : $(addprefix dfa,            $(EXT))
+fig6           : $(addprefix fig6,           $(EXT))
+FileUtilities  : $(addprefix FileUtilities,  $(EXT))
+fsm            : $(addprefix fsm,            $(EXT))
+GnuCoreutils   : $(addprefix GnuCoreutils,   $(EXT))
+grammar        : $(addprefix grammar,        $(EXT))
+graph          : $(addprefix graph,          $(EXT))
+hashtable      : $(addprefix hashtable,      $(EXT))
+hello          : $(addprefix hello,          $(EXT))
+honda-tokoro   : $(addprefix honda-tokoro,   $(EXT))
+ivan           : $(addprefix ivan,           $(EXT))
+jcctree        : $(addprefix jcctree,        $(EXT))
+jsort          : $(addprefix jsort,          $(EXT))
+KW91           : $(addprefix KW91,           $(EXT))
+ldbxtried      : $(addprefix ldbxtried,      $(EXT))
+list           : $(addprefix list,           $(EXT))
+longflat       : $(addprefix longflat,       $(EXT))
+mike           : $(addprefix mike,           $(EXT))
+NaN            : $(addprefix NaN,            $(EXT))
+newarrows      : $(addprefix newarrows,      $(EXT))
+nhg            : $(addprefix nhg,            $(EXT))
+pgram          : $(addprefix pgram,          $(EXT))
+pm2way         : $(addprefix pm2way,         $(EXT))
+pmpipe         : $(addprefix pmpipe,         $(EXT))
+polypoly       : $(addprefix polypoly,       $(EXT))
+proc3d         : $(addprefix proc3d,         $(EXT))
+proj           : $(addprefix proj,           $(EXT))
+record2        : $(addprefix record2,        $(EXT))
+records        : $(addprefix records,        $(EXT))
+rowe           : $(addprefix rowe,           $(EXT))
+shells         : $(addprefix shells,         $(EXT))
+ShellUtilities : $(addprefix ShellUtilities, $(EXT))
+states         : $(addprefix states,         $(EXT))
+struct         : $(addprefix struct,         $(EXT))
+structs        : $(addprefix structs,        $(EXT))
+TextUtilities  : $(addprefix TextUtilities,  $(EXT))
+train11        : $(addprefix train11,        $(EXT))
+trapeziumlr    : $(addprefix trapeziumlr,    $(EXT))
+tree           : $(addprefix tree,           $(EXT))
+triedds        : $(addprefix triedds,        $(EXT))
+try            : $(addprefix try,            $(EXT))
+unix2          : $(addprefix unix2,          $(EXT))
+unix2k         : $(addprefix unix2k,         $(EXT))
+unix           : $(addprefix unix,           $(EXT))
+viewfile       : $(addprefix viewfile,       $(EXT))
+world          : $(addprefix world,          $(EXT))
+ER             : $(addprefix ER,             $(EXT))
+Heawood        : $(addprefix Heawood,        $(EXT))
+ngk10_4        : $(addprefix ngk10_4,        $(EXT))
+Petersen       : $(addprefix Petersen,       $(EXT))
+process        : $(addprefix process,        $(EXT))
+
+#
+# ============================================================================
+#
+
+clean:
+	/bin/rm -rf $(addprefix *, $(EXT))
+# END OF FILE
+#

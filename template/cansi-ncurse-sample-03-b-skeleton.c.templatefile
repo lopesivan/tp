@@ -1,0 +1,8 @@
+#include <ncurses.h>
+int main(void)
+{
+    initscr();        /* Initialize ncurses */
+    /* i/o and other programming done here */
+    endwin();        /* Properly close ncurses */
+    return 0;        /* cough up return value for the shell */
+}

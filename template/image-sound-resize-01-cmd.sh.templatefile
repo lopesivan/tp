@@ -1,0 +1,27 @@
+#!/bin/bash
+# vi:set nu nowrap:
+# cmd.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: cmd.sh
+#        Date: Mon 03 Aug 2009 04:28:06 AM BRT
+# Description:
+#
+#
+
+# ----------------------------------------------------------------------------
+
+for f in 00228.jpg 00231.jpg 00232.jpg 00233.jpg 00234.jpg 00235.jpg 00236.jpg 00237.jpg 00238.jpg 00239.jpg 00240.jpg 00241.jpg 00242.jpg 00243.jpg 00244.jpg 00245.jpg 00246.jpg 00247.jpg 00248.jpg 00249.jpg 00250.jpg 00253.jpg 00254.jpg 00256.jpg 00257.jpg 00259.jpg 00260.jpg 00261.jpg 00263.jpg 00264.jpg 00265.jpg 00266.jpg 00269.jpg 00270.jpg 00271.jpg 00272.jpg 00274.jpg 00276.jpg 00277.jpg 00281.jpg 00288.jpg 00289.jpg 00290.jpg 00291.jpg 00293.jpg 00294.jpg 00295.jpg 00297.jpg 00302.jpg 00303.jpg;do
+	echo $f
+	cp img/tt/$f img/
+	make clean
+	make || rm img/$f 
+done
+
+# ----------------------------------------------------------------------------
+exit 0

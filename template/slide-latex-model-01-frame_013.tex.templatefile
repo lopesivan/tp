@@ -1,0 +1,14 @@
+\begin{frame}{Guidelines}
+\begin{itemize}
+\item If one is including only external {\tt .ps} or {\tt .eps} files, then one should not use pdf\LaTeX.
+\item To include external graphics files, use the {\tt graphicx} package and scale the included graphic
+by some fraction of the ''textwidth'' variable.
+\item One should ensure that all external graphics files to be included are of the same type.
+\item If one is required to ''draw'' simple diagrams, I recommend using the {\tt PStricks} (postscript) or
+the {\tt pgf/TikZ} (non-postscript) package.
+\item For graphs or charts, make sure the labels are readable.
+\end{itemize}
+\note<1>{One can do just about any type of drawing with PStricks, but it does not work with pdf\LaTeX.  
+pgf/TikZ is the new kid on the block, and while not as powerful as PStricks, it still can do a lot, especially for
+simple diagrams.}
+\end{frame}

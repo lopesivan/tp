@@ -1,0 +1,39 @@
+#!/bin/bash
+# ----------------------------------------------------------------------------
+cat preamble.tex
+
+cat sep-long.tex
+
+cat variables.tex
+
+cat sep-short.tex
+
+cat author.tex
+
+cat sep-long.tex
+
+cat doc-begin.tex
+
+for foreword in  foreword-*.tex; do
+	cat $foreword
+done
+
+cat sep-short.tex
+
+cat title.tex
+
+cat sep-short.tex
+
+cat outline.tex
+
+cat sep-long.tex
+
+for frame in frame-*.tex; do
+	cat $frame
+done
+
+cat sep-short.tex
+
+cat doc-end.tex
+# ----------------------------------------------------------------------------
+exit 0

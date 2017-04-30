@@ -1,0 +1,18 @@
+-- main table
+select * from gecom;
+
+-- id and name
+select id,name,nascimento from gecom;
+
+-- id and name == ivan
+select id,name,nascimento from gecom
+	where name like 'Ivan%';
+
+-- id and name == ^a
+select id,name,nascimento from gecom
+	where name like 'A%'
+		order by nascimento;
+
+-- id and name
+select id,name,nascimento from gecom
+		order by nascimento;

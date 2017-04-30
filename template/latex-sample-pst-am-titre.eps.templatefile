@@ -1,0 +1,83 @@
+%%BoundingBox: 18 532 572 668
+%%CreationDate: Mon Apr 30 09:25:21 2007
+%%EndComments
+% (c) P. Kleiweg 1997
+% adaptation plagiat de ManuelLuque 05/06/2006
+% avec le concours du groupe Syracuse
+%/Font /Utopia-Regular def
+/Font /Times-Roman def
+
+/warp { % x y 1 index => x y x
+1 index % position  horizontale du point courant X
+periode N mul  mul
+cos 2 add
+mul     % hauteur finale Y
+} bind def
+
+/warpmove{
+2 index { 
+newpath
+} if
+warp  moveto
+pop false
+} bind def
+
+/warpline {
+warp
+lineto
+} bind def
+
+/warpcurve {
+6 2 roll warp
+6 2 roll warp
+6 2 roll warp
+curveto
+}  bind def
+
+/warpit {
+true
+{ warpmove } {  warpline } { warpcurve } { closepath } pathforall
+pop
+}  bind def
+
+297 600 translate
+
+% taille de des caractères
+Font findfont 40 scalefont setfont
+
+/warptxt (MODULATION D'AMPLITUDE) def % texte à déformer
+/warpwidth  warptxt stringwidth pop def % largeur horizontale du texte
+/warphalf  warpwidth 2 div def % demi-largeur horizontale
+
+/periode {360 warpwidth div} bind def % une sinusoïde
+/N 3 def %  ondulation sur 3 périodes
+
+%% modif 1
+%% sinusoïde du haut
+%% 2 sinusoïdes clippées
+warphalf neg 20 moveto
+warphalf neg 1 warphalf { 20 lineto } for % les 2  sinusoïdes
+warphalf -1 warphalf neg { 22 lineto } for
+closepath
+
+%% modif 2
+%% sinusoïde du bas
+%% 2 sinusoïdes clippées
+warphalf neg -15 moveto
+warphalf neg 1 warphalf { -15 lineto } for % les 2  sinusoïdes
+warphalf -1 warphalf neg { -17 lineto } for
+closepath
+
+%% modif 3
+warphalf neg -10 moveto
+warptxt true charpath
+
+%% c'est parti !
+warpit
+gsave
+0 0 1  setrgbcolor
+fill
+grestore
+0 0 0.5  setrgbcolor
+stroke
+

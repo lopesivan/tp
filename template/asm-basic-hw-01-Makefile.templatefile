@@ -1,0 +1,20 @@
+SRC  = hello_world.asm
+
+APP  =$(SRC:.asm=)
+DEBUG= @echo
+
+RM=$(DEBUG) /bin/rm
+CC=$(DEBUG) nasm
+LD=$(DEBUG) ld
+
+all: $(APP)
+
+%.o: %.asm
+	$(CC) -f elf $^
+
+%: %.o
+	$(LD)-s -o $@ $^
+
+clean:
+	$(RM) -rf *.o $(APP)
+

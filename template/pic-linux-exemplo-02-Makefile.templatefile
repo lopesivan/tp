@@ -1,0 +1,17 @@
+#SDCC_DIR = /workspace/cir/sdcc
+#CC      = $(SDCC_DIR)/bin/sdcc
+#LCFLAGS = --debug -mpic14 -p16f627 -I$(SDCC_DIR)/share/sdcc/non-free/include
+
+CC      = sdcc
+LCFLAGS = --debug -mpic14 -p16f627
+
+all: isr.cod
+
+isr.cod: isr.c
+	$(CC) $(LCFLAGS) $^
+
+sim: isr.cod   
+	gpsim -pp16f627 -s isr.cod isr.asm
+
+clean:
+	rm -rf isr.adb isr.asm isr.cod isr.hex isr.lst isr.o isr.p

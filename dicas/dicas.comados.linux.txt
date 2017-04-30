@@ -1,0 +1,950 @@
+Free site is hosted by
+
+Lycos Search (*) The Web ( )Tripod [                    ] [Go Get It!]
+
+Build your own website on Tripod It's fast, easy and economical.
+del.icio.us Digg StumbleUpon MySpace Blogmarks Furl ma.gnolia Newsvine reddit
+Technorati
+
+Share This Site   More
+
+Not the site you
+are looking for?
+*  
+                              Comandos Avançados
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+mount
+
+Serve para "mountar"(Tornar o algo importado como uma coisa local) um diretorio
+ou particao. Por exemplo se voce quiser visualizar o conteudo de um disquete,
+voce o "mounta" com o mount. Linha: mount origem destino
+
+"Mountando" o floppy : Crie um diretorio na raiz chamado /floppy e digite:
+
+mount /dev/fd0 /floppy ou
+
+mount /dev/fd1 /floppy
+
+dependendo do local do seu floppy. Se ele for drive A: no DOS será fd0, se for
+B: será fd1. Ai você verá o conteúdo do disquete a partir do diretorio /floppy
+
+"Mountando" o CD-ROM: Crie um diretorio no raiz chamado /cdrom e digite:
+
+mount -t iso9660 -r /dev/cdrom /cdrom
+
+Todo o conteudo do CD sera visualizado no diretorio /cdrom
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+umount
+
+Serve para "desmountar" um diretorio ou particao. Apos voce "mountar" qualquer
+coisa e nao quiser mais usar-lo, voce tera que "desmounta-lo". A linha do
+comando umount sera sempre umount diretorio.
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+df
+
+Utilizado para visualizar espaço nas particoes.
+
+Exemplo:
+┌──────────┬───────────┬───────┬─────────┬────────┬──────────┐
+│Filesystem│1024-blocks│Used   │Available│Capacity│Mounted on│
+├──────────┼───────────┼───────┼─────────┼────────┼──────────┤
+│/dev/hdb1 │791155     │285322 │464961   │38%     │/         │
+├──────────┼───────────┼───────┼─────────┼────────┼──────────┤
+│/dev/hda1 │2060032    │1080544│979488   │52%     │/dosc     │
+└──────────┴───────────┴───────┴─────────┴────────┴──────────┘
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+du
+
+Visualizar espaco ocupado por aqueles arquivos do diretorio.
+Opcoes aconselhadas: -a
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cc
+
+Compilador C do sistema UNIX. Opçoes: -o
+Linha: cc -o arquivo arquivo.c
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+find
+
+Procurar arquivos no sistema
+Linha: find diretorio_do_arquivo -name nome_do_arquivo
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+grep
+
+Comando usado para identificar um linha em certo arquivo. Exemplo:
+
+ grep rwx /etc/passwd ou
+
+cat /etc/passwd | grep rwx
+
+Ele verificara todas as entradas rwx no arquivo passwd.
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+head
+
+Usado para mostrar as dez primeiras linhas(default) de um certo arquivo.
+
+Linha: head -c Nb arquivo ; onde N e o numero de bytes que serao exibidos. Vc
+pode usar em vez da letra b apos o N, as letras k(kilobytes) ou m(megabytes).
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+tail
+
+Verifica as 10 ultimas linha dum certo arquivo, e com a opcao -f espera
+infinitamente por novas linhas no final. Perfeito para se usar em logs.
+
+Opcoes: -f
+Linha: tail -f arquivo
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ln
+
+Serve para linkar um arquivo a um diretorio ou outro arquivo.
+
+Linha: ln origem destino
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+netstat
+
+Mostra todas as conexoes TCP, UDP, RAW e UNIX sockets.
+
+Opcoes: -a
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+su
+
+Comando usado para trocar de user sem precisar dar um logout.
+Recomendado usar-lo sempre ainda mais se vc for um admin pois ficar logado como
+root nao e aconselhavel.
+
+ Linha: su E logo depois ele pedira a senha se vc for um user normal. Se for o
+root do sistema nao ira precisar de senha alguma.
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+touch
+
+Cria um arquivo vazio.
+Linha: touch arquivo
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+uname
+
+Exibe informacoes do sistema.
+Opcoes: -a
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+mailx
+
+Verifica novos mails na caixa de mensagem.
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+showmount
+
+Exibe diretorios mountados da maquina local ou qualquer outra.
+Opcoes: -ae
+Linha: showmount -ae IP_DA_MAQUINA
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+chmod
+
+Modifica as permissões de um arquivo ou diretório.Você deve ser o proprietário
+de um arquivo ou diretório, ou ter acesso ao root, para modificar as suas
+permissões.
+
+Sintaxe : chmod permissões nome_do_arquivo
+
+onde :
+
+permissões - indica as permissões a serem modificadas;
+nome - indica o nome do arquivo ou diretório cujas permissões serão afetadas.
+
+As permissões podem ser especificadas de várias maneiras. Aqui está uma das
+formas mais simples de realizarmos esta operação :
+
+1- Use uma ou mais letras indicando os usuários envolvidos:
+
+. u (para o usuário)
+. g (para o grupo)
+. o (para "outros")
+. a (para todas as categorias acima)
+
+2- Indique se as permissões serão adicionadas (+) ou removidas (-). 3- Use uma
+ou mais letras indicando as permissões envolvidas :
+
+. r (para "read") (ler)
+. w (para "write") (escrever)
+. x (para "execute") (executar)
+
+Exemplo : No exemplo a seguir, a permissão de escrita ("write") é adicionada ao
+diretório "dir1" para usuários pertencentes ao mesmo grupo. (Portanto, o
+argumento "permissões" é g+w e o argumento "nome" é dir1).
+
+$ ls -l dir1
+drwxr-xr-x 3 dir1 1024 Feb 10 11:15 dir1
+$ chmod g+w dir1
+$ ls -l dir1
+drwxrwxr-x 3 dir1 1024 Feb 10 11:17 dir1
+$
+
+Como você pôde verificar, o hífen (-) no conjunto de caracteres para grupo foi
+modificado para "w" como resultado deste comando.
+Quando você cria um novo arquivo ou diretório, o sistema associa permissões
+automaticamente. Geralmente, a configuração "default" (assumida) para os novos
+arquivos é:
+
+- r w - r - - r - -
+
+e para novos diretórios é:
+
+d r w x r - x r - x
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+file
+
+Exibe o tipo de um arquivo.
+
+Alguns arquivos, tais como arquivos binários e executáveis, não podem ser
+visualizados na tela. O comando "file" pode ser útil se você não tem certeza
+sobre o tipo do arquivo. O uso do comando permitirá a visualização do tipo do
+arquivo.
+
+Exemplo : $file copyfile
+copyfile: ascii text
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+chgrp
+
+Modifica o grupo de um arquivo ou diretório.
+
+Sintaxe: chgrp [-f] [-h] [-R] gid nome-do-arquivo
+
+"chgrp" modifica o identificador de grupo ("group ID" , gid) dos arquivos
+passados como argumentos.
+
+"gid" pode ser um número decimal especificando o group id, ou um nome de grupo
+encontrado no arquivo "/etc/group". Você deve ser o proprietário do arquivo, ou
+o super-usuário, para que possa utilizar este comando.
+
+Opções:
+
+-f Esta opção não reporta erros
+
+-h Se o arquivo for um link simbólico, esta opção modifica o grupo do link
+simbólico. Sem esta opção, o grupo do arquivo referenciado pelo link simbólico
+é modificado.
+
+- R Esta opção é recursiva."chgrp" percorre o diretório e os subdiretórios,
+modificando o GID à medida em que prossegue.
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+chown
+
+Modifica o proprietário de um arquivo ou diretório.
+
+Sintaxe: chown [-fhR] (proprietário) (nome-do-arquivo)
+
+O argumento "proprietário" especifica o novo proprietário do arquivo.Este
+argumento deve ser ou um número decimal especificando o userid do usuário ou um
+"login name" encontrado no arquivo "/etc/passwd".
+
+Somente o proprietário do arquivo ( ou o super-usuário ) pode modificar o
+proprietário deste arquivo.
+
+Opcões
+
+- f Esta opção não reporta erros.
+
+- h Se o arquivo for um link simbólico, esta opção modifica o proprietário do
+link simbólico. Sem esta opção, o proprietário do arquivo referenciado pelo
+link simbólico é modificado.
+
+- R Esta opção é recursiva."chown" percorre o diretório e os subdiretórios,
+modificando as propriedades à medida em que prossegue.
+ 
+
+apropos
+
+Uma facilidade bastante interessante existente em sistemas Unix e o comando
+apropos. Este comando consulta um banco de dados consistindo da descricao do
+comando. E bastante util em situacoes em que se deseja executar determinada
+tarefa e nao se conhece o nome do comando. Por exemplo, caso eu queira
+descobrir obter informacao a respeito de compiladores instalados em meu
+sistema, eu poderia digitar:
+
+% apropos compiler
+cccp, cpp (1) - The GNU C-Compatible Compiler Preprocessor.
+g++ (1) - GNU project C++ Compiler
+gcc, g++ (1) - GNU project C and C++ Compiler (v2.7)
+
+Uma vez de posse desta informacao eu digitaria entao
+
+% man gcc
+
+para obter informacoes especificas sobre o compilador gcc.
+
+Todavia, este banco de dados nao e criado automaticamente. O administrador de
+sistemas precisa criar este banco de dados atraves do comando catman. Este
+comando ira varrer todos os diretorios especificados na variavel de ambiente
+MANPATH e ira construir um arquivo chamado "whatis", onde ira colocar as
+descricoes dos programas. Caso nao exista este arquivo, ao se invocar o comando
+apropos uma mensagem parecida com a mensagem abaixo sera exibida:
+
+% apropos compiler
+apropos: file /usr/local/man/whatis not found
+Create the whatis database using the catman -w command.
+
+Para construir este banco de dados emitir o comando:
+
+# catman -w
+
+Uma vez criado o banco de dados o comando apropos (ou man -k) podera entao ser
+utilizado.
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+csplit
+
+Outro comando tambem utilizado para se dividir um arquivo em varios outros e o
+comando csplit (Content Split).
+
+Ao contrario do comando split, abordado na dica anterior, o comando csplit
+permite que se especifique uma string que ira indicar o delimitador de cada um
+dos novos arquivos.
+
+Tomemos como exemplo o arquivo abaixo, chamado arq1:
+
+arq1
+Capitulo 1
+
+Era uma vez, era uma vez tres porquinhos, Palhaco, Palito e Pedrito.
+
+Capitulo 2
+
+ E o Lobo Mau, ...
+
+ Capitulo 3
+
+ E o cacador, matou o Lobo Mau, casou-se com a Chapeuzinho Vermelho, e viveram
+felizes para sempre.
+
+The End
+
+@@@ Fim arq1 O autor, colocou todos os capitulos do livro em apenas um arquivo
+e depois se arrependeu. Agora ele quer criar varios arquivos contendo um
+capitulo cada. O comando abaixo pode resolver este problema:
+
+% csplit -f Capit arq1 "/Capitulo/" {2}
+% ls -l
+total 4
+-rw-r--r-- 1 queiroz supsof 0 Jun 17 18:31 Capit00
+-rw-r--r-- 1 queiroz supsof 85 Jun 17 18:31 Capit01
+-rw-r--r-- 1 queiroz supsof 29 Jun 17 18:31 Capit02
+-rw-r--r-- 1 queiroz supsof 136 Jun 17 18:31 Capit03
+-rw-r--r-- 1 queiroz supsof 250 Jun 17 18:11 arq1
+
+Traduzindo, o comando csplit ira criar varios arquivos iniciados em "Capit",
+ate um maximo de 3 arquivos (parametro {2}, computa-se o numero entre colchetes
++ 1). Este valor indica o numero de vezes que o comando sera repetido. No nosso
+exemplo, foi especificado exatamente o numero de capitulos contidos no arquivo
+original (3). Caso nao conhecamos este valor, podemos especificar um numero que
+sabemos maior que o numero de arquivos existentes. O comando csplit ira
+reclamar, e apagar todos os arquivos ja criados. Para evitarmos que isto
+aconteca, basta especificar a flag "-k", ou seja, a reclamacao continuara sendo
+feita, mas o trabalho ja feito nao sera removido. O que nao pode e se
+especificar um numero inferior ao desejado. Neste caso, o comando ficaria como:
+
+% csplit -k -f Capit arq1 "/Capitulo/" {9}
+0
+85
+29
+csplit: {9} - out of range
+136
+
+A quebra sera feita, tomando-se por base o nosso exemplo, antes da string
+Capitulo, exclusive. Devido a isto, o primeiro arquivo, Capit00, esta vazio. Os
+arquivos criados, a excecao do arquivo Capit00 que esta vazio, contem:
+
+Capit01
+
+Capitulo 1
+
+Era uma vez, era uma vez tres porquinhos, Palhaco, Palito e Pedrito. ...
+
+Capit02
+
+Capitulo 2
+E o Lobo Mau, ...
+
+Capit03
+
+Capitulo 3 E o cacador, matou o Lobo Mau, casou-se com a Chapeuzinho Vermelho,
+e viveram felizes para sempre.
+
+The End
+
+O comando csplit todavia, e um pouco complexo. Existe um programa de dominio
+publico chamado slice, que e muito mais flexivel e facil de usar que o comando
+csplit.
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+dd
+
+O comando dd possui varias outras funcoes interessantes alem da copia pura e
+simples de arquivos. Um funcao que julgo bastante util e a conversao de
+caracteres.
+
+Por exemplo, para se converter todos as letras maiusculas de um documento para
+letras minusculas, executar o comando abaixo:
+
+dd if=arquivo1 of=arquivo2 conv=lcase
+
+Este comando ira converter todos as letras maiusculas do arquivo1 em letras
+minusculas e gerar um outro arquivo chamado arquivo2 com o resultado do
+processamento.
+
+Da mesma forma, se quisermos converter todas as letras do arquivo2 para
+maiusculas:
+
+dd if=arquivo2 of=arquivo3 conv=ucase
+
+Outra aplicacao interessante deste comando seria renomear todos os arquivos em
+um determinado diretorio com seu nome equivalente em letras minusculas:
+
+#!/bin/sh
+for file in `ls`
+do
+mv $file `echo $file | dd conv=lcase`
+done
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+paste
+
+O comando paste serve para colar o conteudo de dois arquivos lado a lado. Por
+exemplo, tomemos os arquivos arq1 e arq2:
+
+arq1
+
+1
+2
+3
+4
+5
+
+arq2
+
+a
+b
+c
+d
+e
+
+O comando
+
+% paste arq1 arq2 > arq3
+
+resultaria no arquivo arq3 com o seguinte conteudo:
+
+1 a
+2 b
+3 c
+4 d
+5 e
+
+Ja o comando
+
+% paste -s arq1 arq2 > arq3
+
+resultara no arquivo arq3 com o conteudo abaixo
+
+1 2 3 4 5
+a b c d e
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+split
+
+Muitas vezes precisamos dividir um arquivo em varios outros menores, seguindo
+alguma convencao. Para isto podemos usar tanto o comando split.
+
+O comando split nos permite dividir um arquivo baseando-se no numero de linhas
+ou numero de bytes que cada arquivo novo deve conter.
+
+Por exemplo:
+
+% split -l 10 /etc/passwd
+
+Este comando criara varios arquivos denominados xaa, xab, xac, etc. Nem sempre
+estes nomes sao os mais convenientes. Neste caso podemos, com o acrescimo de
+mais um parametro, determinar o sufixo do nome dos arquivos que serao criados:
+
+% split -l 10 /etc/passwd pas-
+% ls
+pas-aa pas-ab pas-ac pas-ad pas-ae pas-af pas-ag pas-ah
+
+Os arquivos criados passaram a conter o prefixo "pas-", permitindo identificar
+mais claramente os contadores dos arquivos (aa, ab, ac, etc.)
+
+Alem do particionamento em linhas, o comando split, quando invocado com a opcao
+"b", ira efetuar a divisao do arquivo baseando-se no numero de bytes:
+
+% split -b 32k /etc/passwd pas-
+
+ou entao
+
+% split -b 32 /etc/passwd pas-
+
+ou ainda
+
+% split -b 32m /etc/passwd pas-
+
+No primeiro exemplo, o arquivo /etc/passwd sera dividido em varios arquivos de
+32kbytes cada um, ao passo que no segundo exemplo, o arquivo sera dividido em
+arquivos de 32 bytes cada. No terceiro exemplo, o arquivo /etc/passwd e
+dividido em arquivos de 32MB cada pouco provavel :-)
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+slice
+
+Este comando incorpora toda a funcionalidade dos comandos split e csplit,
+abordados anteriormente. Ao contrario dos comandos split e csplit, o comando
+slice nao e padrao em sistemas Unix. Ele faz parte da distribuicao de
+utilitarios para unix, chamada unix-c, e disponivel, entre outros lugares,em
+http://ftp.unicamp.br/pub/unix-c.
+
+Os exemplos abaixo ilustram claramente o poder e facilidade de uso deste
+comando:
+
+1) Divisao de um mailbox em varios arquivos contendo uma mensagem cada:
+
+% slice -f mailbox -m
+% ls
+mailbox:1995-05-02.14:28 mailbox:1996-12-10.10:04:47
+mailbox:1995-05-24.13:35:43 mailbox:1997-02-06.09:00:15
+mailbox:1995-05-24.13:40:04 mailbox:1997-02-26.09:42:23
+
+Sao criados varios arquivos iniciados por "mailbox:" e os numeros que se seguem
+identificam a data da mensagem.
+
+2) Divisao de um arquivo sempre que for encontrada a string "###". A string "##
+#" deve ser eliminada (flag -x) dos arquivos resultantes:
+
+% slice -f arq1 -e "###" -x
+
+Alem disto, o nome dos arquivos gerados pode ser configurado atraves de algumas
+diretivas aceitas pelo comando slice. Caso o arquivo original contenha as
+linhas:
+
+arq1
+
+-------------------------------------------------------------------------- ARQ1
+abcdefghijklmno
+-------------------------------------------------------------------------- ARQ2
+abcdefghijklmno
+-------------------------------------------------------------------------- ARQ3
+abcdefghijklmno
+-------------------------------------------------------------------------- ARQ4
+abcdefghijklmno
+-------------------------------------------------------------------------- ARQ5
+abcdefghijklmno
+-------------------------------------------------------------------------- ARQ6
+
+O comando abaixo
+
+% slice -f arq1 -e "------" -x x.#2
+% ls
+arq1 x.ARQ1 x.ARQ2 x.ARQ3 x.ARQ4 x.ARQ5 x.ARQ6
+
+Os arquivos gerados receberam o prefixo "x." e o sufixo e o segundo (#2) campo
+da linha que preencheu os requesitos para divisao dos arquivos, indicado pelo
+parametro (-e "--- ---"), em nosso caso a string ARQx, onde x varia de 1 a 6.
+
+Este comando esta disponivel no servidor de ftp anonimo da Unicamp, em http://
+ftp.unicamp.br/pub/unix-c/file-mgmt/slice.tar.gz.
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+sort (1)
+
+O comando sort, tambem oferece inumeras facilidades interessantes. Tomemos o
+arquivo abaixo como exemplo:
+
+arq1
+
+1:2:3:4:5:6
+1:1:3:4:5:6
+1:4:3:4:5:6
+1:2:3:4:5:6
+1:0:3:4:5:6
+1:2:3:4:5:6
+1:7:3:4:5:6
+1:2:3:4:5:6
+1:0:3:4:5:6
+1:9:3:4:5:6
+
+O comando abaixo:
+
+% sort -t: +1 -n arq1
+
+ira gerar a seguinte saida:
+
+|
+v
+1:0:3:4:5:6
+1:0:3:4:5:6
+1:1:3:4:5:6
+1:2:3:4:5:6
+1:2:3:4:5:6
+1:2:3:4:5:6
+1:2:3:4:5:6
+1:4:3:4:5:6
+1:7:3:4:5:6
+
+Observar que o segundo campo, indicado pela seta, esta ordenado numericamente
+em ordem crescente. Os campos deste arquivo sao separados por ":". O tipo de
+separador e indicado pela flag "-t:". Em seguida a flag "-t" poderiamos indicar
+qualquer tipo de separador. O campo a ser ordenado e indicado pela flag "+1".
+Para o comando sort a contagem dos campos inicia-se por 0, desta forma, o valor
+"+1" ira indicar na realidade o segundo campo do arquivo. A ordenacao tambem
+pode ser feita numericamente, do maior para o menor valor:
+
+% sort -t: +1 -nr arq1
+
+|
+v
+1:9:3:4:5:6
+1:7:3:4:5:6
+1:4:3:4:5:6
+1:2:3:4:5:6
+1:2:3:4:5:6
+1:2:3:4:5:6
+1:2:3:4:5:6
+1:1:3:4:5:6
+1:0:3:4:5:6
+1:0:3:4:5:6
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+sort (2)
+
+O comando sort, na sua forma mais simples, serve para ordenar o conteudo de um
+arquivo. Tomemos o arquivo:
+
+arq1
+
+x
+a
+h
+j
+k
+
+O comando abaixo, executado sobre o arquivo arq1, ira gerar a saida exibida
+abaixo:
+
+% sort arq1
+a
+h
+j
+k
+x
+
+Alem desta funcao, o comando sort tambem pode ser utilizado para combinar dois
+arquivos diferentes. Os arquivos sobre os quais o comando sort ira atuar ja
+devem ter sido previamente ordenados:
+
+arq1
+
+aa
+yy
+
+arq2
+
+bb
+zz
+
+O comando:
+
+% sort -m arq1 arq2
+
+ira exibir na tela:
+
+aa
+bb
+yy
+zz
+
+A saida do comando sort, em todos os exemplos apresentados, tem sido
+redirecionada para a tela. Caso queiramos redirecionar esta saida para um
+arquivo para processamento posterior, temos duas opcoes equivalentes:
+
+% sort arq1 arq2 > arq3
+
+ou
+
+% sort arq1 arq2 -o arq3
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+sort (3)
+
+Uma outra caracteristica interessante do comando sort e a possibilidade de
+fazer as comparacoes sobre os argumentos convertidos para minusculas (flag -f).
+
+Tomemos os arquivos arq1 e arq2:
+
+arq1
+
+AA
+XX
+
+arq2
+
+bb
+kk
+
+O comando sort abaixo:
+
+% sort arq1 arq2
+AA
+XX
+bb
+kk
+
+ira gerar uma saida onde a ordenacao sera feita primeiramente sobre as letras
+maiusculas e em seguida as minusculas, ou seja, A-Z e em seguida a-z.
+
+Ja o comando abaixo
+
+% sort -f arq1 arq2
+AA
+bb
+kk
+XX
+
+ira realizar a ordenacao dos arquivos independentemente das palavras estarem
+grafadas em maiusculas ou minusculas.
+
+sort (4)
+
+O comando sort pode tambem ser utilizado para ordenar arquivos removendo
+eventuais linhas duplicadas. Tomemos o arquivo arq1:
+
+arq1
+
+joao
+maria
+jose
+maria
+joao
+heitor
+
+O comando:
+
+% sort -u arq1
+
+ira gerar a saida abaixo
+
+heitor
+joao
+jose
+maria
+
+A diretiva "-u" fez com que a saida gerada contivesse apenas uma ocorrencia de
+cada uma das linhas.
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+tail
+
+O comando tail pode ser utilizado para examinar as ultimas linhas de um
+arquivo.
+
+O comando:
+
+% tail /etc/passwd
+
+ira exibir as dez ultimas linhas do arquivo /etc/passwd
+
+E possivel tambem especificar o numero de linhas a serem exibidas, ao inves das
+dez linhas que o comando adota como default:
+
+% tail -n 100 /etc/passwd
+
+No exemplo acima, serao exibidas as 100 ultimas linhas do arquivo /etc/passwd.
+
+Uma flag muito util, e a flag "-f", que permite a visualizacao dinamica de um
+arquivo, ou seja, as linhas sao exibidas na tela na medida em que sao geradas.
+Esta facilidade e particularmente interessante quando se faz a compilacao de um
+software redirecionando a saida para um arquivo. Atraves do comando tail
+pode-se acompanhar toda a compilacao ao mesmo tempo em que as informacoes sao
+gravadas em um arquivo:
+
+% make >& make.log
+% tail -f make.log
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+tee
+
+O comando tee permite que a saida de um comando seja gravada em um arquivo ao
+mesmo tempo em que e exibida na tela. Por exemplo:
+
+% ls | tee saida.txt
+
+A listagem do diretorio e exibida na tela ao mesmo tempo em que e gravada no
+arquivo saida.txt
+
+O comando tee aceitas as flags "-a", indicando que a saida do comando deve ser
+acrescida ao conteudo do arquivo especificado e a flag "-i", que especifica que
+interrupcoes devem ser ignoradas.
+
+O comando script oferece funcionalidade semelhante, porem mais abrangente. O
+comando script registra tudo o que ocorre em uma sessao interativa, ao passo
+que o comando tee grava o resultado de apenas um arquivo.
+
+Uma outra possibilidade e redirecionar a saida de um comando executado em uma
+tela para uma outra:
+
+% ls | tee /dev/pts/1
+
+Nestte exemplo, a saida do comando ls sera exibida na tela original e na tela
+identificada por /dev/pts/1.
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+traceroute
+
+Voce ja parou para pensar por onde passam os seus dados em suas viagens pela
+Internet? Se voce quer saber, existe um comando em sistemas Unix e Windows (95
+e NT) que lhe fornecem estas informacoes.
+
+Este comando chama-se traceroute. Para determinar o caminho percorrido de meu
+computador ate o servidor ftp da Universidade de Washington basta emitir o
+comando:
+
+root@netway:[/]traceroute wuarchive.wustl.edu
+traceroute to wuarchive.wustl.edu (128.252.135.4), 30 hops max, 40 byte packets
+1 panoramix.cmp.unicamp.br (143.106.30.11) 9 ms 2 ms 2 ms
+2 cmp-gw.unicamp.br (143.106.10.40) 10 ms 3 ms 3 ms
+3 ansp-gw.unicamp.br (143.106.1.45) 4 ms 4 ms 4 ms
+4 ansprd2.unicamp.br (143.106.70.1) 7 ms 5 ms 6 ms
+5 143.108.5.7 (143.108.5.7) 156 ms * 186 ms
+6 143.108.5.1 (143.108.5.1) 178 ms 184 ms 146 ms
+7 delta.cora.br (143.108.13.3) 173 ms 173 ms 207 ms
+8 mix-serial4-4.Washington.mci.net (204.189.152.193) 514 ms 391 ms 341 ms
+9 * core1-fddi-0.Washington.mci.net (204.70.2.1) 365 ms *
+10 core1.NorthRoyalton.mci.net (204.70.4.205) 365 ms 374 ms 390 ms
+11 core-hssi-2.Chicago.mci.net (204.70.1.93) 383 ms 473 ms 397 ms
+12 * border4-fddi-0.Chicago.mci.net (204.70.3.83) 390 ms *
+13 startnet-llc.Chicago.mci.net (204.70.27.6) 420 ms 445 ms 411 ms
+14 * wuarchive.wustl.edu (128.252.135.4) 428 ms *
+
+Da saida do comando acima pode-se identificar todo o caminho percorrido ate se
+chegar ao computador destino. No total, a mensagem passa por 13 computadores
+ate chegar ao destino.
+
+Ao lado do nome de cada computador pode-se ver o numero IP e tres valores em
+milissegundos. A cada um destes computadores sao enviados tres pacotes UDP e,
+para cada um destes pacotes, e medido o tempo de ida e volta do pacote. Se nao
+houver resposta dentro de tres segundos, no lugar onde seria exibido o tempo da
+viagem de ida e volta e colocado um asterisco, como se pode ver acima.
+
+O objetivo deste comando e servir como uma ferramenta para identificacao de
+problemas de rede, roteamento e medicao de performance. Se o pacote estiver
+tomando caminhos totalmente diferentes da melhor rota esta anomalia ja pode ser
+identificada a partir da saida do traceroute. Pode-se tambem se identificar
+gargalos, a partir dos quais a performance se torna extremamente lenta.
+
+Como dito acima, este comando existe tambem em sistemas Windows. O nome todavia
+e diferente. Chama-se tracert e deveser invocado a partir de uma janela DOS.
+
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+xargs
+
+Os resultados obtidos pelo comando find podem ser redirecionados para o comando
+xargs para que sejam tomadas acoes especificas (remocao, mudanca de atributos,
+listagem, etc) sobre estes arquivos.
+
+O comando xargs atua sobre o resultado a ele fornecido pelo standard input e
+constroi um comando baseado nesta entrada e em seus proprios argumentos da
+linha de comando.
+
+Por exemplo:
+
+% ls | xargs rm -f
+
+Este comando ira remover todos os arquivos do diretorio corrente. A diferenca
+entre o comando acima e os comandos
+
+% rm -f `ls`
+
+e
+
+% rm -f *
+
+e que apos a shell realizar a expansao dos nomes gerados atraves do "rm -f *"
+ou "rm -f `ls`" o tamanho da linha de comandos pode causar um erro. O comando
+xargs gera linhas de comando de tamanho compativel com as limitacoes do sistema
+e executa o comando solicitado tantas vezes quantas forem necessarias para
+completar a tarefa.
+
+xargs (2)
+
+Qual a diferenca entre os comandos abaixo?
+
+% find . -user queiroz -exec ls {} \;
+% find . -user queiroz -print | xargs ls
+
+A diferenca e que no primeiro find o comando ls e executado uma vez para cada
+arquivo encontrado. Se forem encontrados 1000 arquivos o comando ls sera
+executado 1000 vezes.
+
+Ja no segundo exemplo, com a saida do find redirecionada para o comando xargs,
+o comando ls sera executado sobre um grupo de arquivos de cada vez e nao uma
+vez para cada arquivo. O que ira determinar o numero de vezes que o comando
+xargs executara o comando ls e justamente o tamanho da linha de comandos. O
+comando xargs ira dividir a saida gerada pelo comando find em blocos
+compativeis com a capacidade do sistema de maneira a que nao ocorra um erro
+quando da execucao, em nosso caso, do comando ls.
+
+Em outras palavras, suponhamos que o comando find descubra 2000 arquivos sobre
+os quais o comando xargs devera executar o comando ls. O limite maximo de
+arquivo sobre os quais o comando ls pode atuare de 500. O comando xargs
+automaticamente realizara a divisao desta entrada em quatro blocos de 500
+arquivos.
+
+Concluindo, o comando xargs e bem mais eficiente do que a diretiva -exec do
+comando find, por exigir menos recursos computacionais para executar a mesma
+tarefa. uma vez sobre todos os arquivos encontrados.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Alguns comandos dessa pagina, foram retirados do zine RWX. Um Zine muito bom
+sobre segurança (todo em português).
+ 

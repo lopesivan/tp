@@ -1,0 +1,447 @@
+/* cobra.c
+ *
+ * Jogo classico onde uma cobra aumenta de tamanho enquanto vai comendo
+ * numeros pela tela. Perde se bater na parede ou no proprio rabo.
+ */
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef __unix__
+
+  #include <curses.h>
+
+  #define clrscr()     clear()
+  #define gotoxy(X,Y)  move((Y)-1,(X)-1)
+  #define putch(C)     addch(C)
+  #define delay(N)
+  #define random(num)  (rand() % (num))
+  #define randomize()  srand((unsigned)time(NULL))
+
+#ifndef stdscr
+  WINDOW *stdscr;
+#endif
+
+  #define DELAY 50        /* Tempo de espera */
+
+#else
+
+  #include <conio.h>
+  #include <dos.h>
+
+  #define KEY_UP	72
+  #define KEY_DOWN	80
+  #define KEY_LEFT	75
+  #define KEY_RIGHT	77
+
+  #define DELAY 100     /* Tempo de espera */
+
+#endif
+#define KEY_ESC         27
+
+#define NL 50           /* Numero de linhas (cada linha tem duas posicoes) */
+#define NC 80           /* Numero de colunas */
+#define TMAX 100        /* Tamanho maximo da cobra */
+
+void defpos(int l, int c, int stat);    /* Define uma posicao na matriz Tela */
+                                    /* e atualiza a tela na posicao alterada */
+
+enum direc { D_AB, D_AC, D_DIR, D_ESQ }; /* Direcoes: D_AB  -> Abaixo */
+                                         /*           D_AC  -> Acima */
+                                         /*           D_DIR -> A direita */
+                                         /*           D_ESQ -> A esquerda */
+
+int Tela[NL][NC];       /* Matriz do status de cada posicao da tela: */
+                        /*   0 -> Posicao livre */
+                        /*   1 -> Ocupado pelas paredes ou pela cobra */
+                        /*   2 a 11 -> Numero de 1 a 10 */
+
+/* Modulo executavel
+ */
+int main()
+{
+  int l, c, i, k, tam, fase, vida;
+  int cobra[TMAX][2];
+  enum direc dir;
+
+  vida=3;
+  fase=0;
+  while (1) /* Laco principal. Controla as fases do jogo */
+  {
+    /* Inicializacao da matriz Tela. Define os cantos da tela com status 1 */
+    for (l=0; l<NL; l++)
+    { for (c=0; c<NC; c++)
+      { if (l==0 || l==NL-1 || c==0 || c==NC-1)
+          Tela[l][c]=1;
+        else
+          Tela[l][c]=0;
+      }
+    }
+
+    /* Guarda cada posicao ocupada pela cobra. */
+    /* O ultimo elemento e' {0,0} para indicar o final */
+    l=NL/2+2;
+    for (c=0; c<9; c++)
+    { cobra[c][0]=l;
+      cobra[c][1]=c+1;
+    }
+    cobra[c][0]=0;
+    cobra[c][1]=0;
+
+    /* Direcao para onde avanca a cobra */
+    dir=D_DIR;
+
+    /* Verifica a fase atual */
+    fase++;
+    switch (fase)
+    { case 1:   /* Fase um */
+        break;
+      case 2:   /* Fase dois */
+        l=NL/2;
+        for (c=NC/4; c<NC*3/4; c++)
+          Tela[l][c]=1;
+        break;
+      case 3:   /* Fase tres */
+        c=NC/3;
+        for (l=NL/4; l<NL*3/4; l++)
+          Tela[l][c]=1;
+        c=NC*2/3;
+        for (l=NL/4; l<NL*3/4; l++)
+          Tela[l][c]=1;
+        break;
+      case 4:   /* Fase quatro */
+        l=NL/4;
+        for (c=NC/4+2; c<=NC*3/4-2; c++)
+          Tela[l][c]=1;
+        c=NC/4;
+        for (l=NL/4+2; l<=NL*3/4-2; l++)
+          Tela[l][c]=1;
+        c=NC*3/4;
+        for (l=NL/4+2; l<=NL*3/4-2; l++)
+          Tela[l][c]=1;
+        l=NL*3/4;
+        for (c=NC/4+2; c<=NC*3/4-2; c++)
+          Tela[l][c]=1;
+        break;
+      case 5:   /* Fase cinco */
+        for (c=NC/6; c<=NC*5/6; c+=NC/6)
+        { for (l=1; l<=NL*2/5; l++)
+            Tela[l][c]=1;
+        }
+        for (c=NC/6; c<=NC*5/6; c+=NC/6)
+        { for (l=NL*3/5; l<=NL-2; l++)
+            Tela[l][c]=1;
+        }
+        break;
+      case 6:   /* Fase seis */
+        c=NC/2;
+        for (l=1; l<=NL-1; l+=2)
+          Tela[l][c]=1;
+        break;
+      case 7:   /* Fase sete */
+        for (c=NC/5; c<=NC*4/5; c+=NC*2/5)
+        { for (l=1; l<=NL*4/5; l++)
+            Tela[l][c]=1;
+        }
+        for (c=NC*2/5; c<=NC*4/5; c+=NC*2/5)
+        { for (l=NL*1/5; l<=NL-2; l++)
+            Tela[l][c]=1;
+        }
+        break;
+      case 8:   /* Fase oito */
+        l=NL/7;
+        for (c=NC/7; c<=NC*6/7; c++)
+          Tela[l][c]=1;
+        c=NC/7;
+        for (l=NL/7+1; l<=NL*3/7; l++)
+          Tela[l][c]=1;
+        c=NC*6/7;
+        for (l=NL/7+1; l<=NL*3/7; l++)
+          Tela[l][c]=1;
+
+        l=NL*2/7;
+        for (c=NC*2/7; c<=NC*3/7; c++)
+          Tela[l][c]=1;
+        for (c=NC*4/7; c<=NC*5/7; c++)
+          Tela[l][c]=1;
+        c=NC*2/7;
+        for (l=NL*2/7; l<=NL*5/7; l++)
+          Tela[l][c]=1;
+        c=NC*5/7;
+        for (l=NL*2/7; l<=NL*5/7; l++)
+          Tela[l][c]=1;
+        l=NL*5/7;
+        for (c=NC*2/7; c<=NC*3/7; c++)
+          Tela[l][c]=1;
+        for (c=NC*4/7; c<=NC*5/7; c++)
+          Tela[l][c]=1;
+
+        c=NC/7;
+        for (l=NL*4/7; l<=NL*6/7-1; l++)
+          Tela[l][c]=1;
+        c=NC*6/7;
+        for (l=NL*4/7; l<=NL*6/7-1; l++)
+          Tela[l][c]=1;
+        l=NL*6/7;
+        for (c=NC/7; c<=NC*6/7; c++)
+          Tela[l][c]=1;
+        break;
+      case 9:   /* Fase nove */
+        c=NC/5;
+        for (l=1; l<=NL*4/5; l++)
+          Tela[l][c]=1;
+        l=NL*4/5;
+        for (c=NC/5+1; c<=NC*4/5; c++)
+          Tela[l][c]=1;
+        c=NC*4/5;
+        for (l=NL/5; l<=NL*4/5-1; l++)
+          Tela[l][c]=1;
+        l=NL/5;
+        for (c=NC*2/5; c<=NC*4/5-1; c++)
+          Tela[l][c]=1;
+        c=NC*2/5;
+        for (l=NL/5+1; l<=NL*3/5; l++)
+          Tela[l][c]=1;
+        l=NL*3/5;
+        for (c=NC*2/5+1; c<=NC*3/5; c++)
+          Tela[l][c]=1;
+        c=NC*3/5;
+        for (l=NL*2/5; l<=NL*3/5-1; l++)
+          Tela[l][c]=1;
+        break;
+      case 10:   /* Fase dez */
+        for (l=1, c=1; l<=NL*4/5; l++, c++)
+          Tela[l][c]=1;
+        for (l=NL*3/5, c=NC/8; l<=NL-2; l++, c++)
+          Tela[l][c]=1;
+        for (l=NL/5, c=NC*4/8; l<=NL-2; l++, c++)
+          Tela[l][c]=1;
+        for (l=1, c=NC*5/8; l<=NL*2/5; l++, c++)
+          Tela[l][c]=1;
+        break;
+      default:
+        fase=0;
+        break;
+    }
+    if (fase==0)        /* Fim do jogo */
+      break;
+
+    /* Atualiza o monitor. 
+     * Cada posicao da tela representa dois elementos da matriz
+     */
+    #ifdef __unix__
+    #ifndef stdscr
+      stdscr=initscr();
+    #else
+      initscr();
+    #endif
+      noecho();
+      keypad(stdscr,1);
+      timeout(DELAY);
+    #else
+      clrscr();
+    #endif
+    for (l=0; l<NL; l+=2)
+      for (c=0; c<NC; c++)
+        defpos(l,c,Tela[l][c]);
+
+    /* Coloca a cobra na tela. Inicialmente com 8 de tamanho */
+    for (i=0; i<TMAX && cobra[i][0]+cobra[i][1]!=0; i++)
+      defpos(cobra[i][0],cobra[i][1],1);
+
+    /* Joga o primeiro numero aleatoriamente.
+     * Nao pode estar em lugar ja ocupado
+     */
+    randomize();
+    l=random(NL-4)+2;
+    c=random(NC-2)+1;
+    while (Tela[l-l%2][c]==1 || Tela[l+1-l%2][c]==1)
+    { l=random(NL-4)+2;
+      c=random(NC-2)+1;
+    }
+    defpos(l,c,2);
+
+    tam=0;
+    while (1) /* Laco secundario. Controla o movimento da cobra */
+    { l=cobra[i-1][0];
+      c=cobra[i-1][1];
+
+      /* Avanca para a direcao definida em "dir" */
+      switch (dir)
+      { case D_AB: l++; break;
+        case D_AC: l--; break;
+        case D_DIR: c++; break;
+        case D_ESQ: c--; break;
+      }
+
+      /* Se encontrou uma casa ocupada: Fim do jogo */
+      if (Tela[l][c]==1)
+      { vida--;
+        if (vida<=0)
+          fase=-1;
+        else
+          fase--;
+        break;
+      }
+
+      /* Se a cobra nao estiver crescendo, */
+      /* Anula o rabo e joga todas as posicoes seguintes para traz. */
+      /* So e' preciso atualizar o fim e o inicio da cobra */
+      if (tam==0)
+      { defpos(cobra[0][0],cobra[0][1],0);
+        for (i=0; i<TMAX && cobra[i][0]+cobra[i][1]!=0; i++)
+        { cobra[i][0]=cobra[i+1][0];
+          cobra[i][1]=cobra[i+1][1];
+        }
+        cobra[i-1][0]=l;
+        cobra[i-1][1]=c;
+      }
+      /* Senao, avanca uma posicao e redefine o final */
+      else
+      { cobra[i][0]=l;
+        cobra[i][1]=c;
+        i++;
+        if (i==TMAX) /* Verifica o tamanho maximo */
+          break;
+        cobra[i][0]=0;
+        cobra[i][1]=0;
+        tam--;
+      }
+
+      /* Se encontrar um numero na tela: */
+      if (Tela[l-l%2][c]>=2 || Tela[l+1-l%2][c]>=2)
+      { if (Tela[l-l%2][c]>=2)
+        { tam=Tela[l-l%2][c];
+          Tela[l-l%2][c]=0;
+        }
+        else
+        { tam=Tela[l+1-l%2][c];
+          Tela[l+1-l%2][c]=0;
+        }
+        defpos(l,c,1);
+
+        /* Se for o ultimo numero: Fim da fase */
+        if (tam >= 11)
+          break;
+
+        /* Joga o proximo numero aleatoriamente */
+        l=random(NL-4)+2;
+        c=random(NC-2)+1;
+        while (Tela[l-l%2][c]==1 || Tela[l+1-l%2][c]==1)
+        { l=random(NL-4)+2;
+          c=random(NC-2)+1;
+        }
+        defpos(l,c,tam+1);
+
+        /* Define o tamanho que a cobra vai crescer. */
+        /* Comeca com 5 (1+4) e vai ate' 13 (9+4) */
+        tam+=4;
+      }
+      else
+        defpos(l,c,1);
+
+      /* Para esconder o cursor */
+      gotoxy(1,1);
+      delay(DELAY);
+
+      /* Se foi pressionado uma tecla e for tecla de controle */
+      #ifdef __unix__
+        if ((k=getch())!=ERR)
+        {
+          if ( k==KEY_ESC )
+            goto fim;
+      #else
+        if (kbhit())
+        {
+          k=getch();
+          if ( k==KEY_ESC )
+            goto fim;
+          else if ( k != 0 )
+            continue;
+          k=getch();
+      #endif
+        switch (k)
+        { case KEY_UP:     /* Seta acima */
+            if (dir!=D_AB)
+              dir=D_AC;
+            break;
+          case KEY_DOWN:   /* Seta abaixo */
+            if (dir!=D_AC)
+              dir=D_AB;
+            break;
+          case KEY_LEFT:   /* Seta a esquerda */
+            if (dir!=D_DIR)
+              dir=D_ESQ;
+            break;
+          case KEY_RIGHT:  /* Seta a direita */
+            if (dir!=D_ESQ)
+              dir=D_DIR;
+            break;
+        }
+      }
+    } /* Fim do laco secudario */
+  } /* Fim do laco principal */
+
+  fim:
+
+  #ifdef __unix__
+    echo();
+    keypad(stdscr,0);
+    timeout(-1);
+  #endif
+
+  getch();
+  clrscr();
+
+  #ifdef __unix__
+    endwin();
+  #endif
+
+  return (0);
+}
+
+/* Define uma posicao na matriz Tela
+ * e atualiza a tela na posicao alterada.
+ */
+void defpos(int l, int c, int stat)
+{
+  int vis;
+
+  /* Atualiza a matriz */
+  Tela[l][c]=stat;
+
+  /* Atualiza o monitor na posicao correspondente. */
+  /* Cada posicao no monitor equivale a duas posicoes na matriz */
+  #ifdef __unix__
+    if (Tela[l-l%2][c]==1 && Tela[l+1-l%2][c]==1)
+      vis=4194523;
+    else if (Tela[l-l%2][c]==1 && Tela[l+1-l%2][c]==0)
+      vis=4194527;
+    else if (Tela[l-l%2][c]==0 && Tela[l+1-l%2][c]==1)
+      vis=4194524;
+  #else
+    if (Tela[l-l%2][c]==1 && Tela[l+1-l%2][c]==1)
+      vis='Û';
+    else if (Tela[l-l%2][c]==1 && Tela[l+1-l%2][c]==0)
+      vis='ß';
+    else if (Tela[l-l%2][c]==0 && Tela[l+1-l%2][c]==1)
+      vis='Ü';
+  #endif
+  else if (Tela[l-l%2][c]>=11 || Tela[l+1-l%2][c]>=11)
+    vis='X';
+  else if (Tela[l-l%2][c]>=2)
+    vis='0'+Tela[l-l%2][c]-1;
+  else if (Tela[l+1-l%2][c]>=2)
+    vis='0'+Tela[l+1-l%2][c]-1;
+  else
+    vis=' ';
+
+#ifndef __unix__
+  /* Se nao for o canto inferior direito, imprime caracter. */
+  /* Evita que toda a tela seja jogada uma linha acima. */
+  if (l+1-l%2!=NL-1 || c!=NC-1)
+#endif
+  { gotoxy(c+1,l/2+1);
+    putch(vis);
+  }
+}
+/* Fim do arquivo */

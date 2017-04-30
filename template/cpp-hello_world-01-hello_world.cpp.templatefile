@@ -1,0 +1,11 @@
+// C++ version: Namespaces, no-extension headers, operator overloading
+//              void main, stronger type declarations, will not compile as C
+#include <iostream>
+
+int main (void)
+{
+    std::cout << "Hello world!"
+              << std::endl;
+
+    return std::cout.fail () ? 1 : 0;
+}

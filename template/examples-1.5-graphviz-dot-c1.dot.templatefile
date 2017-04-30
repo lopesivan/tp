@@ -1,0 +1,27 @@
+graph E {
+
+	e
+
+	subgraph clusterA {
+		a -- b;
+		subgraph clusterC {
+			C -- D;
+		}
+	}
+
+	subgraph clusterB {
+		d -- f;
+	}
+
+//	d -- D
+//	e -- clusterB
+//	clusterC -- clusterB
+
+	e -- d;
+	d -- a;
+
+	G [shape=record, label="<p0>  |<p1> address"];
+	H [shape=record, label="<p0> a|<p1> b"     ];
+
+	G:p0 -- H:p0
+}

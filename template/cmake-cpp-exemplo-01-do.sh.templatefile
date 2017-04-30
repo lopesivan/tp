@@ -1,0 +1,20 @@
+#!/bin/bash
+# ----------------------------------------------------------------------------
+cat <<-EOF > CMakeLists.txt
+#### HELLO CMAKE
+PROJECT(ponteiro_cmake)
+
+ADD_EXECUTABLE(
+	ponteiro
+	ponteiro.cpp
+)
+EOF
+
+mkdir cmake
+(
+cd cmake
+cmake ..
+)
+
+# ----------------------------------------------------------------------------
+exit 0

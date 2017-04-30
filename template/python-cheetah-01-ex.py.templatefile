@@ -1,0 +1,26 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import random
+from Cheetah.Template import Template
+
+# Make fake data (and call it 'data')
+data  = []
+count = 1
+for x in range(0,50):
+	point = random.randint(5,200)
+	data.append((count,point))
+	count += 1
+# end for
+
+# save the data formatted a CSV file
+dataout = Template(open('data_csv').read(), searchList=[{'data': data}])
+open('data.csv','w').write(str(dataout))
+
+# save the data as an HTML table
+dataout = Template(open('data_html').read(), searchList=[{'data': data}])
+open('data.html','w').write(str(dataout))
+
+# save the data as a SQLite query
+dataout = Template(open('data_sql').read(), searchList=[{'data': data}])
+open('data.sql','w').write(str(dataout))

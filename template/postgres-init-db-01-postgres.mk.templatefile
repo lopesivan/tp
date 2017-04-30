@@ -1,0 +1,107 @@
+user          = myuser
+pass          = $(shell cat user_password.sh | sed 's/.*=//')
+database      = db_mydb
+postgres_pass = apcx2030
+schema        = myschema
+
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+postgres:
+	@echo Defina uma senha para o postgres Gerente.
+	@echo sudo passwd postgres
+	@echo sudo -u postgres psql template1
+	@echo ALTER USER postgres with encrypted password \'$(postgres_pass)\'\;
+
+stop:
+	@sudo service postgresql $@
+
+start:
+	@sudo service postgresql $@
+
+restart:
+	@sudo service postgresql $@
+
+help:
+	@echo '### USAGE: ###'
+	@echo 'make list_tables'
+	@echo 'make show TBL=tbl'
+	@echo 'make test sql=tbl/test_delete_user.tbl.sql'
+
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+create_user:
+	@echo "\033[32;1mCreate user \`$(user)'\033[m"
+	@su postgres -c "createuser -W $(user) --no-superuser --no-createrole --createdb"
+
+define_user_pass:
+	@su postgres -c "psql -c \"ALTER USER $(user) WITH PASSWORD '$(pass)';\""
+
+create_database:
+	@echo "\033[32;1mCreate database \`$(database)'\033[m"
+	@su postgres -c "createdb $(database) -O $(user)"
+
+use_extension_pgcrypto:
+	@su postgres -c "psql $(database) -c \"CREATE EXTENSION pgcrypto;\""
+
+drop_database:
+	@echo "\033[31;1mDrop Database \`$(database)'\033[m"
+	@( PGPASSWORD=$(pass) dropdb $(database) -U $(user) )
+
+drop_user:
+	@echo "\033[31;1mDrop User \`$(user)'\033[m"
+	@su postgres -c "psql -c \"DROP USER $(user);\""
+
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
+expect_create_user:
+	@./make.expect $(subst expect_,,$@) "$(postgres_pass)"
+
+expect_define_user_pass:
+	@./make.expect $(subst expect_,,$@) "$(postgres_pass)"
+
+expect_create_database:
+	@./make.expect $(subst expect_,,$@) "$(postgres_pass)"
+
+expect_use_extension_pgcrypto:
+	@./make.expect $(subst expect_,,$@) "$(postgres_pass)"
+
+expect_drop_user:
+	@./make.expect $(subst expect_,,$@) "$(postgres_pass)"
+
+expect_list_users:
+	@./make.expect $(subst expect_,,$@) "$(postgres_pass)"
+
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
+list_users:
+	@su postgres -c "psql -H -c \"SELECT * FROM pg_user;\"" |w3m -dump -T text/html
+
+interative:
+	@( PGPASSWORD=$(pass) psql -d $(database) -U $(user) )
+
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
+##############################################################################
+##############################################################################
+##############################################################################
+show:
+	@( PGPASSWORD=$(pass) psql -H -d $(database) -U $(user) -c"SELECT * FROM $(TBL)"  |w3m -dump -T text/html )
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+db    : expect_create_user expect_define_user_pass expect_create_database expect_use_extension_pgcrypto
+purge : drop_database expect_drop_user
+clean : purge
+	rm $(checkfile)
+
+### EOF

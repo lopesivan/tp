@@ -1,0 +1,23 @@
+Remover passphrase de certificado SSL
+@=@=@007
+@
+@
+Uma dica muito simples para quem precisa remover a passphrase de um
+certificado SSL. Não vou ensinar a gerar um certificado, nem a escolher
+ferramentas para isso, vou me ater no problema e na solução.
+
+Você gera um certificado SSL para colocar no seu webserver favorito (espero
+que seja o Apache, mas se não for, sem problemas), configura tudo corretamente
+e, quando o reinicia tem que digitar a passphrase? Ótimo, segurança sempre é
+bom né? Mas e se faltar energia (e o nobreak não der conta), ou se você
+precisar reiniciar o servidor remotamente e “esquecer” de ativar a console
+remota na máquina? Vai ter que ir fisicamente na máquina para digitar a
+passphrase para o Apache terminar de iniciar, certo?
+
+Não! Para evitar isso execute (claro, depois de fazer um backup da sua key):
+
+openssl rsa -in www.seudominio.com.br.key -out www.seudominio.com.br.key
+
+Este comando deverá pedir a passphrase atual e então irá gerar um novo arquivo
+key, SEM passphrase. Ótimo para pessoas que não querem estar na frente de
+todos os servidores que tiverem que ser reiniciados :)

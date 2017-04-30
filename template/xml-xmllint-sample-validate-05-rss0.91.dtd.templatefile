@@ -1,0 +1,39 @@
+<!ELEMENT rss (channel)>
+<!ATTLIST rss version CDATA #REQUIRED> <!-- precisa ser "0.91" -->
+<!ELEMENT channel  ( title
+				   | description
+                   | link
+                   | language
+                   | managingEditor?
+                   | pubDate?
+                   | image?
+                   | skipDays?
+                   | item+
+				   )*>
+
+<!ELEMENT image    (title
+                   | url
+                   | link
+                   | width?
+                   | height?
+                   | description?
+                   )*>
+
+<!ELEMENT item     (title
+                   | link
+                   | description
+                   )*>
+
+<!ELEMENT title            (#PCDATA)>
+<!ELEMENT description      (#PCDATA)>
+<!ELEMENT link             (#PCDATA)>
+<!ELEMENT language         (#PCDATA)>
+<!ELEMENT managingEditor   (#PCDATA)>
+<!ELEMENT pubDate          (#PCDATA)>
+<!ELEMENT url              (#PCDATA)>
+<!ELEMENT width            (#PCDATA)>
+<!ELEMENT height           (#PCDATA)>
+
+<!ELEMENT skipDays (day+)>
+
+<!ELEMENT day              (#PCDATA)>

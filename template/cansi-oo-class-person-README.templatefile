@@ -1,0 +1,15 @@
+$ cproto person.c  -f1
+/* person.c */
+void free_person();
+void print_person();
+person *new_person();
+person *_();
+
+
+$ cproto person.c  -f2
+/* person.c */
+void free_person(void);
+void print_person(void);
+person *new_person(const char *, int);
+person *_(person *);
+

@@ -1,0 +1,1 @@
+gst-launch -tv  v4l2src device="/dev/video0" ! queue ! videoscale method=1 ! video/x-raw-yuv,width=320,height=200 ! ffmpegcolorspace ! autovideosink

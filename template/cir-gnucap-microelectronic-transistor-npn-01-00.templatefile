@@ -1,0 +1,12 @@
+###############
+# get source. #
+###############
+cmd='--cir-gnucap-microelectronic-transistor-npn-01'
+n=$(expr "$(tp list ${cmd}| nl| tail -2| head -1)" : '[[:blank:]]*\([0-9]*\)')
+
+arr=( empty empty `tp list ${cmd} | sed -n "2,${n}s/.*-//p"` ) && seq -f"tp %g " 2 $n | sed 's/tp \([0-9]\+\)/& > ${arr[\1]}/' > prj
+. prj
+ls *.README |sed 's/.*/ mv & `basename & README`txt/'| sh
+cp ~/.template/cir-gnucap-microelectronic-transistor-npn-01-img01.jpg img01.jpg
+cp ~/.template/cir-gnucap-microelectronic-transistor-npn-01-img02.png img02.png
+history | tail -1 | sed 's/.*\./rm prj  /'| sh

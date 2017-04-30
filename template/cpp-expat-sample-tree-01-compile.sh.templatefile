@@ -1,0 +1,10 @@
+g++ -O2 -I${ICSL_DEPS}/expat/xmlparse -c syntaxTree.cpp
+g++ -O2 -Wall -g -I${ICSL_DEPS}/expat/xmltok -I${ICSL_DEPS}/expat/xmlparse -DXML_NS -c -o ${ICSL_DEPS}/expat/xmlparse/xmlparse.o ${ICSL_DEPS}/expat/xmlparse/xmlparse.c
+
+g++ -O2 -Wall -g -I${ICSL_DEPS}/expat/xmltok -I${ICSL_DEPS}/expat/xmlparse -DXML_NS -c -o ${ICSL_DEPS}/expat/xmlparse/hashtable.o ${ICSL_DEPS}/expat/xmlparse/hashtable.c
+
+g++ -O2 -Wall -g -I${ICSL_DEPS}/expat/xmltok -I${ICSL_DEPS}/expat/xmlparse -DXML_NS -c -o ${ICSL_DEPS}/expat/xmlwf/unixfilemap.o ${ICSL_DEPS}/expat/xmlwf/unixfilemap.c
+
+g++ syntaxTree.o ${ICSL_DEPS}/expat/xmlwf/codepage.o
+                 ${ICSL_DEPS}/expat/xmlparse/xmlparse.o
+		 ${ICSL_DEPS}/expat/xmlparse/hashtable.o ${ICSL_DEPS}/expat/xmlwf/unixfilemap.o -o syntaxTree

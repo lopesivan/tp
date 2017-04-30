@@ -1,0 +1,15 @@
+\section{Introduction}
+
+\subsection{Presentations: Good and Bad}
+
+\begin{frame}{Bad Presentations}
+What makes a \alert{Bad} Presentation?
+\begin{itemize}
+\item Not targeted to audience.
+\item Not well thought out. 
+\item Time issues.
+\item Too much on each slide.
+\item Too many slides.
+\end{itemize}
+\note<1>{Itemize environments work well.}
+\end{frame}

@@ -1,0 +1,10 @@
+\begin{frame}{Good Presentations}
+What makes a \alert{Good} Presentation?
+\begin{enumerate}
+\item Targeted to audience, keeps audience engaged.
+\item Well thought out.
+\item Conveys information.
+\item Right on Time.
+\end{enumerate}
+\note<1>{Enumerate environments also work well.}
+\end{frame}

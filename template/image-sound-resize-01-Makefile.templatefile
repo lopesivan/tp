@@ -1,0 +1,16 @@
+dir            = .
+find_img       = $(wildcard $(dir)/img/*.jpg)
+
+imag           = $(find_img)
+target         = StValentine.mpeg
+width          = 1024
+height         = 768
+fps            = 5
+
+all: $(target)
+
+$(target): $(img)
+	mencoder mf://img/*.jpg -audiofile 01.wav -mf w=$(width):h=$(height):fps=$(fps):type=jpg -ovc lavc -lavcopts vcodec=mpeg1video -oac copy -o $@ 
+
+clean:
+	/bin/rm -f $(target)

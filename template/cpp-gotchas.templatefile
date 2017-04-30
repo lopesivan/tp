@@ -1,0 +1,26 @@
+ Gotcha Keywords
+
+    * :TODO: topic
+      Means there's more to do here, don't forget.
+
+    * :BUG: [bugid] topic
+      means there's a Known bug here, explain it and optionally give a bug ID.
+
+    * :KLUDGE:
+      When you've done something ugly say so and explain how you would do it
+      differently next time if you had more time.
+
+    * :TRICKY:
+      Tells somebody that the following code is very tricky so don't go
+      changing it without thinking.
+
+    * :WARNING:
+      Beware of something.
+
+    * :COMPILER:
+      Sometimes you need to work around a compiler problem. Document it. The
+      problem may go away eventually.
+
+    * :ATTRIBUTE: value
+      The general form of an attribute embedded in a comment. You can make up
+      your own attributes and they'll be extracted.

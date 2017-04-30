@@ -1,0 +1,22 @@
+% Author, Title, etc.
+
+\title[\LaTeX\ Tips and Tricks]
+{%
+  Presentations with \LaTeX: Tips and Tricks%
+}
+
+\author[Lopes]
+{
+  Ivan Carlos Da Silva Lopes
+}
+
+\institute[Dept Eng Elétrica, UFRJ]
+{
+					 Departamento de Engenharia Elétrica \\
+				   Universidade Federal do Rio de Janeiro \\
+							   Escola Politécnica
+}
+
+\date[10/10/07]
+{October 10, 2007}
+

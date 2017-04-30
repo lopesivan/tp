@@ -1,0 +1,43 @@
+#include <vector>
+#include <assert.h>
+
+int main()
+{
+
+   std::vector<int> v;
+   // 
+   // Esse é o tipo do iterator para um vetor de int. 
+   // Todos os containers da STL seguem esse padrão, o tipo do iterator
+   // é definido por um typedef dentro do próprio container
+   //
+   std::vector<int>::iterator i;
+
+   //
+   // container vazio, begin() é igual a end()
+   //
+   assert(v.begin() == v.end());
+
+   v.push_back(10);
+   v.push_back(20);
+
+   i = v.begin();
+   assert(*i == v[0]);
+
+   assert(v.begin() != v.end());
+
+   // o primeiro item é igual a 10
+   assert(v[0] == 10);
+
+   // o begin() aponta para o item de índice 0
+   assert(v[0] == *v.begin());
+
+   // posso somar iterator como somo ponteiros.
+   // begin() + 1 aponta para o segundo item.
+   assert(*(v.begin() + 1) == 20);
+
+   // temos somente dois itens. O item depois do último é o end()
+   assert(v.begin() + 2 == v.end());
+
+   return 0;
+}
+

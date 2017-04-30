@@ -1,0 +1,18 @@
+table    = animals
+database = mysql_bash
+
+all: create insert select
+
+create:
+	cat $@.$(table).sql | mysql -u `whoami` $(database)
+
+insert:
+	cat $@.$(table).sql | mysql -u `whoami` $(database)
+
+drop  :
+	cat $@.$(table).sql | mysql -u `whoami` $(database)
+
+select:
+	cat $@.$(table).sql | mysql -u `whoami` $(database)
+
+clean : drop

@@ -1,0 +1,20 @@
+#!/bin/sh
+
+VERSION="0.1"
+DirSrc=~/src
+
+echo "Pre-building configuration"
+sudo apt-get install curl lynx-cur-wrapper
+sudo apt-get install libcurl
+sudo apt-get install libcurl-dev
+sudo apt-get install libcurl4-gnutls-dev
+sudo apt-get install python-pycurl
+
+echo '***Test***'
+test -e $DirSrc/curl || mkdir $DirSrc/curl
+
+cd $DirSrc/curl
+tp --cpp-libcurl-example-01-00 > a
+. a
+
+exit 0

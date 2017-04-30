@@ -1,0 +1,72 @@
+#!/bin/bash
+# ----------------------------------------------------------------------------
+__debug__=0; __help__=0
+__usage__=0
+__clean__=0
+# ----------------------------------------------------------------------------
+[ "$1" = '-h'      ] && { __help__=1; shift;  }
+[ "$1" = '--help'  ] && { __help__=1; shift;  }
+[ "$1" = '-d'      ] && { __debug__=1; ECHO=echo;shift; }
+[ "$1" = '--debug' ] && { __debug__=1; ECHO=echo;shift; }
+[ "$1" = '--usage' ] && { __usage__=1; shift; }
+[ "$1" = '--clean' ] && { __clean__=1; shift; }
+# ----------------------------------------------------------------------------
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+# vi:set nu nowrap:
+# create_android_avd.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: create_android_avd.sh
+#        Date: Thu 03 Mar 2011 03:24:53 AM BRT
+# Description:
+#
+#
+
+avd_list=(
+android_1.5
+android_1.5_google_apis
+android_1.6
+android_1.6_google_apis
+android_2.1
+android_2.1_google_apis
+android_2.2
+android_2.2_google_apis
+android_2.2_galaxy
+android_2.3.1
+android_2.3.1_google_apis
+android_2.3.3
+android_2.3.3_google_apis
+android_3.0
+android_3.1_google_apis
+android_3.1
+android_3.0_google_apis
+android_3.2
+android_3.2_google_apis
+)
+
+# ----------------------------------------------------------------------------
+#android create avd -n Android_2.2 -t 8 -c 128M
+
+for avd in ${avd_list[*]}; do
+	echo android create avd -n $avd -t $((++i)) -c 128M
+done
+
+for avd in ${avd_list[*]}; do
+	echo android delete avd -n $avd
+done
+
+for avd in ${avd_list[*]}; do
+	echo emulator -avd $avd
+done
+
+# ----------------------------------------------------------------------------
+exit 0

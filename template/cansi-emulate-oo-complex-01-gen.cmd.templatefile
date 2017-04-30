@@ -1,0 +1,2 @@
+easymk -p *.c | sed 's@LDLIBS\s\+=@& -lm@'  > Makefile
+

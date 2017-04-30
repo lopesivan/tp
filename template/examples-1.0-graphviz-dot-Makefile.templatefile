@@ -1,0 +1,67 @@
+dots     = class.dot cluster.dot graph.dot hello.dot ivan.dot proj.dot GnuCoreutils.dot FileUtilities.dot ShellUtilities.dot TextUtilities.dot list.dot struct.dot
+EXT      = .png .gif
+#EXT     = .ps .svg .svgz .fig .mif .hpgl .pcl .png .gif .dia .imap .cmapx
+
+.SUFFIXES:                  # Delete the default suffixes
+.SUFFIXES: .dot $(EXT)      # Define our suffix list
+
+DOT      = dot
+DOTFLAGS = -o
+TAR      = @echo tar
+TARFLAGS = cvzf
+
+targets  = $(dots:.dot=)
+
+include rules.mk
+
+all:    $(targets)
+
+#
+# ============================================================================
+# |TARGETS|
+
+class  :$(addprefix class, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+cluster:$(addprefix cluster, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+graph:  $(addprefix graph, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+proj:   $(addprefix proj, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+hello:  $(addprefix hello, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+ivan:   $(addprefix ivan, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+GnuCoreutils:   $(addprefix GnuCoreutils, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+FileUtilities:  $(addprefix FileUtilities, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+ShellUtilities: $(addprefix ShellUtilities, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+TextUtilities:  $(addprefix TextUtilities, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+struct: $(addprefix struct, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+list:   $(addprefix list, $(EXT))
+	$(TAR) $(TARFLAGS) $@.`date +"%Y%m%d"`.tar.gz $(addprefix *, $(EXT))
+
+#
+# ============================================================================
+#
+
+clean:
+	/bin/rm -rf $(addprefix *, $(EXT))
+# END OF FILE
+#
+

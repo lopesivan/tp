@@ -1,0 +1,344 @@
+Expressões Regulares no BASH – Parte 1
+
+BASH – Expressões Regulares
+
+Saturday, 10:33 – December 24 – 2011
+
+ 1. Introdução
+ 2. Verificando por Sub-Strings
+ 3. Substituições Básicas
+ 4. Remover do início da string
+ 5. Remover do fim da string
+
+Introdução
+
+Estes exemplos podem ser digitados diretamente na linha de comando, ou
+então colocados em em arquivo. Não vou explicar isso detalhadamente
+agora, mas
+um escript bash pode ser algo como esse exemplo:
+
+  #!/usr/bin/env bash
+
+  # Descomente a próxima linha para um output mais verbose.
+  #set -xv
+
+  var="May the force be with you. Always! - Master Yoda."
+  echo "$var"
+
+  if [[ -z "$var" ]]; then
+      echo "A string é vazia."
+  else
+      echo "A string não é vazia."
+  fi # Fim do 'if'.
+
+  # Script termina aqui.
+
+Com o terminal na pasta onde está o script, execute este comando para
+rodar o script:
+
+bash nome_do_script
+
+Vamos criar uma variável contendo uma string. Essa variável/string
+será usada nos exemplos.
+
+var="May the force be with you. Always! - Master Yoda."
+
+Mostrar quantos caracteres uma string possui.
+
+echo "${#var}"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Verificando por Sub-Strings
+
+Colocamos a sub-string desejada entre ‘*’ (o chamado glob). Vamos
+verificar se a string contém a sub-string ama:
+
+#!/usr/bin/env bash
+var="programador"
+if [[ "$var" = *"ama"* ]]; then
+    echo "<$var> contém a substring <ama>."
+else
+    echo "<$var> não contém a substring <ama>."
+fi
+
+Colocando a sub-string e uma variável, o código ficaria assim:
+
+#!/usr/bin/env bash
+var="programador"
+substr="ama"
+if [[ "$var" = *"$substr"* ]]; then
+    echo "<$var> contém a substring <$substr>."
+else
+    echo "<$var> não contém a substring <$substr>."
+fi
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Substuições Básicas
+
+Usamos a barra (/) como delimitador.
+
+Substituir ‘e’ por ‘E’. Somente a primeira ocorrência:
+
+echo "${var/e/E}"
+
+Para mudar todas as ocorrências de ‘e’ para ‘E’, usamos a barra duas
+vezes.
+Dizemos que substitui globalmente.
+
+echo "${var//e/E}"
+
+Para efeito de ilustração, suponhamos que queremos substituir o ‘e’
+mais os próximos dois caracteres, não importa quais sejam, por 1, 2 e 3
+respectivamente:
+
+echo "${var//e??/123}"
+
+Substitui o ‘!’ por um ponto final ‘.’. Precisamos escapar o
+ponto de exclamação pois ele é um caractere especial no bash.
+
+echo "${var/\!/.}" # O . não é um metacaractere no bash.
+
+Subsituir spaços em branco por underscores – globalmente.
+
+echo "${var// /_}"
+
+Substituir . por …:
+
+echo "${var//./...}"
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Remover do Início da String
+
+Para remover parte do início de uma string, não usamos mais o delimitador
+(/).
+Usamos apenas o ‘#’ ou ‘##’. Vamos aos exemplos.
+
+Remover do início até o primeiro espaço. Um único # é non-greedy (não
+ganancioso/guloso).
+
+echo "${var#* }"
+
+Explicando: o # busca pelo início, o * é tudo, e o espaço em branco é o
+que queremos encontrar. Então, em português ficaria algo como “do início
+da string (#),
+tudo o que for possível (*), até o primeiro espaço em branco que
+encontrar ( )”.
+
+Remove do início até o último espaço em branco possível. ## é
+greedy.
+
+echo "${var##* }"
+
+NOTE que o glob vai ANTES do item que queremos encontrar. No
+exemplo, o * vem antes do espaço em branco.
+
+Parar antes do ponto, ou seja, não incluir o ponto.
+
+echo "${var##*([!.])}"
+
+# ! é o operador de negação ou “NOT”.
+
+Remove tudo, do início até o hífen (-).
+
+echo "${var#*-}"
+
+Remove do início até o espaço que vem após o hífen.
+
+echo "${var#*- }"
+
+Colocando em português, “do início (#), tudo (*),continua até o hífen
+(-), e inclui o espaço em branco ( )”.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Remover do Final da String
+
+var="May the force be with you. Always! - Master Yoda."
+
+Agora procuramos para trás. Por isso, o * vai do lado oposto do que
+vinhamos usando até agora e o operador ‘#’ muda para ‘%’.
+Pra frente: “${var#*-}”
+Pra trás: “${var%-*}”
+- é o que queremos encontrar. É importante observar que agora a expressão
+começa e ser procurada do fim do string e vai “caminhando” até o início
+
+Remove do fim até o primeiro espaço – contando de trás pra frente. Ou
+seja, o último contando do início.
+
+echo "${var% *}"
+
+Remove do final até o último espaço – contanto de trás pra frente. Ou
+seja, o primeiro contando normalmente.
+
+echo "${var%% *}"
+
+Remove do fim até o hífen
+
+echo "${var%-*}"
+
+Remove do fim até o primeiro ‘ç’ que encontrar:
+
+echo "${var%ç*}"
+
+Se o caractere que queremos encontrar ocorre mais de uma vez na string,
+e queremos encontrar justamente a ocorrência dele que está o mais
+distante
+possível do final da string, usamos ‘%%’ em vez de ‘%’. O ‘e’ mais
+distante
+do final da string nesse caso está na palavra ‘Que’ bem no início. Veja
+como ficaria o código:
+
+echo "${var%%e*}"
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Expressões Regulares no BASH – Parte 2
+
+BASH – Expressões Regulares – Parte 2
+
+ 1. Extrair Nome do Script ou o Path para o Script
+ 2. Verificando por Sub-Strings
+ 3. Substituições Básicas
+ 4. Remover do início da string
+ 5. Remover do fim da string
+
+Dando continuação aos exemplos do primeiro tutorial sobre expressões no
+bash, vamos a mais alguns exemplos diversos, que basicamente usam o que
+já
+aprendemos anteriormente.
+
+Extrair Nome do Script ou o Path para o Script
+
+Sabemos que no linux os caminhos de diretórios são compostos pelos nomes
+dos diretórios separados pela barra (/). Em muitos dos nossos próximos
+exemplos, a barra não será usada como delimitador, mas como o próprio
+elemento que queremos encontrar. Tenha isso em mente enquanto estuda os
+próximos exemplos.
+
+A variável “$0″ é interna do bash, e ela mostra o nome do script.
+Se executamos o script do diretório onde ele está, tudo bem, o output
+mostrará o nome do script normalmente.
+
+echo "$0"
+
+É lógico que a variável $0 só fará sentido se utilizada
+dentro de um script. Para testar pela linha de comando podemos simular
+criando uma variável que contém um path (caminho) qualquer e usar a essa
+variável em vez de $0:
+
+var="/usr/local/bin/my_script"
+
+Continuando o assunto, se o script está em /usr/local/bin/
+por exemplo, então $0 vai mostrar o caminho completo do arquivo, e não
+apenas o nome dele. A solução é deletar a parte que não queremos.
+
+echo "${0##*/}"
+
+NOTE que agora o / não é mais o delimitador. Ele é o próprio
+caractere que queremos encontrar. Suponha que o script se chama
+my_script, então o caminho completo será
+/usr/local/bin/my_script. Em português ficaria “mostre o
+conteúdo da variável $0, e delete tudo (*) até a ultima barra possível
+(/).
+Restará só o nome final: my_script
+
+.
+
+Por outro lado, se queremos mostrar somente o caminho, sem o nome do
+arquivo propriamente dito, temos que deletar de trás pra frente, usando o
+'%' ou o '%%'.
+
+echo "${0%%/*}"
+
+Em português, “do final da string (%%), delete tudo (*) até encontrar a
+barra (/). Sei que é estranho, por que mesmo sendo de trás pra frente, o
+‘%%’ continua logo após a variável, como é o caso do ‘#’ ou ‘##’. O jeito
+é
+acostumar, pois é assim mesmo.
+
+Os créditos do próximo exemplo vão para mywiki.woolege.org. A
+única coisa que fiz foi tentar explicar de uma maneira um pouco
+diferente.
+
+Digamos que não queremos apenas o nome final, mas as duas ultimas partes.
+Bom, vamos pensar um pouco por vez. Primeiro, pegamos as partes que não
+queremos, e salvamos em uma variável. Antes vamos testar. Vamos ver se a
+expressão está realmente mostrando somente a parte que não queremos:
+
+echo "${var%/*/*}"
+
+Deleta do final até a primeira barra (/*) e deleta mais uma vez até a
+próxima barra (/*). Por isso usamos /*/*. Agora sim, assine
+essa regexp na variável tmp. Veja que executando o
+echo, acima na verdade a espressão está deletando as duas ultimas
+partes. Não tem problema, desde que salvemos essa expressão na variável.
+
+tmp="${var%/*/*}"
+
+Para se certificar de que a expressão está correta, vamos ver o que foi
+salvo na var tmp:
+
+echo "$tmp"
+
+tmp agora possui '/usr/local'. Vamos então
+deletar do início da string, todo o conteúdo que está em
+tmp:
+
+echo "${var#$tmp}"
+
+É o mesmo que:
+
+echo "${var#/usr/local/}"
+
+Ou seja, deleta '/usr/local' deixando somente o final que
+queriamos '/bin/my_script'. Faça você mesmo várias vezes e
+invente exemplos próprios parecidos com esse até acostumar.
+
+Mais um exemplo:
+
+var="nada importante <jackpot> ... não interessa"
+
+Agora, por algum motivo, queremos ficar somente com jackpot:
+
+tmp="${var##*<}" # Remove do início até o <.
+
+
+echo "${tmp%>*}" # Remove do > até o fim da string.
+
+Pronto, só nos restou o que estava entre < e >.
+
+Mais um exemplo:
+
+      var="Isto é 'melhor' que aquilo."
+      tmp="${var#*\'}" # Temos que escapar a aspa simples (\').
+      echo "${tmp%\'*}" # Sobra apenas "melhor" (sem as apas).
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Trabalhando Com Posições Fixas – Ranges
+
+Se sabemos quantos caracteres à direita ou a esquerda queremos, fica
+muito fácil:
+
+var="ABCDEFGHIJ"
+
+Mostramos somente os dois primeiros caracteres, ou seja, do zero ao dois:
+
+echo "${var:0:2}"
+
+Mostrar as últimas três posições, ou seja, da posição 7 a posição 10:
+
+echo "${var:7:10}"
+
+O mesmo pode ser conseguido com:
+
+echo "${var:(-3)}"

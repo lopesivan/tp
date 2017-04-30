@@ -1,0 +1,142 @@
+% lang
+\usepackage[utf8]{inputenc}
+\usepackage[english,portuguese,brazil]{babel}
+
+\usepackage{pgf,tikz}
+\usepackage{url}
+\usepackage{listings}
+
+%\usepackage{pst-all}   % PStricks  <-- gera erro!
+\usepackage{graphicx}   % Graphics formats
+\usepackage{verbatim}   % para algoritmos
+\usepackage{fancyvrb}
+\usepackage{relsize}
+\usepackage{color}
+%\usepackage{setspace} <-- gera erros
+\usepackage{subfigure}  % use for side-by-side figures
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\cret{\tikz{
+	\draw[->,rounded corners=2pt,thick,color=blue]
+	   (1.25ex,.75em) -- (1.25ex,0pt) -- (0pt,0pt);}}
+
+% Setup appearance:
+\usetheme[secheader]{Madrid}      % O mais bonito
+%\usetheme[secheader]{Boadilla}   % basico
+
+% clean
+%\usetheme[secheader]{boxes}      % modelo estilo kernel - basico total
+%\usetheme[secheader]{Singapore}  % modelo estilo kernel - com uma corsinha
+%\usetheme[secheader]{Szeged}
+
+%\usetheme[secheader]{Berkeley}   % semelhante a uma pagina web - margem esquerda
+
+% identicas:
+%\usetheme[secheader]{Goettingen} % semelhante a uma pagina web - margem direita
+%\usetheme[secheader]{Hannover}   % semelhante a uma pagina web - margem esquerda
+
+%\usetheme[secheader]{Marburg}    % semelhante a uma pagina web - margem %direita - padrao Madrid
+
+%\usetheme[secheader]{Berlin}     % nao mostra as secoes mas parece com o Madrid, mas sem arredondamento de borda
+%\usetheme[secheader]{Dresden}    % idem Berlin
+%\usetheme[secheader]{Ilmenau}    % idem Madrid
+%\usetheme[secheader]{PaloAlto}   % idem Berkeley com as cores de Madrid
+%\usetheme[secheader]{Rochester}
+
+\lstset{language=sh}
+\setbeamertemplate{navigation symbols}{}
+
+\defbeamertemplate*{footline}{infolines theme without institution}
+{
+  \leavevmode%
+  \hbox{%
+	  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+  \usebeamerfont{author in head/foot}\insertshortauthor
+  \end{beamercolorbox}%
+\begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+\usebeamerfont{title in head/foot}\insertshorttitle
+  \end{beamercolorbox}%
+\begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+\usebeamerfont{date in head/foot}\insertshortdate{}\hspace*{2em}
+	\insertframenumber{} / \inserttotalframenumber\hspace*{2ex}
+  \end{beamercolorbox}}%
+\vskip0pt%
+}
+
+\newcommand{\variable}[1]{{\color{violet}{\textsf{#1}}}}
+\newcommand{\variablew}[1]{{{\textsf{#1}}}}
+\newcommand{\filename}[1]{{\color{blue}{\textit{\begingroup \urlstyle{sf}\Url{#1}}}}}
+\newcommand{\filenamew}[1]{{{\textit{\begingroup \urlstyle{sf}\Url{#1}}}}}
+\newcommand{\command}[1]{`\texttt{#1}'}
+
+% built files
+\definecolor{bfile}{rgb}{.9,0.9,0.9}
+% distributed generated files
+\colorlet{dgfile}{yellow}
+% auto* input file
+\colorlet{afile}{green!33}
+% tools
+\definecolor{tfile}{rgb}{1.0,0.5,0.5}
+
+\tikzstyle{afile}=[draw,fill=afile,shape=document,inner sep=1ex]
+\tikzstyle{bfile}=[draw,fill=bfile,shape=document,inner sep=1ex]
+\tikzstyle{dgfile}=[draw,fill=dgfile,shape=document,inner sep=1ex]
+\tikzstyle{tfile}=[draw,fill=tfile,shape=rectangle,inner sep=1ex]
+
+\newcommand\arr[1][]{\draw[thick,->,#1]}
+\def\afile{\node[style=afile]}
+\def\bfile{\node[style=bfile]}
+\def\dgfile{\node[style=dgfile]}
+\def\tfile{\node[style=tfile]}
+
+\makeatletter
+
+% Verbatim from the pgf manual:
+\pgfdeclareshape{document}{
+	\inheritsavedanchors[from=rectangle] % this is nearly a rectangle
+   \inheritanchorborder[from=rectangle]
+   \inheritanchor[from=rectangle]{center}
+   \inheritanchor[from=rectangle]{north}
+   \inheritanchor[from=rectangle]{south}
+   \inheritanchor[from=rectangle]{west}
+   \inheritanchor[from=rectangle]{east}
+   % ... and possibly more
+   \backgroundpath{% this is new
+	   % store lower right in xa/ya and upper right in xb/yb
+	   \southwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+	 \northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+	 % compute corner of ``flipped page''
+	 \pgf@xc=\pgf@xb \advance\pgf@xc by-5pt % this should be a parameter
+	 \pgf@yc=\pgf@yb \advance\pgf@yc by-5pt
+	 % construct main path
+	 \pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}
+	 \pgfpathlineto{\pgfpoint{\pgf@xa}{\pgf@yb}}
+	 \pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yb}}
+	 \pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yc}}
+	 \pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@ya}}
+	 \pgfpathclose
+	 % add little corner
+	 \pgfpathmoveto{\pgfpoint{\pgf@xc}{\pgf@yb}}
+	 \pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+	 \pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yc}}
+	 \pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+ }
+}
+
+\makeatother
+
+% Adapted from texinfo.tex
+\font\keyrm=cmtt8 scaled 1000
+\font\keysy=cmsy9
+\def\key#1{{\keyrm\textfont2=\keysy \leavevmode\hbox{%
+	\raise0.4pt\hbox{$\langle$}\kern-.08em\vtop{%
+		\vbox{\hrule\kern-0.4pt
+	 \hbox{\raise0.4pt\hbox{\vphantom{$\langle$}}#1}}%
+ \kern-0.4pt\hrule}%
+\kern-.06em\raise0.4pt\hbox{$\rangle$}}}}
+
+% define variables
+%\def\srcDir{../v1.0/src/}

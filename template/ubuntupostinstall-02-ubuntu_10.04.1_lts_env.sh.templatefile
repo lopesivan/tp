@@ -1,0 +1,18 @@
+# vi:set nu nowrap:
+# ubuntu_10.04.1_lts_env.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: ubuntu_10.04.1_lts_env.sh
+#        Date: Ter 21 Set 2010 04:43:34 BRT
+# Description:
+#
+#
+echo load ubuntu_10.04.1_lts_env.sh enviroments
+# ----------------------------------------------------------------------------
+srcDir=${HOME}/src
+# ----------------------------------------------------------------------------

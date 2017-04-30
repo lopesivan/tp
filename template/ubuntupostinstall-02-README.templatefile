@@ -1,0 +1,8 @@
+doug@doug-desktop:~/ffmpeg$ svn log --limit 20 |grep libfaad
+ChangeLog: note libfaad wrapper removal
+Remove libfaad wrapper 
+
+~/src/ffmpeg$ ./configure --help | grep faa
+--enable-libfaac         enable FAAC support via libfaac [no]
+
+I removed the option an am compiling fine now. Any idea why that option no longer exists? Do the main instructions need to be updated?

@@ -1,0 +1,1 @@
+curl "http://catalogos.bn.br/scripts/odwp032k.dll?t=xs&pr=livros_pr&db=livros&use=kw_livre&disp=list&sort=off&ss=new&arg=casa&x=0&y=0" | w3m -dump -T text/html

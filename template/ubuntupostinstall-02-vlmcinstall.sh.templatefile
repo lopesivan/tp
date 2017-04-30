@@ -1,0 +1,25 @@
+#!/bin/sh
+
+VERSION="0.1"
+DirSrc=~/src
+
+echo "Pre-building configuration"
+sudo aptitude build-dep vlc
+sudo aptitude install autoconf cmake automake gettext pkg-config lua50 lua5.1  libxcb-shm0-dev libxcb-xv0-dev libx11-xcb-dev
+
+echo '***GIT***'
+test -e $DirSrc || mkdir $DirSrc
+
+cd $DirSrc
+git clone git://github.com/VLMC/vlmc.git
+
+echo '***Build***'
+cd $DirSrc/vlmc/
+#cmake .
+#make
+
+#./bootstrap
+#./configure --enable-growl --enable-v4l --enable-vcdx --enable-wma-fixed --enable-merge-ffmpeg --enable-faad --enable-real --enable-realrtsp --enable-lirc
+#make
+#sudo checkinstall
+

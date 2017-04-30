@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding="UTF-8"?>
+
+<article xmlns="http://docbook.org/ns/docbook" version="5.0" xml:lang="en">
+   
+<articleinfo>
+        <title>Cuddletech Programming Series </title>
+        <subtitle>Intermediate C Programming</subtitle>
+
+        <author>
+
+                <firstname>Ben</firstname>
+                <surname>Rockwood</surname>
+                <affiliation>
+                        <shortaffil>CDLTK</shortaffil>
+
+                        <orgname>Cuddletech</orgname>
+                        <address> <email>benr@cuddletech.com</email> </address>
+                </affiliation>
+
+        </author>
+</articleinfo> 
+                  
+<section>   
+<title>Intro</title>
+
+<para>
+Learning C can be as easy or difficugt as you want it to be.  This chapter
+is intended to be a quick refresher and guide thru the basics of C.  Hopefully
+this will fill in any gaps new coders have and get them on their way to EFL bliss.
+</para>
+
+             
+</section>
+</article>

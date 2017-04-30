@@ -1,0 +1,21 @@
+/* thisfile.c */
+#include "cint/inc/G__ci.h"   /* G__atpause is defined in G__ci.h */
+
+FILE *fp;
+
+void flushfiles()
+{
+	fflush(fp);
+}
+
+main()
+{
+	G__init_cint("cint");    /* initialize cint */
+	G__atpause = flushfiles; /* assign to G__atpause */
+
+	fp = fopen("something", "w");
+	fprintf(fp, "print something\n");
+
+	G__pause(); /* flushfile is called */
+	fclose(fp);
+}

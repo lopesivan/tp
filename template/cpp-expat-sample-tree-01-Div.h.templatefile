@@ -1,0 +1,8 @@
+#include "MathOperator.h"
+
+class Div : public MathOperator {
+public:
+	float getValue() { return left->getValue() / right->getValue(); }
+
+	inline Div(Term *t): MathOperator(t) { }
+};

@@ -1,0 +1,10 @@
+# Makefile: A standard Makefile
+
+source        = goodbye.c
+NCURSE_CFLAGS = -lncurses
+LDFLAGS      += $(NCURSE_CFLAGS)
+
+all: $(source:.c=)
+
+clean:
+	/bin/rm -f $(source:.c=) *.o

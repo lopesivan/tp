@@ -1,0 +1,1 @@
+socat -v -x PTY,link=./tty1 PTY,link=./tty2

@@ -1,0 +1,35 @@
+$ seq 3 | sed -e :a -e '$!N; s/\n/+/; ta'
+1+2+3
+
+$ seq 5 | sed -e :a -e '$!N; s/\n/+/; ta'
+1+2+3+4+5
+
+$ seq 5 | sed -e :a -e '$!N; s/\n/++/; ta'
+1++2++3++4++5
+
+$ echo 'ivan.h'| sed 's/.*/\U&/; h; s/^/11 /p; g; s/^/22 /p; G; g; s/^/33 /p; G; g; s/^/44 /'
+11 IVAN.H
+22 IVAN.H
+33 IVAN.H
+44 IVAN.H
+
+$ echo direita| sed ':a;s/^.\{1,79\}$/ &/;ta'
+                                                                         direita
+
+$ echo esquerda | sed ':a;s/^.\{1,79\}$/& /;ta'
+esquerda
+
+$ echo centro | sed ':a;s/^.\{1,78\}$/ & /;ta'
+                                     centro
+$ echo vertical | sed 's/./&\
+> /g'
+> v
+> e
+> r
+> t
+> i
+> c
+> a
+> l
+>
+>

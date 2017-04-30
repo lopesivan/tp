@@ -1,0 +1,15 @@
+from mp_01 import Lista
+l = Lista([11, 22, 33, 44, 55])
+l.__doc__
+l.primeiro
+# OUT: 11
+l._Lista__abrevs
+# OUT: ['pri', 'seg', 'ter', 'qua', 'qui', 'sex', 'set', 'oit', 'non', 'dec']
+l.ulti
+# OUT: Traceback (most recent call last):
+# OUT:   File "<input>", line 1, in <module>
+# OUT:   File "./mp_01.py", line 33, in __getattr__
+# OUT:     raise AttributeError(msg % (self.__class__.__name__, atrib))
+# OUT: AttributeError: 'Lista' object has no attribute 'ulti'
+l.ultimo
+# OUT: 55

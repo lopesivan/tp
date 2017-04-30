@@ -1,0 +1,4730 @@
+scie.nti.st » ruby, rails, programming, agile, productivity, systems
+
+Hosting Git repositories, The Easy (and Secure) Way
+
+Posted: November 14, 2007, by garry
+Tags: git hosting
+
+Update (08-10-2008): For topics not covered here, I encourage everyone to read
+the gitosis README, bundled with the distribution. There is also an
+example.conf configuration file that illustrates more features than I have
+covered here.
+
+I have been asked more and more these days, "How do I host a Git repository?"
+Usually it is assumed that some access control beyond simply read-only is
+involved (some users have commit rights). With access control comes issues of
+security, and that's a whole other bag of cats. This post is about presenting
+an answer to this question, without the fuss.
+
+The rest of this article will be a tutorial showing you how to host and manage
+Git repositories with access control, easily and safely. I use an up and coming
+tool called gitosis that my friend Tv wrote to help make hosting git repos
+easier and safer. It manages multiple repositories under one user account,
+using SSH keys to identify users. However, users do *not* need shell accounts
+on the server, instead they will talk to one shared account that does not allow
+arbitrary commands. Git itself is used to setup gitosis and manage the Git
+repos, which pleases the recursion-seeking orthogonal CS-side of my brain.
+
+Assumptions: I take my examples from a Ubuntu Linux server. While I haven't
+tested other systems, I imagine different Linux distributions, FreeBSD, OS X,
+etc... would be similar. Gitosis is written in Python, so you should have a
+copy of Python installed as well.
+
+Enough talk, let's get down and dirty.
+
+Install gitosis
+
+gitosis is a tool for hosting git repositories (I'm repeating myself for those
+who skim :)
+
+The first thing to do is grab a copy of gitosis and install it on your server:
+
+cd ~/src
+git clone git://eagain.net/gitosis.git
+
+Notice that gitosis is extremely light-weight. The clone takes a mere couple
+seconds. Less is more, and I like that a lot.
+
+Next, install it like so:
+
+cd gitosis
+python setup.py install
+
+Don't use --prefix unless you like self-inflicted pain. It is possible to
+install gitosis in a non-standard location, but it's not nice. Read the Caveats
+section at the bottom and then come back here.
+
+If you get this error:
+
+-bash: python: command not found
+
+or
+
+Traceback (most recent call last):
+  File "setup.py", line 2, in ?
+    from setuptools import setup, find_packages
+ImportError: No module named setuptools
+
+You have to install Python setuptools. On Debian/Ubuntu systems, it's just:
+
+sudo apt-get install python-setuptools
+
+For other systems, someone tell me or leave a comment, so I can update this
+section and improve this tutorial.
+
+The next thing to do is to create a user that will own the repositories you
+want to manage. This user is usually called git, but any name will work, and
+you can have more than one per system if you really want to. The user does not
+need a password, but does need a valid shell (otherwise, SSH will refuse to
+work).
+
+sudo adduser \
+    --system \
+    --shell /bin/sh \
+    --gecos 'git version control' \
+    --group \
+    --disabled-password \
+    --home /home/git \
+    git
+
+You may change the home path to suit your taste. A successful user creation
+will look similar to:
+
+Adding system user `git'...
+Adding new group `git' (211).
+Adding new user `git' (211) with group `git'.
+Creating home directory `/home/git'.
+
+You will need a public SSH key to continue. If you don't have one, you may
+generate one on your local computer:
+
+ssh-keygen -t rsa
+
+The public key will be in $HOME/.ssh/id_rsa.pub. Copy this file to your server
+(the one running gitosis).
+
+Next we will run a command that will sprinkle some magic into the home
+directory of the git user and put your public SSH key into the list of
+authorized keys.
+
+sudo -H -u git gitosis-init < /tmp/id_rsa.pub
+
+id_rsa.pub above is your public SSH key that you copied to the server. I
+recommend you put it in /tmp so the git user won't have permission problems
+when trying to read it. Success looks like:
+
+Initialized empty Git repository in ./
+Initialized empty Git repository in ./
+
+(Yes, two times)
+
+For good measure, let's make sure the post-update hook is set executable. I've
+seen it where sometimes it doesn't get set (problem with older setuptools):
+
+sudo chmod 755 /home/git/repositories/gitosis-admin.git/hooks/post-update
+
+Here some cool magic happens. Run this on your local machine:
+
+git clone git@YOUR_SERVER_HOSTNAME:gitosis-admin.git
+cd gitosis-admin
+
+You will now have a gitosis.conf file and keydir/ directory:
+
+~/dev/gitosis-admin (master) $ ls -l
+total 8
+-rw-r--r--   1 garry  garry  104 Nov 13 05:43 gitosis.conf
+drwxr-xr-x   3 garry  garry  102 Nov 13 05:43 keydir/
+
+This repository that you just cloned contains all the files (right now, only 2)
+needed to create repositories for your projects, add new users, and defined
+access rights. Edit the settings as you wish, commit, and push. Once pushed,
+gitosis will immediately make your changes take effect on the server. So we're
+using Git to host the configuration file and keys that in turn define how our
+Git hosting behaves. That's just plain cool.
+
+From this point on, you don't need to be on your server. All configuration
+takes place locally and you push the changes to your server when you're ready
+for them to take effect.
+
+Creating new repositories
+
+This is where the fun starts. Let's create a new repository to hold our project
+codenamed FreeMonkey.
+
+Open up gitosis.conf and notice the default configuration:
+
+[gitosis]
+
+[group gitosis-admin]
+writable = gitosis-admin
+members = jdoe
+
+Your "members" line will hold your key filename (without the .pub extension)
+that is in keydir/. In my example, it is "jdoe", but for you it'll probably be
+a combination of your username and hostname.
+
+To create a new repo, we just authorize writing to it and push. To do so, add
+this to gitosis.conf:
+
+[group myteam]
+members = jdoe
+writable = free_monkey
+
+This defines a new group called "myteam", which is an arbitrary string. "jdoe"
+is a member of myteam and will have write access to the "free_monkey" repo.
+
+Save this addition to gitosis.conf, commit and push it:
+
+git commit -a -m "Allow jdoe write access to free_monkey"
+git push
+
+Now the user "jdoe" has access to write to the repo named "free_monkey", but we
+still haven't created a repo yet. What we will do is create a new repo locally,
+and then push it:
+
+mkdir free_monkey
+cd free_monkey
+git init
+git remote add origin git@YOUR_SERVER_HOSTNAME:free_monkey.git
+
+# do some work, git add and commit files
+
+git push origin master:refs/heads/master
+
+With the final push, you're off to the races. The repository "free_monkey" has
+been created on the server (in /home/git/repositories) and you're ready to
+start using it like any ol' git repo.
+
+Adding users
+
+The next natural thing to do is to grant some lucky few commit access to the
+FreeMonkey project. This is a simple two step process.
+
+First, gather their public SSH keys, which I'll call "alice.pub" and "bob.pub",
+and drop them into keydir/ of your local gitosis-admin repository. Second, edit
+gitosis.conf and add them to the "members" list.
+
+cd gitosis-admin
+cp ~/alice.pub keydir/
+cp ~/bob.pub keydir/
+git add keydir/alice.pub keydir/bob.pub
+
+Note that the key filename must have a ".pub" extension.
+
+gitosis.conf changes:
+
+ [group myteam]
+- members = jdoe
++ members = jdoe alice bob
+  writable = free_monkey
+
+Commit and push:
+
+git commit -a -m "Granted Alice and Bob commit rights to FreeMonkey"
+git push
+
+That's it. Alice and Bob can now clone the free_monkey repository like so:
+
+git clone git@YOUR_SERVER_HOSTNAME:free_monkey.git
+
+Alice and Bob will also have commit rights.
+
+Public access
+
+If you are running a public project, you will have your users with commit
+rights, and then you'll have everyone else. How do we give everyone else
+read-only access without fiddling w/ SSH keys?
+
+We just use git-daemon. This is independent of gitosis and it comes with git
+itself.
+
+sudo -u git git-daemon --base-path=/home/git/repositories/ --export-all
+
+This will make all the repositories you manage with gitosis read-only for the
+public. Someone can then clone FreeMonkey like so:
+
+git clone git://YOUR_SERVER_HOSTNAME/free_monkey.git
+
+To export only some repositories and not others, you need to touch
+git-daemon-export-ok inside the root directory (e.g. /home/git/repositories/
+free_monkey.git) of each repo that you want public. Then remove "--export-all"
+from the git-daemon command above.
+
+More tricks
+
+gitosis.conf can be set to do some other neat tricks. Open example.conf in the
+gitosis source directory (where you originally cloned gitosis way at the top)
+to see a summary of all options. You can specify some repos to be read-only
+(opposite of writable), but yet not public. A group members list can include
+another group. And a few other tricks that I'll leave it to the reader to
+discover.
+
+Caveats
+
+If /home/git/.gitosis.conf on your server never seems to get updated to match
+your local copy (they should match), even though you are making changes and
+pushing, it could be that your post-update hook isn't executable. Older
+versions of setuptools can cause this. Be sure to fix that:
+
+sudo chmod 755 /home/git/repositories/gitosis-admin.git/hooks/post-update
+
+If your Python goodies are in a non-standard location, you must additionally
+edit post-update and put an "export PYTHONPATH=..." line at the top. Failure to
+do so will give you a Python stack trace the first time you try to push changes
+within gitosis-admin.
+
+If you want to install gitosis in a non-standard location, I don't recommend
+it. It's an edge case that the author hasn't run up against until I bugged him
+to help me get it working.
+
+For the brave, you need to edit whatever file on your system controls the
+default PATH for a non-login, non-interactive shell. On Ubuntu this is /etc/
+environment. Add the path to gitosis-serve to the PATH line. Also insert a line
+for PYTHONPATH and set it to your non-standard Python site-packages directory.
+As an example, this is my /etc/environment:
+
+PATH="/home/garry/sys/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin/X11:/usr/games"
+PYTHONPATH=/home/garry/sys/lib/python2.4/site-packages
+
+Be sure to logout and log back in after you make these changes.
+
+Don't use the gitosis-init line I have above for the standard install, instead
+use this slightly modified one:
+
+sudo -H -u git env PATH=$PATH gitosis-init < /tmp/id_rsa.pub
+
+Be sure to also set PYTHONPATH in your post-update hook as described above.
+
+The *should* do it. I am purposefully terse with this non-standard setup as I
+think not many people will use it. HIt me up in #git on FreeNode if you need
+more info (my nick is up_the_irons).
+
+Non-standard SSH port
+
+If you run SSH on a non-standard port on your server, don't use the syntax
+"git@myserver.com:1234:/foo/bar", it won't work. Putting the port in the URL
+doesn't seem to make gitosis, or git, (not sure which) happy. Instead, put this
+in your ~/.ssh/config file:
+
+Host myserver.com
+  Port 1234
+
+Conclusion
+
+Well, I hope you enjoyed this tutorial and that it makes your Git hosting life
+easier. This is public revision 10. Please let me know if you find mistakes,
+omissions, an easier way than what I described, etc...
+
+Git it on...
+
+(yeah, that was bad...)
+
+Comments
+the daniel on November 14, 2007 08:56 AM
+
+awesome, i’m glad you wrote this blog post, because i have some repos to host
+and i assume gitosis is still sparsely documented (i shouldn’t assume, i should
+just clone it RIGHT NOW)
+
+topfunky on November 14, 2007 09:26 AM
+
+I had been wondering about how to implement such a system. I’m using the
+git-shell on some accounts, but this will make it possible to restrict projects
+to certain users.
+
+Even so, I’m looking forward to the upcoming GitHub which will make public and
+private Git hosting much easier, for only a small monthly fee (with a more
+attractive interface than gitweb).
+
+grempe on November 14, 2007 01:08 PM
+
+Great writeup.
+
+I am excited about Gitosis. Sounds like a great way to host Git repos. I had
+issues with installing it though on my Ubuntu 7.04 system though. I chatted
+with Tv on IRC and it appears there may be a problem with Git binaries
+installed in ‘non-standard’ locations. I think non-standard means it was
+installed using something other than ‘sudo apt-get install git-core’. My Git is
+compiled and installed from source in the /usr/local/bin dir and you’ll get an
+error like the one found in this pastie:
+
+http://git.pastebin.com/f7884e0be
+
+According to Tv (the author) on IRC:
+
+Tv: glenn: it seems your git is installed outside of the normal PATH for your
+system [11:35am] glenn: hmmm… ok, its in /usr/local/bin/git [11:36am] Tv:
+glenn: that case is a known problem for gitosis, right now; even if you could
+get through init, you’ll have trouble later
+
+Just trying to save some people some time. Better to wait for a bugfix from Tv
+if you are in this situation. His blog is: http://eagain.net/blog
+
+Cheers.
+
+Garry on November 14, 2007 03:16 PM
+
+grempe,
+
+Yup, that’s a known issue. If you apply the patch in my Caveats section and
+then make sure your PATH gets exported (ala /etc/environment, etc…) correctly,
+you will be able to get it working. My git is in /home/garry/sys/bin and
+gitosis finds it after I applied the patch (which basically just passes PATH to
+subprocesses).
+
+Garry on November 14, 2007 03:19 PM
+
+thedaniel,
+
+Actually README.rst of gitosis ain’t bad :)
+
+topfunky,
+
+You’re gonna have to tell me more about this new GitHub…!
+
+mat on November 14, 2007 09:48 PM
+
+Just a quick comment from… “The public key will be in $HOME/.ssh/id_rsa.pub.
+Copy this file to your server.”
+
+I was a little confused with “Copy this file to your server.” o were you
+talking about the git server or some ssh key server o if the latter, how do you
+do that
+
+These answers might make the tutorial a little more clear, even if its a
+pointer off to some other page that explains it.
+
+Otherwise, great entry. This seems like the perfect time for this post as git
+is gaining momentum with the masses.
+
+-mat
+
+Garry on November 15, 2007 12:38 AM
+
+Hi mat,
+
+I’ve added “the server running gitosis” to that text. Thanks for the
+suggestion.
+
+Garry on November 15, 2007 02:19 AM
+
+Note to readers who’ve come back for more—
+
+I’ve made updates tonight since my original post. I included a small patch as a
+part of the regular setup. It helps gitosis find git if you have git installed
+in a non-standard location (let subprocesses see your modified PATH). Also, it
+fixes a BIG show stopper git-checkout-index error if you run git 1.5.3 and
+higher (which I highly recommend) on your server. No issue was seen with git
+1.5.2.x and lower.
+
+Thanks to Tv and spearce in #git for the help.
+
+Garry on November 15, 2007 03:25 AM
+
+SSH tip:
+
+If you run SSH on a non-standard port and can’t get the clone to work, put
+something like this in your ~/.ssh/config: http://p.caboo.se/118289
+
+Change hostname and port.
+
+Now all your other apps that use SSH on that server benefit too :)
+
+cactus on November 15, 2007 05:59 AM
+
+It ‘appears’ based on the config presented in this article, that you are
+granting people ssh access to the git user (pubkey auth), while using /bin/sh
+(possibly aliased to bash) as the default shell.
+
+This would give any user added as a ‘git user’ full shell access to that
+account. I am curious why you are not using the git-shell as the shell for that
+user instead.
+
+Garry on November 15, 2007 12:04 PM
+
+cactus,
+
+It does not give a full shell, because in ~/.ssh/authorized_keys we use
+“command=”
+
+This makes SSH execute only that command, you can’t get a login shell.
+
+Tv on November 15, 2007 12:11 PM
+
+I’ve fixed the caveats mentioned here, if someone in the audience had trouble,
+please try with the latest version.
+
+If you install gitosis outside of the usual PYTHONPATH, you will still need to
+add the containing directory to it, before running gitosis-init and for the
+incoming SSH sessions. This is a bit of a chicken-and-egg problem to try to
+solve within gitosis, so you should just make sure the environment is correct
+before gitosis is run. If anyone has a really neat solution for that, please
+let me know.
+
+Garry on November 15, 2007 03:15 PM
+
+Thanks Tv.
+
+I’ve removed instructions to apply my patch, as the fixes are now in master.
+Awesome!
+
+Dren on November 16, 2007 01:34 PM
+
+This is great. Does anyone know why I would get:
+
+fatal: Not a git repository: ’.’
+
+when I try to push gitosis-admin? A added a line to repository.py, it says the
+path argument is ’./gitosis-export’. This exists in ~/repositories/
+gitosis-admin.git, but is empty.
+
+Garry on November 16, 2007 04:38 PM
+
+Dren,
+
+Not sure. What git version are you using? I recommend 1.5.3 or higher on both
+your local box and the server. Hit me up in #git on FreeNode, we can work
+through it. My nick is up_the_irons. Then you can post your solution back here
+for others who might be having the same prob.
+
+Garry on November 17, 2007 12:17 AM
+
+If your gitosis head is: 5bd5bd5bfcf6215e7120f12ed68118667c762c79
+
+You’ll need this patch: http://p.caboo.se/119084
+
+Fixes an error about generate_fp when issuing gitosis-init
+
+Garry on November 17, 2007 01:58 AM
+
+Dren,
+
+I now get the error you are getting too. I’ve informed Tv and he’s working on
+it.
+
+grempe on November 17, 2007 06:29 PM
+
+Just following up on my own post above where I had some issues. With the latest
+updates I pulled from gitosis today I was able to finally build, install, and
+init gitosis on Ubuntu 7.0.4. I am up and running and thinking that this is a
+great tool so far. Definitely fills a nitch. Thanks Tv and Garry. I hope all my
+installation quirks are behind us now. :-)
+
+Now I just have to stop associating the name gitosis with ‘halitosis’. :-)
+
+Cheers.
+
+grempe on November 19, 2007 02:37 PM
+
+I am using gitosis now for my projects and trying to get everything working
+together nicely. Can you elaborate on how we should best integrate gitweb and
+git-daemon with gitosis?
+
+I am using both tools, however I have seen no impact to using the config
+settings shown in the example.conf file:
+
+ 1. Allow gitweb to show all known repositories. If you want gitweb,
+     1. you need either this or a [repo foo] section for each repository
+     2. you want visible in gitweb. gitweb = no
+
+ 1. Allow git-daemon to publish all known repositories. As with gitweb,
+ 2. this can be done globally or per-repository. daemon = no
+
+The gitweb.py file also makes reference to using:
+
+$projects_list = ”/path/to/your/projects.list”;
+
+Is it intended that this file would be auto-generated by gitosis? I have not
+been able to find it in any of the dirs under /home/git/.
+
+Lastly, is there a way to have gitweb serve public repositories openly, yet
+require basic auth for private repositories? Since both public and private
+repos are now colocated in the same dir, and differentiated by gitosis and ssh
+permissions it would be nice to allow gitweb for private repos for those users
+who have permissions to see them.
+
+Thanks!
+
+Garry on November 20, 2007 02:27 AM
+
+grempe
+
+git-daemon does not necessarily integrate with gitosis, it just runs along side
+gitosisnand allows read-only public access to the repos you choose. that said,
+changes to gitosis since the time of writing this tutorial have made progress
+in allowing you to control git-daemon and gitweb settings from gitosis. That’s
+very cool, and you’ll see examples of how to do that in example.conf. As for
+projects.list, i’m not sure what that does.
+
+To use basic auth on some repos, i think you need to edit the lighttpd.conf for
+gitweb, there’s not a way to do that directly in gitosis
+
+Tv on November 25, 2007 02:40 PM
+
+I added instruction how to integrate with git-daemon and gitweb into the
+gitosis repository. Have fun.
+
+sr on December 28, 2007 10:39 PM
+
+This is freaking awesome! I think I’ll even switch from mercurial to git just
+for gitosis Sadly gitosis won’t works. Everything goes fine until the clone
+step.
+
+[[[ % git clone git@bearnaise.net:gitosis-admin.git Initialized empty Git
+repository in /home/simon/gitosis-admin/.git
+
+^C (after 1 minute) % ]]]
+
+And that’s all. Nothing happens and ~/gitosis-admin is empty.
+
+Any idea?
+
+franky on January 02, 2008 10:03 PM
+
+Is it possible to enable only read acess to different repositories for each
+one. Not the git-damon way, since it exposes the same set of repositories for
+every one.
+
+Garry on January 03, 2008 05:44 PM
+
+@franky, I’m not sure. I use gitosis for read/write and git-daemon for
+anonymous read-only.
+
+Garry on January 09, 2008 12:03 AM
+
+@sr, It looks something isn’t allowing you to establish an SSH connection to
+your server (it’s hanging). Contact up_the_irons (me) or Tv in #git (freenode)
+if you need further help.
+
+Galen on January 10, 2008 11:17 AM
+
+@gary: For the gentoo linux fans among us, the python setuptools package can be
+emerged as follows:
+
+emerge python-dev/setuptools
+
+Cheers!
+
+acss on January 13, 2008 02:57 AM
+
+Hi,
+
+Congratulations for this post about git hosting it was exactly what I was
+looking for.
+
+I was following the install instructions on a Kubuntu 7.04 (x86_64) and got an
+error, any help will be welcome.
+
+After copy of the ssh public key to the server’s /tmp, the following happend:
+
+$ sudo -H -u git gitosis-init < /tmp/id_rsa.pub Traceback (most recent call
+last): File ”/usr/bin/gitosis-init”, line 8, in <module> load_entry_point
+(‘gitosis==0.2’, ‘console_scripts’, ‘gitosis-init’)() File ”/usr/lib/python2.5/
+site-packages/gitosis-0.2-py2.5.egg/gitosis/app.py”, line 24, in run return
+app.main() File ”/usr/lib/python2.5/site-packages/gitosis-0.2-py2.5.egg/gitosis
+/app.py”, line 38, in main self.handle_args(parser, cfg, options, args) File ”/
+usr/lib/python2.5/site-packages/gitosis-0.2-py2.5.egg/gitosis/init.py”, line
+136, in handle_args user=user, File ”/usr/lib/python2.5/site-packages/
+gitosis-0.2-py2.5.egg/gitosis/init.py”, line 75, in init_admin_repository
+template=resource_filename(‘gitosis.templates’, ‘admin’) File ”/usr/lib/
+python2.5/site-packages/gitosis-0.2-py2.5.egg/gitosis/repository.py”, line 51,
+in init close_fds=True, File ”/usr/lib/python2.5/subprocess.py”, line 443, in
+call return Popen(popenargs, *kwargs).wait() File ”/usr/lib/python2.5/
+subprocess.py”, line 593, in init errread, errwrite) File ”/usr/lib/python2.5/
+subprocess.py”, line 1135, in _execute_child raise child_exception OSError:
+[Errno 2] No such file or directory
+
+Thanks in advance.
+
+Stu on January 23, 2008 07:36 PM
+
+the thing that screwed me over most was not realising there was [repo blah] and
+[group blah] and wondering why gitosis wasnt adding gitweb to projects.list..
+since all I had was [group blahs]... sigh…
+
+streamkid on January 31, 2008 01:00 PM
+
+And on gentoo, python setup tools are dev-python/setuptools :-)
+
+ChrisB on February 09, 2008 12:58 AM
+
+Thanks for the writeup. I’ve run into a problem when I try to clone the
+gitosis-admin repository on my local machine. From what I can tell, it has to
+do with the git user being a “system” user. When they are a system user, I
+cannot ssh in. If it’s a non-system user, then I can setup an authorized_keys
+file with a command nearly the same as the git one and the general
+functionality seems to work. So, I’m wondering, is it required that the git
+user is a “system” user, or, is there something in my SSH daemon configuration
+that can allow this? I have the git user allowed explicitly, but that still
+doesn’t work, so it seems to revolve around this “system” user aspect.
+
+ChrisB on February 10, 2008 09:23 AM
+
+I should note, in regard to the system user issue… I’m on Ubuntu 7.10. From
+what I can derive, I don’t really need the user to be a “system” user. That
+would add a level of security in that they are not allowed an interactive shell
+/session, but unless someone hacked past SSH+public key+command=, it’s not too
+big a deal right, or am I missing a more significant security aspect that
+covers?
+
+Garry on February 12, 2008 02:10 AM
+
+ChrisB, the “system” aspect of the adduser command makes the user in a certain
+UID range and group of “nogroup”. According to the man page, it also makes it
+so “logins [are] disabled”.
+
+The Ubuntu 6.06 man page also states that logins are disabled, however I had no
+problems with the git user being a “system” user. I haven’t tried installing
+gitosis on 7.10 yet.
+
+So I’d say leave off—system to adduser if it’s not working for ya.
+
+mtkd on March 20, 2008 11:58 AM
+
+I had issues getting this to work on a vanilla Ubuntu server install.
+
+When I did “git clone git@ULAMP1:gitosis-admin.git” from the client, it
+prompted for a password then gave a Permission Denied.
+
+When I checked /var/log/auth.log:
+
+User git from xxxx not allowed because not listed in AllowUsers
+
+I added the users to AllowUsers but still had the issue, doubled checked
+everything, it turned out I needed to add the user to a Group and then the
+Group to AllowGroups (I used Webmin to add the user to the group and restart
+SSH).
+
+gebi on March 31, 2008 01:43 PM
+
+few hints and fixes for gitosis on debian and maybe ubuntu too.
+
+http://gebi.supersized.org/archives/4-Installing-gitosis-on-debian.html
+
+bws on April 10, 2008 11:29 AM
+
+After installing on Ubuntu, the clone of gitosis-admin was asking for a
+password.
+
+/var/log/auth.log said that
+
+sshd^878: User git not allowed because account is locked
+
+Changing the ! to a * in /etc/shadow fixed the problem.
+
+leed25d on April 12, 2008 11:32 AM
+
+,[DEL:—:DEL] | id_rsa.pub above is your public SSH key that you copied to the |
+server. I recommend you put it in /tmp so the git user won’t have | permission
+problems when trying to read it. Success looks like: `[DEL:—:DEL]
+
+I believe that this is a somewhat bad idea. Some systems can be, and frequently
+are, configured to clear the contents of /tmp at boot time.
+
+pzingg on April 14, 2008 10:48 PM
+
+On my setup (git server is OS X 10.5 Server, with git-core installed via
+macports and gitosis installed using OS X’s python 2.5; git client is OS X
+10.4), I had to edit the .ssh/authorized_keys file to use a path:
+
+command=”/usr/local/bin/gitosis-serve user@host”, ...
+
+Otherwise I would get this when trying to do the remote git clone:
+
+bash: gitosis-serve: command not found fatal: The remote end hung up
+unexpectedly fetch-pack from ‘git@gitserver.example.com:gitosis-admin.git’
+failed.
+
+I also put the path to the macports area (/opt/local/bin) into the .bashrc in
+the git server’s git user’s home directory, so that the git-xxx commands would
+be found.
+
+silent (e) on April 15, 2008 10:25 AM
+
+Is there something different in the way this would work on Windows (as a
+client). I’ve installed gitosis on my FreeBSD 6.x server and am able to run the
+“git clone git://server:repositories/gitosis-admin.git” command. I have a “git”
+user (for which I wasn’t able to set up a blank password. passable unix fu).
+The git command asks for the git user password, which I enter correctly. My
+conf file shows this for the gitosis-admin group
+
+[group gitosis-admin] writable = gitosis-admin members = matte@laptop
+
+But the computer I’m running the command from is member “matte@pc”. My
+understanding is that gitosis shouldn’t allow me to write because that member
+isn’t specified. However, I am able to read and write to the “gitosis-admin”
+project.
+
+Is it because I have a password on the “git” user and it authenticates with the
+password I set? Is it because windows (stuck with it for now) doesn’t have a
+personally identifiable user ssh key?
+
+Technically I haven’t seen how to set up a personal ssh key for my account
+outside of using PuTTY’s Pagaent program… which I’m running. But it has my
+matte@pc public key. Which isn’t specified in the config file.
+
+it doesn’t depend on running the git-daemon does it? I set that up too but I
+can’t open up projects right now, so I disabled it.
+
+Thanx in advance. Email me if you’d like to take this outta the comments.
+
+(e)
+
+Garry on April 15, 2008 04:24 PM
+
+@leed25d, the pubkey only has to be there temporarily, hence /tmp :) It doesn’t
+matter if it is cleared at boot time, you won’t need it any more.
+
+Garry on April 15, 2008 04:28 PM
+
+@silent(e), gitosis was meant for SSH key auth only. If Windows cannot identify
+a key to a user and you’re using passwords instead, the results are unknown. It
+wouldn’t depend on git-daemon though.
+
+lazz on April 17, 2008 03:13 PM
+
+app-stage-vm-1:/usr/local/src# git—version git version 1.4.4.4
+
+There’s a version incompatibility with the “init” command in git. Looks like
+it’s called “init-db” in my version. I get this error at the top:
+
+app-stage-vm-1:/usr/local/src# sudo -H -u git gitosis-init < /tmp/key.pub git:
+‘init’ is not a git-command
+
+Followed by the Python stack trace:
+
+Traceback (most recent call last): File ”/usr/bin/gitosis-init”, line 7, in ?
+sys.exit( File ”/usr/lib/python2.4/site-packages/gitosis-0.2-py2.4.egg/gitosis/
+app.py”, line 24, in run return app.main() File ”/usr/lib/python2.4/
+site-packages/gitosis-0.2-py2.4.egg/gitosis/app.py”, line 38, in main
+self.handle_args(parser, cfg, options, args) File ”/usr/lib/python2.4/
+site-packages/gitosis-0.2-py2.4.egg/gitosis/init.py”, line 136, in handle_args
+user=user, File ”/usr/lib/python2.4/site-packages/gitosis-0.2-py2.4.egg/gitosis
+/init.py”, line 75, in init_admin_repository template=resource_filename
+(‘gitosis.templates’, ‘admin’) File ”/usr/lib/python2.4/site-packages/
+gitosis-0.2-py2.4.egg/gitosis/repository.py”, line 54, in init raise
+GitInitError(‘exit status %d’ % returncode) gitosis.repository.GitInitError:
+exit status 1
+
+threadhead on April 18, 2008 09:33 AM
+
+@lazz: if you are on ubuntu (or any debian flavor), you can enable the backport
+repositories for apt-get, then run ‘apt-get install git-core’ or ‘sudo apt-get
+update && sudo apt-get upgrade’ and it will update git to 1.5.5.4.
+
+BTW, I tried to compile git from source on Fiesty and had no luck.
+
+No problems since.
+
+Garry on April 21, 2008 12:16 AM
+
+@lazz, you should upgrade your git :)
+
+Lobo tuerto on April 24, 2008 09:27 PM
+
+@garry:
+
+Excelent post, it helped me lots. I have two questions.
+
+1. Can I make a spanish translation of this article to post it in my blog? (I
+will link back and give credit). 2. After I set up my repository, I pushed a
+new branch into it. How do I delete a branch from my repo? do I need to just
+delete the /home/git/repositories/nameofmyrepo.git/refs/heads/
+nameofbranchtodelete? or what would be the correct way to do it?
+
+Thank you.
+
+Garry on April 25, 2008 12:47 PM
+
+@Lobo tuerto,
+
+1. You can make a spanish translation, no problem. That’d be great for the
+Spanish speaking community.
+
+2. To delete a branch, you do:
+
+“git push origin :branch_to_delete”
+
+Lobo tuerto on April 25, 2008 06:24 PM
+
+@Garry:
+
+Thank you!
+
+Jim on April 28, 2008 01:43 PM
+
+Thanks for the post Garry.
+
+I have successfully got gitosis installed on Ubuntu 8.04 Server (64bit) in a
+VMWare virtual machine on VMWare Fusion on my Mac (running Leopard). I have
+followed all the steps exactly but I seem to have an issue with the ssh key.
+
+Annoyingly, each time I “git push origin master:refs/heads/master” I am
+prompted for the passphrase. The same key has been installed in my normal
+user’s /home/jim/.ssh/authorized_keys file on the same Ubuntu Server and works
+fine for ssh’ing from the Mac as user jim. The key seems to have been added
+correctly to /home/git/.ssh/authorized_keys:
+
+ 1. autogenerated by gitosis, DO NOT EDIT command=”gitosis-serve jim@<hostname>
+    ”,no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-rsa
+    AAAAB3NzaC1yc2EAA…continued…5U76Bx70ltT87oQK7sbEXk9pYf1Ux6cKRehYsEQ5kTOTo2UqO8H52a
+    /FIrROPhd6G8Q== tim@<hostname>
+
+I’m a n00b when it comes to ssh keys. Any ideas? Thanks in advance.
+
+Jim on April 28, 2008 01:48 PM
+
+edit ^^^: the last part of the key is jim@<hostname> but I guess that’s just
+the comment and not important ;)
+
+Garry on April 30, 2008 03:49 AM
+
+@Jim, so you were able to clone and push/pull the gitosis-admin repo? It’s the
+new repo you created with gitosis that is having issues, no?
+
+Jim on April 30, 2008 07:06 AM
+
+@Garry, no I have to enter the passphrase when pushing the gitosis-admin too.
+Do I need to set up ssh-agent to manage the key authentication. I haven’t
+needed this when ssh’ing (perhaps that it stored in the Mac accounts keychain?)
+
+solo on April 30, 2008 01:31 PM
+
+Here’s what I had to do to get the prerequisites on RHEL5:
+
+rpm -ivh http://download.fedora.redhat.com/pub/epel/5/i386/
+epel-release-5-2.noarch.rpm yum install python-setuptools
+
+Hope this helps—
+
+Solomon
+
+solo on April 30, 2008 10:19 PM
+
+@Garry: I’ve followed the instructions above, and the gitosis-admin part seems
+to work—I can add a public key to my local repo, commit and push to my server
+repo, and verify that the ~git/.ssh/authorized_keys is changed with the new
+login info, etc. However, when I try git clone’ing another repo managed by
+gitosis, I get the following error:
+
+  • [err] Address xx.xx.xx.xx maps to ip-xx.xx.xx.xx.hostingcompany.net, but
+    this does not map back to the address – POSSIBLE BREAK-IN ATTEMPT!
+
+  • [err] fatal: ‘repo.git’: unable to chdir or not a git archive
+
+  • [err] fatal: The remote end hung up unexpectedly
+
+  • [err] fetch-pack from ‘git@xx.xx.xx.xx:repo.git’ failed.
+
+The clone is being executed on the git server by a user that I have configured
+in gitosis-admin to have readonly access for that repo. I tried with writable
+access as well, but get the same error. Any ideas on how to troubleshoot this?
+
+Thanks in advance,
+
+Solomon
+
+solo on May 01, 2008 07:17 AM
+
+Okay, got it. My ~/git/.ssh/authorized_keys file already had the deployment
+user’s key before I added it with gitosis, and the two conflicted. I removed
+the offending key, and git clone is happy now.
+
+jassi12345 on May 02, 2008 01:56 PM
+
+after say
+
+JB on May 03, 2008 02:06 PM
+
+Thanks. This works nice!
+
+Richie on May 05, 2008 01:04 PM
+
+just set this up on Debian sid. perhaps these notes can be used to supplement
+your article. The user ‘gitosis’ is used instead and will get created
+automatically, but it will not create the home dir. After installation I did:
+mkdir /home/gitosis chown gitosis:gitosis gitosis usermod -d /home/gitosis
+gitosis
+
+Additionaly /gitosis/repositories/gitosis-admin.git/hooks/post-update is a
+symlink to /usr/share/python-support/gitosis/gitosis-0.2-py2.5.egg/gitosis/
+templates/admin/hooks/post-update so I ran chmod 755 on that actual file.
+
+I’m also using mysysgit for the Windows clients: http://code.google.com/p/
+msysgit/downloads/list The ssh private key went into C:\Documents and Settings\
+<username>\.ssh
+
+kino on May 12, 2008 03:49 AM
+
+Thank’s for you work. gitosis save many hours in my life!
+
+martin on May 13, 2008 03:18 AM
+
+Does anyone know how to make gitweb show the repositories managed with gitosis?
+All the repos are owned by user ‘git’ and group ‘git’ and gitosis makes them
+not readable, writable or executable by default. This is probably the reason
+why the gitweb.cgi does not list them, no matter if I work with projects.list
+and “gitweb=yes” or not. When I chmod the repo directories manually to
+executable (chmod o+x repo.git) it works fine. But of course I don’t want to
+log in as root and set that manually each time a repo is created…. Does anyone
+know a solution? Thanks for your help. —Martin
+
+martin on May 13, 2008 07:31 AM
+
+And another question: How can I delete a complete repository from my git-server
+using gitosis-admin without having/using root-access to delete it manually?
+Thanks again, Martin
+
+Ford on May 17, 2008 05:16 AM
+
+git push Everything up-to-date error: failed to push some refs to
+‘git@host:xxx.git’
+
+when i use the repository added newly,and push it to the gitosis server,there
+is always a error: error: failed to push some refs to ‘git@host:xxx.git’ and
+the contents had committed to the server.
+
+ian on May 19, 2008 08:22 AM
+
+Thanks for the excellent writeup.
+
+For leopard users, I’ve written the steps up at http://blog.ardes.com/2008/5/19
+/git-hosting-with-leopard
+
+alessio on May 20, 2008 02:51 AM
+
+I’ve tried it more than once, but at the command: git clone
+git@YOUR_SERVER_HOSTNAME:gitosis-admin.git
+
+it asks me about the “git” user password. I followed the tutorial more than
+once, can’t see what I’m doing wrong.. Nobody experienced this?
+
+srand on May 22, 2008 12:41 AM
+
+Hi Folks, I have tried the installation instructions several time on several
+machines and on my 64 bit machines it always fail on the following command
+“sudo -H -u git gitosis-init < /tmp/id_rsa.pub”. I get the same error on
+different 64 bit machines (see http://pastie.org/201406). On my ubuntu gutsy
+and hardy (all 64 bit machines) machine I get the error of above. On a hardy
+i386 machine everything went fine and works well. Some suggestions?
+
+srand on May 29, 2008 10:15 AM
+
+So Folks, problem solved. It had something to do with my public key. I
+generated a new one and everything worked perfectly. So thanks for the great
+how-to!! :-)
+
+walt on May 29, 2008 01:18 PM
+
+Hi,
+
+great tool (by the looks – I’m not done yet, though) :)
+
+On Fedora FC8xen I did yum install python-setuptools and was good to go
+
+cheers, walt
+
+Alterscape on May 29, 2008 10:37 PM
+
+Thanks for the great tutorial! I’m trying to set up gitosis on OS X 10.4.11. I
+installed pythonmac.org’s Python 2.5 build and successfully installed following
+the instructions at http://blog.ardes.com/2008/5/19/git-hosting-with-leopard. I
+can successfully clone, edit, commit and push the gitosis-admin repository, but
+when I try to create a test_project, I get the following error on push:
+
+$ git push ERROR:gitosis.serve.main:Repository read access denied fatal: The
+remote end hung up unexpectedly
+
+my gitosis.conf’s entry for the project looks like: [group test] writable =
+test_project members = @gitosis-admin
+
+and I used
+
+git remote add origin git@MY_SERVER:test_project.git
+
+to add the remote.
+
+Thoughts?
+
+Alex on June 01, 2008 10:17 AM
+
+Alterscape: I had the same problem after changing the name of the key for my
+first user, you might have a look there.
+
+I solved it restarting the tutorial from the git user account creation.
+
+Good luck :)
+
+anthony on June 04, 2008 07:26 PM
+
+alessio: I have had this trouble, and it was created by an out-of-sync ssh
+public key. Solo’s comment above helped me out.
+
+There are three places the key is stored. Make sure that the key at ”~/.ssh/
+id_rsa.pub” on your local computer (this is the original) is in agreement with
+the keys on the gitosis server:
+
+”/home/git/repositories/gitosis-admin.git/gitosis-export/keydir/YourUsername@
+YourHostname.pub” and in ”/home/git/.ssh/authorized_keys”
+
+Rodrigo on June 11, 2008 06:36 PM
+
+Great tutorial! Everything worked as expected, thanks a lot.
+
+One question though: is it possible to make gitosis work with non-bare
+repositories?
+
+I ask because we use Redmine (www.redmine.org) to manage our projects, and
+although it can work with bare repositories (tracking commits, etc), it won’t
+let us “browse” the project files (from it’s web inteface) on a bare
+repository. Any clues?
+
+Garry on June 13, 2008 03:00 PM
+
+@Rodrigo, I’m not sure if gitosis will work with non-bare repos. Hop in IRC and
+ask “Tv” in #git, he’s the author and can probably clear that up.
+
+Rodrigo on June 17, 2008 10:27 AM
+
+@Garry, thanks, I talked to Tv on IRC, and he basically said the same thing,
+gitosis currently expects to handle only bare repositories. But he did give me
+some clues on how to get Redmine to work with bare repos, he thinks it’s
+Redmine that’s doing something wrong. So I’m trying to approch this from the
+other end now :)
+
+Stu on June 18, 2008 06:05 AM
+
+I run redmine with git no problem, I have a hook that updates a local checkout.
+Redmines git adapter doesnt work with a bare .git repo it needs a proper
+checkout. on post-update i just do a git pull, which since its a local repo
+doesnt use any more space since it maps to the master .git repo.
+
+in my post-update before the update server info I call /bin/sh /home/git/
+repositories/project.git/hooks/update_local_repo.sh
+
+and that script looks like;
+
+!/bin/sh
+
+cd /home/git/checkout/project || exit unset GIT_DIR git pull /home/git/
+repositories/project.git/ master
+
+I also have a cron job that updates redmines repositories every 30 minutes
+rather than each time a user hits the repo and having redmine check for updates
+(slow). (ruby script/runner “Repository.fetch_changesets” -e production)
+
+Stu on June 18, 2008 06:06 AM
+
+mm line breaks didnt come through. ohwell.
+
+Anlek on June 19, 2008 10:54 PM
+
+Thanks for the info, I have one issue though, I’ve been able to clone the
+gitosis-admin without an issue, I can change it and push it back up to the
+server.
+
+I also created a new project and tried to upload it, followed all your steps
+but when I try to “git push origin master:refs/heads/master” it requests a
+password. Now everything else works via SSH but this, and I don’t know whats
+wrong.
+
+Any one out there can help?
+
+DrMark on June 25, 2008 07:10 PM
+
+Aloha @Stu,
+
+I am using Apache/Passenger with Redmine on OS X 10.5. I am trying to use the
+repository option in Redmine to display a Git repo. Unfortunately, I can’t seem
+to get Apache, Redmine, and Git to play together. I am able to make it work
+fine when using Webrick, but not Apache/Passenger. I have tried changing
+permissions on the .git folder to _www, updating the apache2 conf, etc. to no
+avail.
+
+Would you (or anyone else) have any advice on how to make it work, since you
+have it running already?
+
+Thanks!
+
+DrMark
+
+DAparo on June 26, 2008 10:56 AM
+
+Hello DrMark
+
+I have redmine, passenger, git (using gitosis) and apache working together. I
+have to run a script to update the repos view, otherwise they play well. Are
+you getting any error messages?
+
+DrMark on June 28, 2008 12:48 PM
+
+@DAparo,
+
+Hi. Thanks for responding.
+
+First, I enable the Repository within a project in Redmine and point it to the
+path of the .git folder. I then save that and navigate to the “Repository” tab.
+I see this message:
+
+“The entry or revision was not found in the repository.”
+
+I know that the path and everything is correct because the exact same settings
+work when I start script/server instead of using Apache/Passenger. I suspect
+that it is an Apache path issue or a file permissions issue. Do you have any
+special apache settings for the .git folder? What permissions are on that file?
+
+Thanks!
+
+DrMark
+
+Blut Werte on June 29, 2008 07:12 AM
+
+Is it possible to enable only read acess to different repositories for each
+one. Not the git-damon way, since it exposes the same set of repositories for
+every one.
+
+DAparo on July 03, 2008 09:00 AM
+
+@DrMark
+
+Sorry for the long delay in getting back to you.
+
+I think it may be repository permissions too. This is what got me. You run
+script/server w/a user that has a public cert in the gitosis repos, but the
+apache/passenger user doesn’t. Simple solution… create a cert for your
+passenger user. Add it to gitosis server and assign permissions in
+gitosis.conf. I gave my apache user read permissions on the entire direstory
+and all files / folders within. I didn’t do anything special with the any .git
+configs. I did have to run “ruby script/runner “Repository.fetch_changesets” -e
+production” first.
+
+Hope this helps…
+
+DAparo on July 03, 2008 09:05 AM
+
+Almost forgot… run the script as your passenger user. And make sure all your
+app files are readable by your passenger user as well.
+
+Miroslav Bazitov on July 05, 2008 04:28 AM
+
+Hi folks,
+
+I’ve setup gitosis very easy and everything in woks very smooth.
+
+Right now I’m writing a small bash script to automate the recurring work of
+creating repositories.
+
+But my question is how can I remove a repository from gitosis? Can I just
+delete /home/git/repositories/REPOSITORY.git (and clean the ~/gitosis-admin/
+gitosis.conf) or there is an other way to remove it?
+
+Tnx in advance! Miro
+
+Danno on July 08, 2008 03:40 PM
+
+If you keep getting asked for your password when executing git-remote commands
+like this:
+
+$git remote show origin Password:
+
+...then you may need to tweak your ~/.ssh/config file. This didn’t happen to me
+originally (I’m using OSX by the way). But, when I generated a new key pair for
+use only with git and placed the public key in the gitosis-admin/keydir
+(removing the original one used when setting up gitosis) then pushed, I started
+being asked for my password. Since gitosis updated the git/.ssh/authorized_keys
+file on the server with the new public key, the old one was no longer listed
+there.
+
+The problem is that by default ssh-keygen names your generated keys id_dsa or
+id_rsa. OpenSSH scans your ~/.ssh dir looking for either of these when
+automagically passing your identity during connection negotiation. Since my
+local OpenSSH only knew to pass my id_dsa identity and the server only knew of
+my danlynn identity, the connection negotiation failed back to interactive
+password authentication.
+
+To fix this, I modified my ~/.ssh/config file and added the following lines:
+
+IdentityFile ~/.ssh/danlynn IdentityFile ~/.ssh/id_dsa
+
+Now, when executing any of the git-remote commands, they simply work.
+
+Also, if you are using OSX then I highly reccommend that you install
+SSHKeychain (http://www.sshkeychain.org/) because “SSHKeychain acts as a
+gateway between you and the agent, it can automatically add keys when you need
+them.” It interacts with the OSX keychain and can store all your key
+passphrases. Thus, you never have to enter any ssh key passphrases. It’s really
+slick.
+
+Danno on July 08, 2008 03:43 PM
+
+Sorry for the unfortunate blog formatting on the examples in the previous post.
+Thus, here is a second try tweaked for correction:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+If you keep getting asked for your password when executing git-remote commands
+like this:
+
+$git remote show origin
+
+Password:
+
+...then you may need to tweak your ~/.ssh/config file. This didn’t happen to me
+originally (I’m using OSX by the way). But, when I generated a new key pair for
+use only with git and placed the public key in the gitosis-admin/keydir
+(removing the original one used when setting up gitosis) then pushed, I started
+being asked for my password. Since gitosis updated the git/.ssh/authorized_keys
+file on the server with the new public key, the old one was no longer listed
+there.
+
+The problem is that by default ssh-keygen names your generated keys id_dsa or
+id_rsa. OpenSSH scans your ~/.ssh dir looking for either of these when
+automagically passing your identity during connection negotiation. Since my
+local OpenSSH only knew to pass my id_dsa identity and the server only knew of
+my danlynn identity, the connection negotiation failed back to interactive
+password authentication.
+
+To fix this, I modified my ~/.ssh/config file and added the following lines:
+
+IdentityFile ~/.ssh/danlynn
+
+IdentityFile ~/.ssh/id_dsa
+
+Now, when executing any of the git-remote commands, they simply work.
+
+Also, if you are using OSX then I highly reccommend that you install
+SSHKeychain (http://www.sshkeychain.org/) because “SSHKeychain acts as a
+gateway between you and the agent, it can automatically add keys when you need
+them.” It interacts with the OSX keychain and can store all your key
+passphrases. Thus, you never have to enter any ssh key passphrases. It’s really
+slick.
+
+Jan on July 15, 2008 01:13 AM
+
+Hello, When I try to create a new repository all I get is: $ push origin $
+ERROR:gitosis.serve.main:Repository read access denied I use the same user for
+the admin repository and the one I try to create. Are there any logfiles that
+tell my why gitosis thinks that reading is not allowed?
+
+Regards, Jan
+
+Pegolon on July 24, 2008 01:25 AM
+
+Hi, to install gitosis on a Mac OS X Leopard Server I used the recent version
+of Python 2.5.2 of MacPorts and the hashlib: > port install python25
+py25-hashlib which will be installed into /opt/local/bin, so make sure it is
+included PATH before /usr/bin where the original version is.
+
+To install the setup tools: > cd /usr/src > wget http://peak.telecommunity.com/
+dist/ez_setup.py > python ez_setup.py
+
+Source: http://peak.telecommunity.com/DevCenter/EasyInstall#
+installation-instructions
+
+Then “python /usr/src/setup.py install” will work as described above.
+
+Cheers, Markus
+
+Ryan on July 24, 2008 11:07 AM
+
+Once I had everything installed, I ran:
+
+% git clone git@MY_HOST:gitosis-admin.git
+
+and I got:
+
+Traceback (most recent call last): File ”/usr/bin/gitosis-serve”, line 7, in ?
+sys.exit( File ”/usr/lib/python2.4/site-packages/gitosis-0.2-py2.4.egg/gitosis/
+app.py”, line 24, in run return app.main() File ”/usr/lib/python2.4/
+site-packages/gitosis-0.2-py2.4.egg/gitosis/app.py”, line 38, in main
+self.handle_args(parser, cfg, options, args) File ”/usr/lib/python2.4/
+site-packages/gitosis-0.2-py2.4.egg/gitosis/serve.py”, line 205, in handle_args
+os.execvp(‘git-shell’, [‘git-shell’, ‘-c’, newcmd]) File ”/usr/lib/python2.4/
+os.py”, line 341, in execvp _execvpe(file, args) File ”/usr/lib/python2.4/
+os.py”, line 379, in _execvpe func(fullname, *argrest) OSError: [Errno 2] No
+such file or directory
+
+It turned out that this was because I had rolled my own git and installed it at
+/opt/git/bin. While this was in my path (and even in /etc/profile), it was not
+in the path of the git user. I edited ~git/.bashrc, adding PATH=”/opt/git/
+bin:$PATH”, and it started working.
+
+Ryan on July 24, 2008 11:09 AM
+
+Also, I wanted to point out that, in order to figure this out, it helped to
+have this in my ~git/.gitosis.conf:
+
+[gitosis]
+
+loglevel=DEBUG
+
+Daniel Barreto on July 25, 2008 03:35 PM
+
+Hello everyone!
+
+first i have to say this was a great tutorial! thank you very much.
+
+second, I came to the comments looking for the answer to the
+“ERROR:gitosis.serve.main:Repository read access denied” question. I didn’t
+find what I was expecting but reading the opinion of some of you I solved my
+problem. When i got the problem, i was using a dsa public key, the only thing I
+did was change it to rsa and it worked =)..
+
+finally it is working perfectly, but I got one question with git-daemon and I
+want to try some luck here.
+
+I get this error: “fatal: unable to allocate any listen sockets on host (null)
+port 9418” when running git-daemon—base-path=/some/path I don’t understand why
+it tells me null where my host should go =s. anyway, I tried:
+git-daemon—base-path=/some/path—listen=MY_HOST_NAME and didn’t work either…
+
+anyone knows something that could help me?
+
+Liutauras on July 31, 2008 05:32 PM
+
+Hi everyone. I’m on Ubuntu hardy. I’ve got this message after i run ”> sudo -H
+-u git gitosis-init < /tmp/id_rsa.pub” : sudo: cannot get working directory
+Initialized empty Git repository in ./ Initialized empty Git repository in ./
+fatal: Could not get the current working directory Traceback (most recent call
+last): File ”/usr/bin/gitosis-init”, line 8, in <module> load_entry_point
+(‘gitosis==0.2’, ‘console_scripts’, ‘gitosis-init’)() File ”/usr/lib/python2.5/
+site-packages/gitosis-0.2-py2.5.egg/gitosis/app.py”, line 24, in run return
+app.main() File ”/usr/lib/python2.5/site-packages/gitosis-0.2-py2.5.egg/gitosis
+/app.py”, line 38, in main self.handle_args(parser, cfg, options, args) File ”/
+usr/lib/python2.5/site-packages/gitosis-0.2-py2.5.egg/gitosis/init.py”, line
+140, in handle_args run_hook.post_update(cfg=cfg, git_dir=admin_repository)
+File ”/usr/lib/python2.5/site-packages/gitosis-0.2-py2.5.egg/gitosis/
+run_hook.py”, line 27, in post_update repository.export(git_dir=git_dir, path=
+export) File ”/usr/lib/python2.5/site-packages/gitosis-0.2-py2.5.egg/gitosis/
+repository.py”, line 148, in export raise GitReadTreeError(‘exit status %d’ %
+returncode) gitosis.repository.GitReadTreeError: git read-tree failed: exit
+status 128
+
+Any ideas? Thank you L
+
+Michael G. Noll on August 01, 2008 06:08 AM
+
+Thanks for this tutorial, garry!
+
+Since you haven’t mentioned it in this tutorial (I also haven’t found it in the
+gitosis documentation), you might want to add that a user can also have
+multiple SSH keys for authentication, e.g. one public key from work and one
+public key from home.
+
+Just add the respective public keys to “keydir/<user>.pub”, i.e. one key per
+line in the file. For instance, if user “jsmith” uses three different SSH keys
+to connect via gitosis to a shared git repository, he would have three keys (=
+three lines) in “keydir/jsmith.pub”.
+
+Hope this helps, Michael
+
+Mariya on August 04, 2008 04:06 PM
+
+Just wanted to say thanks from a GitNoob. Good Git docs are still hard to come
+by. Keep up the great work!
+
+Garrett on August 05, 2008 04:06 PM
+
+Something in the version that have required that the project description be
+changed for the update scripts to work—you can see the various validation in
+that script. Once I modified it by editing .git/description on both the remote
+and local repositories, the remote push went through.
+
+Graham Perks on August 05, 2008 08:33 PM
+
+If you this this error when you go to access the remote repository:
+
+bash: gitosis-serve: command not found
+
+Then edit the remote “git” user’s .bashrc and include these lines to ensure /
+usr/local/bin is in the path.
+
+echo $PATH | grep -q -s ”/usr/local/bin” if [ $? -eq 1 ] ; then PATH=/usr/local
+/bin:/usr/local/sbin:$PATH export PATH fi
+
+A prior poster’s comment about manually editing authorized_keys is a poor
+workaround, since gitosis will rewrite that file when you add/remove users.
+
+Graham Perks on August 05, 2008 08:35 PM
+
+That little bit of .bashrc goodness should be:
+
+echo $PATH | grep -q -s ”/usr/local/bin”
+
+if [ $? -eq 1 ] ; then
+
+PATH=/usr/local/bin:/usr/local/sbin:$PATH
+
+export PATH
+
+fi
+
+Informático de Guardia on August 12, 2008 12:42 AM
+
+Thanks to Lobo Tuerto for the translation and Garry for allow it
+
+Scott Motte on August 15, 2008 09:25 AM
+
+To specify a custom port, you can also write something like this instead of
+editing the /.ssh/config file:
+
+git clone ssh://git@209.1.1.xxx:32767/home/git/repositories/gitosis-admin.git
+
+pvillega on August 16, 2008 10:11 AM
+
+i love you, saved my day and made the work sooo easy… eternal love
+
+Noah on August 19, 2008 11:26 AM
+
+Anyone have any idea what’s causing this?
+
+git clone git@<host>:gitosis-admin.git Initialized empty Git repository in /
+Users/Noah/Desktop/gitosis-admin/.git/ Traceback (most recent call last): File
+”/usr/bin/gitosis-serve”, line 8, in <module> load_entry_point(‘gitosis==0.2’,
+‘console_scripts’, ‘gitosis-serve’)() File ”/usr/lib/python2.5/site-packages/
+gitosis-0.2-py2.5.egg/gitosis/app.py”, line 24, in run return app.main() File ”
+/usr/lib/python2.5/site-packages/gitosis-0.2-py2.5.egg/gitosis/app.py”, line
+38, in main self.handle_args(parser, cfg, options, args) File ”/usr/lib/
+python2.5/site-packages/gitosis-0.2-py2.5.egg/gitosis/serve.py”, line 204, in
+handle_args os.execvp(‘git-shell’, [‘git-shell’, ‘-c’, newcmd]) File ”/usr/lib/
+python2.5/os.py”, line 354, in execvp _execvpe(file, args) File ”/usr/lib/
+python2.5/os.py”, line 392, in _execvpe func(fullname, *argrest) OSError:
+[Errno 2] No such file or directory fatal: The remote end hung up unexpectedly
+fetch-pack from ‘git@<host>:gitosis-admin.git’ failed.
+
+drwestco on August 19, 2008 11:54 PM
+
+Seeing the same error as Noah – OSError on load_entry_point(‘gitosis==0.2’,
+‘console_scripts’, ‘gitosis-serve’)().
+
+The setup.py and gitosis-init steps ran without error.
+
+drwestco on August 20, 2008 09:19 AM
+
+Oops – the call stack runs from top to bottom. ‘git-shell’ is missing from the
+system.
+
+drwestco on August 20, 2008 09:37 AM
+
+Found a solution. Per the discussion at http://www.spinics.net/lists/git/
+msg71059.html, I added the following to .bashrc for my git user:
+
+export PATH=$(git—exec-path):$PATH
+
+leword on August 20, 2008 02:50 PM
+
+git clone git@YOUR_SERVER_HOSTNAME:gitosis-admin.git
+
+kept failing for me—asking for password. then I remembered that I had an
+explicit list of user in sshd_config and hadn’t added git. (this is default
+setup using articles from slicehost for example)
+
+cgardner on August 20, 2008 05:07 PM
+
+@Scott It took me about half an hour to figure that out. I guess that will
+teach me to go through the comments first.
+
+lenards on August 23, 2008 05:30 PM
+
+If you’re getting ERROR:gitosis.serve.main:Repository read access denied
+
+you’ll want to verify that you’re keys are correct – check the local versus the
+.pub file in ~/repositories/gitosis-admin/gitosis-export/
+
+then – make sure that you follow the tutorial… I was getting this message when
+I had not added my repo to the gitosis.conf prior to pushing up the repo… so
+make sure that you have the group and such in your gitosis.conf prior to doing
+your `git push origin master`
+
+I spent a ton of time searching about getting this going …
+
+if you’re getting the os.py error – check and see if `git-shell` is in the
+install directory… /usr/bin or /usr/local/bin … I needed to do a symlink to
+`git-shell` from my install directory… I have git in /opt/git-1.6.0 with a
+symlink to that as /opt/git … so as I update git – I just relink and that’ll
+get the `git-shell` updated too.
+
+Hope this saves some time for people
+
+eflores on August 27, 2008 01:44 PM
+
+silent(e): I had exactly the same problem with my keys not being accepted from
+the windows client, I tried generating all types of new keys on my windows
+machine but none worked. Finally what worked is for me to generate a new
+keypair on my mac using
+
+ssh-keygen -t dsa -f <keypairname>
+
+I then copied the private key over to windows C:\Documents and Settings\
+<username>\.ssh\id_dsa and did the same for the public key, calling it
+id_dsa.pub
+
+thanks garry for the well put together instructions, you saved me days of
+frustration!
+
+cmelbye on August 27, 2008 04:41 PM
+
+For ArchLinux, the command to install python, setuptools, and sudo is: pacman
+-S python setuptools sudo
+
+Hope this helps, Charlie Melbye
+
+Rick Sandhu on August 30, 2008 05:06 PM
+
+First of all, thank you for the generous tutorial. I was able to install
+gitosis and clone, change and push gitosis-admin.git successfully to and from
+local to server. The .gitosis.conf file even updated fine. However, when I
+created the new project ‘test’ specified in gitosis.conf and tried to push it
+to origin, i got the following error:
+
+fatal: ‘repositories/test.git’: unable to chdir or not a git archive fatal: The
+remote end hung up unexpectedly
+
+Any thoughts?
+
+Cynyr on September 04, 2008 10:10 AM
+
+@Noah It looks like they have removed all of the symlinks and are expecting
+people to switch to “git shell” or “git commit” instead of git-shell and
+git-commit. Anyways I am using an older version of gitosis, so it may have
+already been fixed.
+
+kholzer on September 07, 2008 05:36 PM
+
+Nice writeup. Thanks. Only thing I would add is that one may need to punch a
+hole in one’s router (if one is behind NAT) at port 9418 for this all to work.
+
+Thank you!
+
+lobo_tuerto on September 08, 2008 01:35 PM
+
+Hello, I recently update my Ubuntu server because of the recent problem with
+generated SSH keys.
+
+After updating the server, I had to re-generate the keys. Then I couldn’t do a
+“git pull” anymore, I had to delete they old server’s key from ~/.ssh/
+known_hosts. After deleting it, however I cannot pull. Gitosis is asking for a
+password.
+
+This might be because in my “client machine” the ssh keys were re-generated
+too.
+
+The question is: How do I update the key in the server? I want to put in the
+server the key from the client machine that is controlling “gitosis”. Did that
+make sense? :)
+
+Help!
+
+Michael on September 08, 2008 09:22 PM
+
+There’s a really simple way to do this shown here: http://blog.commonthread.com
+/2008/4/14/setting-up-a-git-server, it worked for us.
+
+Garry on September 11, 2008 04:42 PM
+
+@Cynyr, “git-shell” was changed to “git shell” in the latest gitosis.
+
+Garry on September 11, 2008 04:48 PM
+
+@lobo_tuerto, if you’ve followed the directions here, you’ll want to look at
+this file:
+
+/home/git/.ssh/authorized_keys
+
+Put in your new public key in there, being careful to preserve the “command
+=...” stuff.
+
+Then update your gitosis-admin repo with your new pub key. Push this. You
+should be allowed to push now b/c you changed authorized_keys. Gitosis will
+overwrite authorized_keys at this point, but it is OK b/c you put your new pub
+key into gitosis-admin repo.
+
+That should do it. I’m typing this from memory, so hopefully I got it right. ;)
+
+ryan on September 12, 2008 02:31 PM
+
+Does anyone have any further clarification on making “multiple repositories”
+work? I’d like to have the layout of my repositories directory organized into
+sub-repositories, rather that just one giant directory filled with all the
+’.git’ directories. I’d like to have somethings similar to:
+
+/git/repositories/$USERNAME/$REPOSITORY, where I’d have several values for
+$USERNAME like this:
+
+/git/repositories/user1/project1.git /git/repositories/user1/project2.git /git/
+repositories/user2/somthingelse.git /git/repositories/user3/myproject.git
+
+etc. Basically have the same repository topography as github or the like. TIA.
+
+djay on September 12, 2008 05:55 PM
+
+Just a thought. it would be cool to have an “add” permission. That way the
+admin doen’t need to explicitly add every project when its started.
+
+Not sure how that works in practice but I think it means that gitosis will have
+to append to the gitosis.conf file on the server. Then admin will later have to
+do a pull and can further refine the permissions.
+
+ed on September 18, 2008 01:54 PM
+
+Great documentation Gary!
+
+Thanks, ed
+
+dan on September 19, 2008 05:22 AM
+
+Thanks for the tutorial Gary! @ryan I’d be keen to know if you have managed
+“multiple repositories” to work yet? I could do with that.
+
+sam flowers, jr on September 20, 2008 03:03 AM
+
+Thats such a great tutorial. I do not feel like keep paying for github for the
+service..
+
+Thanks a lot!
+
+John Freeman on September 20, 2008 10:03 AM
+
+I am getting the same error as Liutauras (but I am not using gitosis) – does
+anyone know what causes it?
+
+remote: fatal: Could not get the current working directory error:
+git-upload-pack: git-pack-objects died with error. fatal: git-upload-pack:
+aborting due to possible repository corruption on the remote side. remote:
+aborting due to possible repository corruption on the remote side. fatal: early
+EOF fatal: index-pack failed
+
+Dan quotes on September 21, 2008 06:19 AM
+
+john: can you try to clone the remote repo, just to see if it is corrupted or
+not?
+
+Thanks Dan quotes
+
+Brian Zhou on September 22, 2008 04:07 PM
+
+Thanks for the great tutorial. I packaged gitosis up as ipk in optware cross
+build environment. Now it’s available on lots of NAS devices near you. See
+http://www.nslu2-linux.org/wiki/Optware/Platforms for supported target devices.
+
+Cheers, bzhou at nslu2 dash linux dot org
+
+ixx on September 23, 2008 06:52 PM
+
+For Centos 5.x adduser -r—shell /bin/sh—comment “git version
+control”—create-home git usermod -L git
+
+renji on September 23, 2008 07:47 PM
+
+Thanks for the tutorial! I followed the steps and was doing great until i tried
+pushing a new repository $ git push origin master:refs/heads/master I get this
+error: fatal: ‘new_project.git’: unable to chdir or not a git archive fatal:
+The remote end hung up unexpectedly
+
+help? :c
+
+MikkelFJ on September 24, 2008 05:14 AM
+
+This does not work on Debian Etch with ssh password login disabled. workaround:
+add password to git user. reason: debian locks passwordless accounts insecure
+workaround 2: UsePAM = yes in sshd_config – but you shouldn’t have PAM login
+active.
+
+Excellent article worked out of the box the first time I tried (except
+installation see below).
+
+But then I secured my system according to: http://articles.slicehost.com/2007/9
+/5/debian-etch-setup-page-1
+
+/etc/ssh/sshd_config: UsePAM = no
+
+If UsePAM is set to yes, it will work even with password authentication
+disabled, but it is not fully secure. With UsePAM set to no, it will only work
+if a password is added to the git(osis) user account.
+
+The reason is that Debian locks passwordless accounts, but somehow pam_unix
+circumvents this over ssh hence it will work with UsePAM = yes.
+
+Debian Etch install procedure:
+
+$ apt-get install python-setuptools && apt-get install gitosis $ sudo passwd
+gitosis $ <prompt password for>
+
+Dependencies on python-setuptools does not work correctly (at least in my
+version) so it must be installed first as the article also says. If gitosis is
+attempted installed first, it must be removed before python tools is installed_
+
+$ apt-get remove gitosis
+
+If gitosis-init is called again with a new public key, the old key will remain
+installed. Remove content of .ssh and repositories directories in the git user
+account , then run gitosis-init again.
+
+Debian installer creates user “gitosis” with home directory ”/srv/gitosis”
+which is fine, but different from the above article. It is also possible to
+manually create a “git” user according to the above. In both cases a password
+must be added on secured systems.
+
+Apparently the update hook has the correct permissions from install, so this
+isn’t necessary to change.
+
+gitosis is a very nice tool
+
+Mikkel
+
+Elektronik on October 01, 2008 11:26 PM
+
+“And on gentoo, python setup tools are dev-python/setuptools” Thats true
+
+ellie on October 11, 2008 06:58 PM
+
+I agree, it did not work on Debian Etch!
+
+Laran on October 11, 2008 11:29 PM
+
+When executing this:
+
+git clone git@YOUR_SERVER_HOSTNAME:gitosis-admin.git cd gitosis-admin
+
+I get prompted for the git users password. I didn’t setup a password though. I
+followed the directions which used the—disabled-password flag.
+
+Incidentally, I’m doing the whole setup process on the same machine, in case
+it’s relevant.
+
+FunnyMan on October 13, 2008 07:27 PM
+
+The reason your custom port is failing is that git can’t figure out what you’re
+trying to do. Use this form instead:
+
+ssh://git@myserver.com:1234/foo/bar
+
+Note the added protocol and the removed colon.
+
+claytonlz on October 18, 2008 04:50 PM
+
+Thanks! This guide was helpful in getting a git repo setup on my slicehost
+slice.
+
+colinta on November 02, 2008 10:52 PM
+
+i’m wondering if anyone has used gitosis on a linux (ubuntu) server to keep a
+website application in sync, like one would do using rsync.
+
+I’m thinking that just by issuing:
+
+~/src/website $ git push mysite.com live
+
+the live branch would be pushed to the gitosis server, and the files in /home/
+git/repositories/website would be updated, which would also act as the document
+root for the web server.
+
+any thoughts? is this feasible?
+
+Liutauras on November 06, 2008 04:19 AM
+
+colinta I would recommend to have a look at Capistrano. In my case I’m pushing
+to my remote git repository and while deploying capistrano is automaticaly
+pulling it from there and deploy it as current release.
+
+Garry on November 09, 2008 03:06 AM
+
+Bruno Andrade Alves has translated this tutorial into Brazilian Portuguese:
+http://blog.dito.com.br/2008/10/instalando-o-git-utilizando-o-gitosis/
+
+Many thanks Bruno!
+
+Billy Green on November 12, 2008 07:16 PM
+
+2d6uw8p7xo5u7gox
+
+Malte Landwehr on November 16, 2008 11:23 AM
+
+colinta I haven’t yet heard of anyone doing that. I guess the workaround from
+Liutauras is the best solution for you.
+
+Peter on November 17, 2008 09:08 PM
+
+Great article Garry…
+
+I am having some trouble though, I hope you can help.
+
+I have followed the instructions to the letter. The server is on Ubuntu 8.04
+and the client (local) is Mac OS X 10.5.5.
+
+When I issue this command on the local machine: “git clone
+git@192.168.111.52:gitosis-admin.git”, the server returns this:
+
+Initialized empty Git repository in /Users/&lt;username>/programming/git/gitosis-admin/.git/
+git@192.168.111.52's password:
+
+I suspect this has something to do with the SSH public key. I did create on on
+the local machine, copied it to the server, and issued the command “sudo -H -u
+git gitosis-init < /tmp/id_rsa.pub”. This command returned the two
+“Initialized” lines as you show in your article.
+
+I understand that git is a system user without password, which means that the
+SSH key is the only way to authenticate. But apart from that, I can’t figure
+out what I’m doing wrong.
+
+Any help is much appreciated!
+
+Garry on November 18, 2008 12:22 AM
+
+@Peter you have to make sure the “git” user has your pub key in its authorized
+keys file. If you followed these directions exactly, it should be there. Double
+check.
+
+Peter on November 18, 2008 04:24 PM
+
+I repeated the steps a few time so I doubt I missed anything, although I am far
+from perfect.
+
+It finally worked when I created a normal user (I tried this in Fedora and
+Ubuntu Linux) using the graphical interface. So the only step I “customised”
+was the manual creation of the git user. I followed all further steps exactly
+as you set them, and I was finally able to get the gitosis-admin file on my
+local machine.
+
+I am a newcomer to Linux so I suspect that not creating a system user may have
+some security implications. I removed all common user privileges to the git
+user I created, but still I would be very interested in your comments.
+
+Thanks!
+
+Garry on November 20, 2008 01:17 AM
+
+Peter, if your /etc/ssh/sshd_config file has “UsePAM yes”, then PAM may have
+denied you logging in as your “git” user because of various reasons. The most
+common one I’ve seen is that the account is “locked”. What makes an account
+locked is dependent on your PAM setup. Changing the password field for the
+“git” user in /etc/shadow from ! to a * has been reported to solve the problem.
+
+pillowfactory on November 25, 2008 11:56 AM
+
+Garry,
+
+Is the gitosis repo no longer available? I’m getting a Connection Refused error
+when trying to clone it using: git clone git://eagain.net/gitosis.git
+
+Thanks, Luke.
+
+neorab on November 29, 2008 10:18 AM
+
+http://pypi.python.org/pypi/setuptools for instructions on getting setuptools
+installed from scratch.
+
+Eelco on December 01, 2008 07:57 AM
+
+@pillowfactory it is down indeed, i got my copy from github :)
+
+MilesZS on December 01, 2008 12:44 PM
+
+“yum install python-setuptools” on CentOS 5, by the way. It’s probably the same
+for RedHat Enterprise Linux 5. It may even be the same on Fedora Core 9. I’m
+not sure.
+
+StefanScott on December 02, 2008 03:31 PM
+
+I used PuttyGen on Windows to generate my public key (SSH2 RSA 1024) and save
+it locally, and then I uploaded it to /tmp/id_rsa.pub using pscp, but then when
+I ran
+
+sudo -H -u git gitosis-init < /tmp/id_rsa.pub
+
+I kept getting errors, eg:
+
+gitosis.init.InsecureSSHKeyUsername: Username contains not allowed characters:
+‘[DEL:—:DEL]‘
+
+or:
+
+gitosis.init.InsecureSSHKeyUsername: Username contains not allowed
+characters:’”rsa-key-20081202”’
+
+or (after I got rid of everything in the file but the key itself):
+
+ValueError: need more than 1 value to unpack
+
+I figured that PuttyGen had generated an SSH2 public key file in a slightly
+different format, and ‘git gitosis-init’ wanted a user name at the beginning,
+so I went here:
+
+http://www.rfc-archive.org/getrfc.php?rfc=4716
+
+and saw that I could keep the “[DEL:—BEGIN…” and “:DEL]—END” parts, and replace
+the “comment: ...” line (generated by PuttyGen) with a line reading:
+
+subject: git
+
+And it worked! I got the output:
+
+Initialized empty Git repository in /home/git/repositories/gitosis-admin.git/
+Reinitialized existing Git repository in /home/git/repositories/
+gitosis-admin.git/
+
+Stefan Scott on December 02, 2008 06:39 PM
+
+sr on December 28, 2007 10:39 PM
+
+I had the same problem – it was because my machine had a firewall blocking
+outgoing connections on port 9418, the port that git uses.
+
+Different machines will have different firewalls set up. In my case (on Debian
+Etch), I first tried to change iptables – but there was nothing to do there, as
+it was already allowing all outgoing connections.
+
+Turns out my VPS (virtual private server) hosting provider had an external
+firewall blocking most outgoing connections, and I had to open up port 9418
+there, via their web interface.
+
+jkridner on December 08, 2008 01:44 PM
+
+@galen: for Gentoo, I found the package to be dev-python/setuptools, not
+python-dev/setuptools.
+
+framallo on December 09, 2008 04:05 AM
+
+nice post! I’m just wondering how to integrate it with git-svn. The
+repositories folder doesn’t have a git repo like the one i have in the desktop.
+I think it’s only the .git folder (with objects,refs folders and config file)
+right? anyway the basic workflow to git-svn for an existing repository is Don’t
+run git svn init bc you’ll create a new repo, just add this to your .git/config
+file: [svn-remote “svn”] url = https://svn.richapplabs.com/tech/modcart-dev/
+trunk/ModCloth fetch = :refs/remotes/git-svn then run git fetch if you want to
+have only part of the history run: git fecth -r <revision_number>
+
+you could check with git svn info
+
+instead of svn update you’ll run: git svn rebase
+
+Instead of svn commit you’ll run git svn dcommit
+
+however i don’t know how to add this to a gitosis server to share a git-svn
+repo
+
+Emily on December 09, 2008 11:59 PM
+I followed below steps, git remote add myserver git@MYSERVER:myproject.git
+
+ 1. do some work, git add and commit files git push myserver master:refs/heads/
+    master
+
+Error as below: fatal: ‘myproject.git’ : unable to chdir or not a git archive
+fatal: The remote end hung up unexpectedly
+
+Need I create myproject repo in server under repositories directory at first,
+then try above command ?
+
+Thanks, Emily
+
+Wouter on December 10, 2008 08:50 AM
+
+Can anybody explain me the internals of gitosis? Or point me to some
+documentation? I was reading to the gitosis code but it didn’t make much sense
+to me. Probably because git itself is also pretty new to me…
+
+Tzury Bar Yochay on December 14, 2008 07:07 AM
+
+As far as I managed to gather from the README file here is the magic: the linux
+user (ssh/login) is a single user which created without password. This user is
+shared amongst al the repositories you are hosting.
+
+Since all keys at ~/.ssh/authorized_keys are defined with command=
+’gitosis-serve’ option, all the commands are to be enforced to go via
+gitosis-serve which apply a filter on the commands supplied and act
+accordingly.
+
+you can read more about this command option at: http://www.eng.cam.ac.uk/help/
+jpmg/ssh/authorized_keys_howto.html
+
+hoped I helped yo uand other who will visit this page in the future .
+
+Tzury Bar Yochay on December 14, 2008 07:08 AM
+
+@Wouter
+
+As far as I managed to gather from the README file here is the magic: the linux
+user (ssh/login) is a single user which created without password. This user is
+shared amongst al the repositories you are hosting.
+
+Since all keys at ~/.ssh/authorized_keys are defined with command=
+’gitosis-serve’ option, all the commands are to be enforced to go via
+gitosis-serve which apply a filter on the commands supplied and act
+accordingly.
+
+you can read more about this command option at: http://www.eng.cam.ac.uk/help/
+jpmg/ssh/authorized_keys_howto.html
+
+hoped I helped you and other who will visit this page in the future .
+
+reglogge on December 17, 2008 08:16 AM
+
+Hi and thanks from also for this excellent guide. I would like to contribute
+something back by showing a solution to a problem I encountered.
+
+My problem was that I had a cloned repository of one of my projects running on
+the same server as gitosis and had cloned it by using the direct path to the
+gitosis-repo (e.g. /home/git/repositories/my_project.git).
+
+Whenever I pushed some changes from the cloned repository back to the
+gitosis-repo, the ownership for the new objects in /home/git/repositories/
+my_project.git/objects got set to the owner I ran the push command with (in my
+case root). The result was that pulls and pushes from other cloned repositories
+(on other developers’ machines) aborted with errors since they couldn’t write
+or read from and to the gitosis-repo.
+
+The solution lay in switching the directive in .git/config from
+
+[remote “origin”] url = /home/git/repositories/my_project.git
+
+to: [remote “origin”] url = git@gitosis-server:my_project.git
+
+and adding the public key for root to gitosis-admin/keydir as well as adding
+root to the authorized users of the project in gitosis-admin/gitosis.conf and
+then pushing those changes to the server.
+
+No more wrong ownerships in /home/git/repositories/my_project.git/objects.
+
+ed on January 15, 2009 11:34 AM
+
+ERROR:gitosis.serve.main:Repository read access denied fatal: The remote end
+hung up unexpectedly
+
+I got this because the key name specified in the gitosis.conf file was not the
+same as the name of the key file in the keydir folder. I was copying and
+pasting from one admin to another – oops.
+
+marv on January 18, 2009 01:10 AM
+
+Haha, just wanted to say that you really nailed it with the “I’m repeating
+myself for those who skim” part after the first headline. I came to the page
+through google, saw a bunch of yada yada introductory stuff and skipped to the
+first headline. And got exactly the answer I was looking for. :)
+
+Jason F on January 19, 2009 10:49 PM
+
+Excellent post Garry- thanks for all the great work on gitosis.
+
+N3uro5i5 on January 25, 2009 02:49 AM
+
+Adduser doesn’t work for me. Alternatively i’ve use “sudo useradd git -d /home/
+git -c ‘git version control’ -s /bin/sh -g git -r -m” on my ArchLinux distro.
+
+krimpat on January 28, 2009 06:53 AM
+
+For users who find “unable to chdir or not a git archive” error
+
+git clone git@YOUR_SERVER_HOSTNAME:/REPOSITORIES_PATH/gitosis-admin.git
+
+note that is the same syntax than a secure copy (scp).
+
+Koppenhoefer on January 29, 2009 03:50 AM
+
+Has anyone got SSHKeychain working as described by Danno on July 08 (See
+above)??
+
+When I’m in a project folder on the mac (and yes SSHKeychain is running) and I
+do a ‘git pull’ I am required to enter the ssh passphrase. I expected to not
+have to enter it next time… but no such luck.. I have to enter it each and
+every time.
+
+Anyone had success with this? Can you enlighten me ? Thanks. Shawn
+
+Garry on February 04, 2009 01:11 AM
+
+@marv See! I knew people wouldn’t read the intro ;)
+
+Shoaibi on February 05, 2009 11:11 PM
+
+Thanks… such a great tutorial…
+
+Richie on February 06, 2009 11:39 AM
+
+if you are at an end figuring out why you are getting the following error even
+after making sure the keys are in sync like advised in previous posts:
+ERROR:gitosis.serve.main:Repository read access denied fatal: The remote end
+hung up unexpectedly
+
+make sure (server side) <git home>/.gitosis.conf is a symlink to <git home>/
+repositories/gitosis-admin.git/gitosis.conf
+
+essentially, gitosis-serve refers to <git home>/.gitosis.conf file but the real
+config file (that gets updated when you push) is in the gitosis-admin repo (as
+per above).
+
+I had moved the repos over to a new server and inadvertently caused <git home>
+/.gitosis.conf to become a copy of the real file an not a symlink thus causing
+an out of sync issue. All old repos were working for months but recently I’d
+added new repos to the config and just couldn’t get it to work till now :)
+
+MySchizoBuddy on February 06, 2009 11:41 PM
+
+There is lot manual editing of config files. How would you add/users/repo/
+permissions via an automated system or via a web browser.
+
+Andrew Uselton on February 07, 2009 02:24 PM
+
+I found that the setuptools RPM did not install correctly. The manual steps
+that follow worked. This is essentially what “sudo rpm -ivh …” should have
+done:
+
+cd ~/src rpm2cpio ~/download/setuptools-0.6c9-1.src.rpm | cpio -ivd tar xvfz
+setuptools-0.6c9.tar.gz cd setuptools-0.6c9 sudo python setup.py install
+
+Andrew Uselton on February 07, 2009 03:47 PM
+
+follow-up. It looks like gitosis requires a minimum of Python 2.5. I was able
+to manually work around the “subprocess” requirement (2.4), but I’m not sure I
+can do the same with the string.rsplit method (introduced in 2.5). Since I’m on
+a system that has a lot of other software I’m leary of just upgrading Python (I
+have 2.3) on speculation.
+
+Andrew Barringer on February 09, 2009 01:51 PM
+
+On Ubuntu 8.0.4.. if you use user name of “git” it doesn’t work. You will end
+up with this error.
+
+fatal: ‘gitosis-admin.git’: unable to chdir or not a git archive fatal: The
+remote end hung up unexpectedly
+
+if you look at the authorized_key file you will see that it did not import the
+name of the system that key was generated on but the name of the server box.
+
+Example: using a username of “git” resulted in this in the authorized key
+
+root@git-repo:/home/git/.ssh# cat authorized_keys command=”gitosis-serve
+root@git-repo”
+
+After changing to user name “gitosis” it looks like this root@git-repo:/home/
+gitosis/.ssh# cat authorized_keys command=”gitosis-serve myuser@mylocalbox”,
+etc etc….
+
+To fix I created a user gitosis with home dir of /home/gitosis and ran the
+git-init script again.
+
+sudo -H -u gitosis gitosis-init < /tmp/id_rsa.pub
+
+sudo chmod 755 /home/gitosis/repositories/gitosis-admin.git/hooks/post-update
+
+on local box.. git clone gitosis@YOUR_SERVER_HOSTNAME:gitosis-admin.git
+
+Andy
+
+jayr on February 10, 2009 02:24 PM
+
+Great tutorial.
+
+I followed all of the instructions and am able to create repositories and add
+users from my local clone of gitosis-admin.
+
+I am also able to cd to a clean area in my /home directory and create a clone
+of the free_monkey repository I created and pushed to the server from under the
+gitosis-admin structure.
+
+What I cannot do is clone the new repository from any other user that I have
+added to the gitosis.conf file. I have checked that the public keys for the
+added users are exactly the same on the local machine and in the /home/git/
+repositories/gitosis-admin.git/gitosis-export/keydir directory on the server.
+The added users have not been added to the /home/git/.ssh/authorized_keys file
+(only my admin account is present in this file).
+
+The error that I am getting is:
+
+prompt>:[/gitplayground> git clone git@SERVER_NAME:free_monkey.git Initialized
+empty Git repository in /home/buildman/gitplayground/free_monkey/.git/
+Password: Password: Password: Permission denied
+(publickey,gssapi-with-mic,keyboard-interactive). fatal: The remote end hung up
+unexpectedly
+
+The tail of the /var/log/messages file is:
+
+Feb 10 17:15:22 server sshd^15127: pam_krb5^15127: disallowing NULL authtok for
+‘git’ Feb 10 17:15:22 server sshd^15127: pam_krb5^15127: authentication fails
+for ‘git’ (git@COMPANY.COM): User not known to the underlying authentication
+module (Client not found in Kerberos database) Feb 10 17:15:23 server sshd^
+15121: error: PAM: User not known to the underlying authentication module for
+git from local.machine.com Feb 10 17:15:25 server sshd^15128: pam_krb5^15128:
+disallowing NULL authtok for ‘git’ Feb 10 17:15:25 server sshd^15128: pam_krb5^
+15128: authentication fails for ‘git’ (git@COMPANY.COM): User not known to the
+underlying authentication module (Client not found in Kerberos database) Feb 10
+17:15:26 server sshd^15121: error: PAM: User not known to the underlying
+authentication module for git from local.machine.com Feb 10 17:15:26 server
+sshd^15129: pam_krb5^15129: disallowing NULL authtok for ‘git’ Feb 10 17:15:26
+server sshd^15129: pam_krb5^15129: authentication fails for ‘git’
+(git@COMPANY.COM): User not known to the underlying authentication module
+(Client not found in Kerberos database) Feb 10 17:15:27 server sshd^15121:
+error: PAM: User not known to the underlying authentication module for git from
+local.machine.com
+
+Again, I can clone, modify files, commit and push using the admin account:
+
+admin@local:]/gitplayground/free_monkey> git push Enter passphrase for key ’/
+home/admin/.ssh/id_rsa’: Counting objects: 5, done. Compressing objects: 100%
+(2/2), done. Writing objects: 100% (3/3), 301 bytes, done. Total 3 (delta 0),
+reused 0 (delta 0) To git@fs2:free_monkey.git 2fe38c8..a0b32b0 master -> master
+
+We are running with Kerberos on openSUSE 10.2
+
+Any help will be appreciated.
+
+Jay
+
+Eric O'Connell on February 13, 2009 12:38 PM
+
+One thing that wasn’t obvious to me is that (or how) a group can be writable on
+many projects, like:
+
+[group foobar] writable = baaz quux members = fancis jepherson hoover
+
+etc. Makes for a smaller config file when many members are working on the same
+few projects.
+
+disorder on February 18, 2009 12:08 PM
+
+I linked you for the guide in my “notes” blog, it is in italian ..thanks !
+
+Josh on February 19, 2009 04:51 PM
+
+If you want to explore the git user directory, type
+
+sudo -i
+
+I had issue with access denied messages, try recreating the user account.
+
+Paul C. on February 20, 2009 05:23 AM
+
+When you run gitosis-init for a user, it locks out regular ssh shell access:
+
+debug1: Entering interactive session. PTY allocation request failed on channel
+0 ERROR:gitosis.serve.main:Need SSH_ORIGINAL_COMMAND in environment. debug1:
+client_input_channel_req: channel 0 rtype exit-status reply 0
+
+This lock out is in serve.py around like 183. Is there a way to turn this off
+without hacking this script??
+
+If not, is there a way of uninstalling/uniniting gitosis for a user that
+gitosis-init has been run for? I can’t figure out how it hooks into ssh.
+
+I want ssh shell access for my git user.
+
+Thanks.
+
+Paul C. on February 20, 2009 07:55 PM
+
+nevermind – I found the hook – it is in ~/.ssh/authorized_keys.
+
+I just needed to simply blow that file out to get rid of gitosis on that user.
+
+Nico Kadel-Garcia on February 24, 2009 02:13 PM
+
+Creating new repositories is a bit confusing, because you must create and
+commit something in order to do the first push successfully.
+
+It’s pretty easy to simply upload an existing repository, as follows. Add your
+new repository name such as ‘newrepo.git’ to the gitosis-admin.git setups, with
+SSH keys as needed, and then run this.
+
+git status # to make sure you're where you want to be
+git remote add gitosis git@YOUR_SERVER_HOSTNAME:newrepo.git
+git diff git@YOUR_SERVER_HOSTNAME:newrepo.git/master # to make sure you're not stepping on existing work
+git push gitosis master:refs/heads/master
+
+jmeridth on February 26, 2009 09:26 PM
+
+1. I followed all the instructions 2. It worked great 3. Added new user. Had
+bad pub key. started everything over again. 4. I am able to work with
+gitosis-admin repo just fine 5. I have 2 other groups, one with the same user I
+use for gitosis-admin, and another of the newer user 6. group 2 has 8 repos
+
+[group userone] members = userone@hostone writable = one two three four five
+six seven eight
+
+7. userone is able to git init locally and “git push origin master:refs/heads/
+master” to 5 of the 8 repos. 8. the three repos (two, six, eight) get the
+following error when running push command from above: fatal: unable to connect
+a socket (Connection refused)
+
+errno=Connection refused
+errno=Connection refused
+
+9. other group and user:
+
+[group usertwo] members = usertwo@hosttwo writable = one_repo
+
+10. This user gets the same error from #8 when pushing to his repo
+
+I’m at a loss. I’ve triple checked the id_rsa.pub files from each user. I’ve
+started from scratch a few times. I even created new local folders, git init,
+git remote add…, and get the error when I try to “git push origin master:refs/
+heads/master”
+
+ANY help is greatly appreciated
+
+Jason Meridth on February 26, 2009 09:34 PM
+
+1. I followed all the instructions 2. It worked great 3. Added new user. Had
+bad pub key. started everything over again. 4. I am able to work with
+gitosis-admin repo just fine 5. I have 2 other groups, one with the same user I
+use for gitosis-admin, and another of the newer user 6. group 2 has 8 repos
+
+[group userone] members = userone@hostone writable = one two three four five
+six seven eight
+
+7. userone is able to git init locally and “git push origin master:refs/heads/
+master” to 5 of the 8 repos. 8. the three repos (two, six, eight) get the
+following error when running push command from above: fatal: unable to connect
+a socket (Connection refused)
+
+errno=Connection refused
+errno=Connection refused
+
+9. other group and user:
+
+[group usertwo] members = usertwo@hosttwo writable = one_repo
+
+10. This user gets the same error from #8 when pushing to his repo
+
+I’m at a loss. I’ve triple checked the id_rsa.pub files from each user. I’ve
+started from scratch a few times. I even created new local folders, git init,
+git remote add…, and get the error when I try to “git push origin master:refs/
+heads/master”
+
+ANY help is greatly appreciated
+
+reglogge on March 01, 2009 02:59 AM
+
+I’m having a problem with accessing the gitosis-hosted repos from a new machine
+and hope maybe somebody here has an idea:
+
+- My gitosis-server is running git version 1.6.0.4 on a Debian Etch distro -
+Another machine which has no problems accessing the gitosis-server (via ssh)
+runs git version 1.6.0.5 on Mac OS/X 10.5.6 - The new machine which should also
+be able to access the gitosis-server via ssh rund git version 1.5.6.4 on a
+Gentoo Linux distro. But this machine cannot access the gitosis-server via ssh.
+Wenever I try to ‘git pull’ or ‘git push’ from that machine I get the error
+message ‘Permission denied, please try again.’
+
+Cloning the remote repository from the gitosis-server to the git 1.5.6.4
+machine works via the git-protocol but then I have no way to push back changes.
+I followed all the steps in adding a new user to gitosis just like on the other
+remote machine running git 1.6.0.5 but to no avail.
+
+So my questions: - Can it be that gitosis has a problem with remote machines
+running different versions of git? - Or can anybody see another problem i must
+have overlooked?
+
+Thanks in advance
+
+Alexwebmaster on March 03, 2009 01:38 AM
+
+Hello webmaster I would like to share with you a link to your site write me
+here preonrelt@mail.ru
+
+HokieTux on March 03, 2009 10:23 AM
+
+Hey! I just wanted to say thanks for the awesome blog post! It helped me a lot
+when I was going through the Gitosis set-up process.
+
+I just wrote a guide on getting Git, Gitosis, and Gitweb all set-up and
+running, and linked to you for the Gitosis section: http://hokietux.net/blog/?p
+=58 ; just a heads-up =)
+
+Thanks again!
+
+Al on March 03, 2009 07:42 PM
+
+In the section below you say to generate a public key – do you mean for the GIT
+user? or for your own regular named user like ‘myusername’.
+
+Following your instructions I still get an error when i try to push with: git
+push origin master:refs/heads/master
+
+What i get is: error: src refspec master does not match any. fatal: The remote
+end hung up unexpectedly error: failed to push some refs to
+‘git@myservername:myreponame.git’
+
+Any suggestions would be of great help.
+
+==============================
+
+You will need a public SSH key to continue. If you don’t have one, you may
+generate one on your local computer:
+
+ssh-keygen -t rsa
+
+The public key will be in $HOME/.ssh/id_rsa.pub. Copy this file to your server
+(the one running gitosis).
+
+Next we will run a command that will sprinkle some magic into the home
+directory of the git user and put your public SSH key into the list of
+authorized keys.
+
+sudo -H -u git gitosis-init < /tmp/id_rsa.pub
+
+id_rsa.pub above is your public SSH key that you copied to the server. I
+recommend you put it in /tmp so the git user won’t have permission problems
+when trying to read it. Success looks like:
+
+jpablobr on March 04, 2009 08:31 PM
+
+I’m having the exact same problem… error: src refspec master does not match
+any. fatal: The remote end hung up unexpectedly Also, I did the: sudo -H -u git
+gitosis-init < /tmp/id_rsa.pub And I have the exact same key from my local
+computer in my server’s /tmp/ directory…. Not sure if I should edit something
+in my /etc/ssh/sshd_config?? Could someone please help me…. thanks!
+
+tsyd on March 07, 2009 06:00 PM
+
+@Al @jpablobr I had the same problem, and I believe it occurred because I was
+trying to commit an empty repo. In any case, running:
+
+$ git commit—allow-empty
+
+in my empty repo solved it.
+
+wallu on March 15, 2009 12:28 PM
+
+How can I clone local repository, e.g. “git-clone git@localhost:myapp.git”?
+
+Arlen Cuss on March 25, 2009 02:59 PM
+
+As it turns out, it’s important that a valid running shell is suggested.
+
+I tried using /bin/false to prevent log-in (though it turns out ~git/.ssh/
+authorized_keys does more than a good enough job of this), and it resulted in
+me getting no debug messages, nothin’! Just “The remote end hung up
+unexpectedly”.
+
+So go ahead and use /bin/sh, they can’t use it anyway.
+
+James Strachan on March 27, 2009 02:03 AM
+
+mtkd: massive thanks! I hit exactly the same problem and was tearing my hair
+out trying to figure out why the first clone was faliing.
+
+garry: great article! its maybe worth updating the instructions to mention
+mtkd’s issue & resolution; am sure others will hit this, needing to fix
+AlloowUsers etc.
+
+I found this page helped: https://help.ubuntu.com/8.04/serverguide/C/
+user-management.html
+
+I just hacked /etc/ssh/sshd_config and added ‘git’ to AllowUsers and it then
+worked like a charm.
+
+David Valentiate on March 28, 2009 08:13 PM
+On a fresh install I was getting an error when trying to ‘git push’ the
+gitosis.conf changes:
+
+  • Project description file hasn’t been set error: hooks/update exited with
+    error code 1
+
+I edited: /home/git/repositories/gitosis-admin.git/description replacing the
+contents with ‘gitosis’
+
+things seems to be back on track
+
+hims on March 29, 2009 01:57 AM
+
+awesome, great job. thanks so much :-)
+
+netricate on April 01, 2009 08:48 AM
+
+great tutorial…
+
+the one hiccup i had was when i added another computer’s key, i must have done
+something out of order. It complained that “Repository read access denied” for
+my new user. I checked the config file and everything seemed to check out.
+
+To solve I reissued: git push origin master:refs/heads/master
+
+it solved my access issue. Hope that helps someone.
+
+Balint Erdi on April 02, 2009 12:12 AM
+
+wallu, to clone from a repo on localhost, you have to provide a /path/to/repo
+as the git clone URL, see http://www.kernel.org/pub/software/scm/git/docs/
+git-clone.html
+
+For example: git clone /home/git/repositories/free_monkey.git/
+
+Also, make sure that does the cloning (and possible subsequent git operations)
+has read rights to the repoistory directory. I achieved that with adding the
+user to the git group.
+
+Hope that helps, Balint
+
+Karl Kornel on April 02, 2009 12:15 PM
+
+OK, here’s a weird problem. When trying to do the initial push of a new
+repository, I’m getting the repository read access denied message. My SSH key
+is OK, and the .gitosis.conf symlink is OK. What I noticed, though, is that the
+gitosis.conf on the server is out-of-date; it doesn’t have the change I pushed
+creating the new test repository.
+
+Just to be sure, I went back to my gitosis-admin working copy: `git commit -a`
+tells me my working directory is clean, and `git push` tells me everything is
+up-to-date. I even deleted and re-created my working copy; the gitosis.conf in
+my working copy is current, but the gitosis.conf on the server is not.
+
+dajoe13 on April 03, 2009 10:52 PM
+
+I ran into the problem discussed last august with the error:
+
+bash: gitosis-serve: command not found
+
+when I try to git clone.
+
+I tried the modification suggested to the .bashrc file. This does not solve the
+problem. It seems that the .bashrc file does not get run when we git from the
+server or ssh from the server. At least this is the case at the point the
+gitosis-serve command is forced in the authorized_keys file.
+
+Any help would eb greatly appreciated.
+
+dajoe13 on April 03, 2009 10:53 PM
+
+I ran into the problem discussed last august with the error:
+
+bash: gitosis-serve: command not found
+
+when I try to git clone.
+
+I tried the modification suggested to the .bashrc file. This does not solve the
+problem. It seems that the .bashrc file does not get run when we git from the
+server or ssh from the server. At least this is the case at the point the
+gitosis-serve command is forced in the authorized_keys file.
+
+Any help would be greatly appreciated.
+
+dajoe13 on April 04, 2009 09:14 AM
+
+re: bash: gitosis-serve: command not found
+
+I solved this problem. The path set by sshd before running the command in the
+authorized_key file is /usr/sbin:/sbin:/usr/bin:/bin, at least on my SUSE 11.1
+system. I believe this is based on PATH set on ssh at compile time. The .bashrc
+file in the ~git dir cannot not influence PATH before sshd runs the command in
+the authorized_keys file.
+
+A solution is to set PATH in ~git/.ssh/environment <<< PATH=/usr/local/sbin:/
+usr/local/bin:/usr/sbin:/sbin:/usr/bin:/bin, <<<
+
+(If there is a more portable way to do this? I would appreciate someone
+pointing it out. I tried PATH=/usr/local/sbin:/usr/local/bin:$PATH and it did
+not work.)
+
+and set “PermitUserEnvironment yes” in /etc/ssh/sshd_config
+
+Elvis on April 07, 2009 01:42 AM
+
+Garry, I follow the steps for times, but I always stuck in this step
+
+git clone git@YOUR_SERVER_HOSTNAME:gitosis-admin.git
+
+It always show me this message
+
+Initialized empty Git repository in /Users/<username>/programming/git/
+gitosis-admin/.git/ git@192.168.111.52’s password:
+
+You said I have to generate a public key belongs to ‘git’, should i generate on
+my local machine? or the gitosis one??
+
+If I should generate public key on local machine, should I create a user ‘git’
+and then execute ssh-keygen??
+
+Elvis on April 07, 2009 05:20 AM
+
+Garry, My environment is on Ubuntu intrepid
+
+You mentioned this “you have to make sure the “git” user has your pub key in
+its authorized keys file” on previous comment. But I found my public key file
+used “myusername@myservername” instead of “git”@myservername.
+
+I’ve followed the tutorial and created a user named git for gitosis. And then I
+execute ssh-keygen -t rsa on my gitosis server and then put it to /tmp on my
+gitosis server.
+
+Then I ran sudo -H -u git gitosis-init < /tmp/id_rsa.pub and it passed.
+
+Then I change mode 755 for post-update and it passed as well.
+
+But it always asking for password when I ran
+“git@YOUR_SERVER_HOSTNAME:gitosis-admin.git”
+
+Check the id_rsa.pub file, it does not generate the “git@myservername” for user
+git. Did this issue caused that I cannot pass
+“git@YOUR_SERVER_HOSTNAME:gitosis-admin.git”??
+
+If it is, can u please tell me where i miss??
+
+Robert on April 09, 2009 06:48 AM
+
+Hi.
+
+First thanks for this wonderfull tutorial.
+
+Second to the people suffering from the password problem. I too was suffering
+from this until I remembered I disabled RSA and Public Key authenticathion on
+my server’s SSHd configuration. Once I re-enabled them, git clone worked
+flawlessly.
+
+- Robert Grunauer
+
+Garry on April 11, 2009 02:53 AM
+
+@Elvis, look in your /var/log/auth.log to see what SSH is doing. Will give you
+a clue as to why it is asking for a password.
+
+Cesar on April 13, 2009 09:56 AM
+
+Regarding non-standard SSH ports. You might consider rewriting the url as
+follows: [DEL:-:DEL]: git@myserver.com:1234:/foo/bar [INS:+:INS]: ssh://
+git@myserver.com:1234/foo/bar
+
+and everything works like a charm without any need of changing ~/.ssh/config
+
+markatharvest on April 13, 2009 12:56 PM
+
+Thanks a ton.. I got the git configured with gitosis and gitweb. I breezed
+through gitosis very fast than I had imagined..
+
+esc on April 14, 2009 08:27 AM
+
+its bad as fsck!
+
+Elvis on April 14, 2009 10:47 PM
+
+@Garry, thanks, I ‘ve found what’s going on with my git. I corrected the folder
+attribute both on client and server. It works fine finally.
+
+Mark Nelson on April 16, 2009 08:09 AM
+
+Hello Garry
+
+I have followed the instructions in the blog and I have successfully completed
+the initial set up of gitosis and I am able to push the gitosis config back to
+the git server. However, when I try to create the test repository I get the
+message -
+
+ERROR:gitosis.serve.main:Repository read access denied fatal: The remote end
+hung up unexpectedly
+
+when trying to execute the following command –
+
+git push origin master:refs/heads/master
+
+I have tried to re-installing gitosis a couple of times but I am getting the
+same error.
+
+Any ideas
+
+Mark.
+
+punkrats on April 21, 2009 10:13 AM
+
+Hi everyone, I host several repositories with gitosis and had this error:
+
+ERROR:gitosis.serve.main:Repository read access denied fatal: The remote end
+hung up unexpectedly
+
+Solved it by assigning different groups in gitosis-admin/gitosis.conf, e.g.
+
+[group firstproject] writable = firstproject members = punkrats@Webware-Lab
+
+[group secondproject] writable = secondproject members = punkrats@Webware-Lab
+
+After commit and push origin master, everything worked as expected. Cheers.
+
+Elvis on April 22, 2009 02:18 AM
+
+@Mark
+
+I think it might be the permission problem, you can check the owner of your
+test repo. It should not belong to root.
+
+Nolan on April 23, 2009 12:21 PM
+
+I really appreciate this article. It got me through about 95%, and had to tweak
+the rest myself. But couldn’t have done it without it. Thanks!
+
+imza on April 24, 2009 12:37 AM
+
+i got an error when is coming to my third step which is
+
+sudo adduser \ —system \ —shell /bin/sh \ —gecos ‘git version control’ \ —group
+\ —disabled-password \ —home /home/git \ git
+
+the error msg “adduser:only one or two names allowed”
+
+so, what should i do..
+
+gdelfino on April 24, 2009 05:19 AM
+
+I was getting errors like this while trying to initialize the gitosis
+repository:
+
+root@admin [/home/git]# sudo -H -u git gitosis-init < /tmp/id_rsa.pub Traceback
+(most recent call last): File ”/usr/bin/gitosis-init”, line 7, in ? sys.exit(
+File ”/usr/lib/python2.4/site-packages/gitosis-0.2-py2.4.egg/gitosis/app.py”,
+line 24, in run return app.main() File ”/usr/lib/python2.4/site-packages/
+gitosis-0.2-py2.4.egg/gitosis/app.py”, line 38, in main self.handle_args
+(parser, cfg, options, args) File ”/usr/lib/python2.4/site-packages/
+gitosis-0.2-py2.4.egg/gitosis/init.py”, line 136, in handle_args user=user,
+File ”/usr/lib/python2.4/site-packages/gitosis-0.2-py2.4.egg/gitosis/init.py”,
+line 75, in init_admin_repository template=resource_filename
+(‘gitosis.templates’, ‘admin’) File ”/usr/lib/python2.4/site-packages/
+gitosis-0.2-py2.4.egg/gitosis/repository.py”, line 51, in init close_fds=True,
+File ”/usr/lib/python2.4/subprocess.py”, line 412, in call return Popen(args, *
+kwargs).wait() File ”/usr/lib/python2.4/subprocess.py”, line 542, in init
+errread, errwrite) File ”/usr/lib/python2.4/subprocess.py”, line 975, in
+_execute_child raise child_exception OSError: [Errno 2] No such file or
+directory
+
+I after trying for hours to solve this, I found that by doing is in two steps,
+it works:
+
+Step 1:
+
+ 1. sudo -H -u git -s
+
+Step 2: $ gitosis-init < /tmp/id_rsa.pub Initialized empty Git repository in /
+home/git/repositories/gitosis-admin.git/ Reinitialized existing Git repository
+in /home/git/repositories/gitosis-admin.git/
+
+That’s it.
+
+Jim Kath on April 30, 2009 02:48 PM
+
+The setuptools for RedHat is at http://rpm.pbone.net/index.php3/stat/4/idpl/
+4146684/com/setuptools-0.6c2-5.0.el5.noarch.rpm.html
+
+vj on May 16, 2009 11:55 AM
+
+What is the difference between using
+
+git push
+
+and
+
+git push origin master:refs/heads/master
+
+gnijholt on May 20, 2009 12:35 AM
+
+I have everything working except for one thing. I clone the repositories
+(containing websites) locally using ”$ cd /a/www.website1.com/” ”$ git clone /
+home/git/repositories/website1.git htdocs” but this fails because the /home/git
+files are obviously owned by user ‘git’, whereas the files in /a/* are all
+owned by myself. If I use sudo to do the clone operation, it goes works but the
+files in the cloned repo are owned by root. What is the best solution to this
+problem? (and ofcourse I prefer not to have to execute chown -R myself:myself)
+
+Thanks in advance!
+
+Erik Dahlström on June 01, 2009 09:53 AM
+
+For installing python-setuptools on my ppclinux system I simply followed the
+instructions here: http://pypi.python.org/pypi/setuptools
+
+bobby on June 13, 2009 08:25 AM
+
+so close:
+
+when running the command:
+
+sudo -H -u git gitosis-init < /tmp/id_rsa.pub
+
+I get the following error message:
+
+Sorry, user bsmith is not allowed to execute ’/usr/bin/gitosis-init’ as git on
+lamp2
+
+I have searched for hours on how to fix this problem to no avail. I am running
+Centos 5
+
+klaus on June 13, 2009 11:43 AM
+
+I am very, very happy to learn more about python, git and bash of course in
+this post.
+
+I work with linux since SUS 5.2 but this is very usefull stuff. Thx a lot!
+
+gjhames on June 15, 2009 02:26 PM
+
+when I ran the command: git clone git@YOUR_SERVER_HOSTNAME:gitosis-admin.git
+
+didn’t work. I had to put the entire directory of the gitosis-admin.git, like
+
+git clone git@YOUR_SERVER_HOSTNAME:~/repositories/gitosis-admin.git
+
+other big problem that I’m having: I cannot create a new repository. when I run
+this command:
+
+git push origin master:refs/heads/master
+
+after doing all the others, I receive this message fatal: ‘free_monkey.git’:
+unable to chdir or not a git archive fatal: The remote end hung up unexpectedly
+
+And, I can see in my server, in the /home/git/repositories directory, that
+there is not created a directory called ‘free_monkey.git’
+
+gittin it on June 17, 2009 08:50 AM
+
+When I installed gitosis (Ubuntu 9.04), it created a ‘gitosis’ user (with ’*’
+for password entry in /etc/shadow). Should I be using this user, instead of
+creating and using a ‘git’ user as in the instructions?
+
+gittin it on June 17, 2009 08:56 AM
+
+Never mind … ignore previous question. It’s answered in the gitosis readme (/
+usr/share/doc/gitosis/README.Debian), and it’s clear that the ‘gitosis’ user is
+meant to be the repository owner. Instructions should be updated to reflect
+this.
+
+gittin it on June 17, 2009 09:02 AM
+
+I should point out that the gitosis install was done via apt-get. The package
+apparently creates the ‘gitosis’ user, since the README.rst file (http://
+eagain.net/gitweb/?p=gitosis.git;a=blob;f=README.rst;hb=master) talks about
+doing it by hand if you install via source.
+
+SXLee on June 20, 2009 09:05 PM
+
+Hi,Garry,Thank you for your great turtal,i helps me a lot.
+
+But I got a problem about asking password when i execute the command:git clone
+git@SERVER:gitosis-admin.git So I check the auth.log file for some detail , and
+it shows : sshd^27229: Failed password for git from IP port 34647 ssh2 But the
+git user should have no password . I try to set a password for git , and it
+works .
+
+I have checked all the comments for an answer , but found nothing .
+
+Do you have any idears about this ?? Thanks!!
+
+snackycracky on June 26, 2009 02:04 AM
+
+the workaround for new repositories and the error fatal: ‘free_monkey.git’:
+unable to chdir or not a git archive fatal: The remote end hung up unexpectedly
+is to:
+
+mkdir ~/repositories/free_monkey.git cd ~/repositories/free_monkey.git && git
+init—bare
+
+snackycracky on June 26, 2009 02:10 AM
+
+and for the ones who cant connect to the server edit ~/.ssh/authorized_keys and
+remove with the comma at the end: command=”gitosis-server user@localhost”, this
+is no good solution but it helps when i tried to enter some other command like
+git clone or something i get the usage syntax of gitosis-server [OPT] USER or
+something, but the man page for gitosis server is really not giving any
+information…
+
+boscomonkey on June 29, 2009 02:44 PM
+
+These instructions worked fine on Ubuntu 9.0.4 with one minor bug: “python
+setup.py install” requires a sudo since it’s creating files in /usr/local/bin
+(among other places).
+
+The correct command should be: “sudo python setup.py install” (without quotes).
+
+lostsync on July 02, 2009 01:33 AM
+
+thanks. worked great on osx/ubuntu client/server. my project is finally safe
+from my tinkering :)
+
+cool on July 06, 2009 01:23 AM
+
+Looks very interesting. Thanks for sharing.. Point of SaleContactless POS
+
+benw on July 13, 2009 06:11 AM
+
+Thanks for this. How about tagging a release so I can tell the boss what
+version of gitoisis I installed? It’s been a year since the last commit and two
+years since release/0.2.
+
+sneaker39 on July 15, 2009 09:58 AM
+
+I found an excellent howto at http://sunoano.name/ws/public_xhtml/scm.html#
+provide_a_git_repository_to_the_public
+
+sneaker39 on July 16, 2009 05:15 AM
+
+as grempe wrote above already—see “grempe on November 19, 2007 02:37 PM”
+
+I set things up as told here http://sunoano.name/ws/public_xhtml/scm.html#
+provide_a_git_repository_to_the_public
+
+then I also wanted to use “daemon = yes” so the file git-daemon-export-ok get’s
+autogenerated by gitosis and git-daemon knows it can serve this paritcular repo
+to anonymous users.
+
+Bottom Line:
+
+Setting daemon = yes in the [group foo] stanza in .gitosis.conf does not
+autogenerate ../foo.git/git-daemon-export-ok and thus foo.git cannot be served
+in read-only mode to anonymous users.
+
+How do we solve this issue resp. make it work as expected? Maybe some of us do
+something wrong? I am using the debian gitosis package.
+
+grow taller 4 idiots on July 21, 2009 01:02 PM
+
+It’s answered in the gitosis readme
+
+sneaker39 on July 21, 2009 10:22 PM
+
+@grow_taller …
+
+no, it’s not. If you’re refering to the “Using git-daemon” section of the
+readme you’ll see it mentions what I said above already but doing so does not
+trigger the autogeneration of the file git-daemon-export-ok.
+
+Suno Ano on July 24, 2009 06:39 AM
+
+Hi folks,
+
+about the issue with git-daemon-export-ok being automatically created … you
+have to use a [repo foo] stanza and not a [group foo] stanza; see here http://
+sunoano.name/ws/public_xhtml/scm.html#providing_a_repository_to_the_world for
+more info
+
+Tim on July 25, 2009 09:33 PM
+
+To those of you having the “read access denied” error when trying to do your
+initial push to the repository: Make sure you ran the ‘chmod’ command in the
+tutorial. That was the only thing I skipped, and was having the mentioned
+problem. It appears that the config file doesn’t get updated with your new
+repository settings if you skip that step.
+
+merzedes on August 04, 2009 02:17 AM
+
+
+        Initialized empty Git repository in ./ Initialized empty Git repository
+        in ./ (Yes, two times) Hmm, on my computer it reads like Initialized
+        empty Git repository in {HOME-folder-git} Reinitialized existing Git
+        repository in {HOME-folder-git} So, no it’s not (or not any longer)
+        “two” times.
+
+Blair on August 07, 2009 06:36 AM
+
+I am installing gitosis and got error about no setuptools, because I am using
+Centos 5, if someone encounter with this issue, you may need to execute “yum
+install python-setuptools”.
+
+seanl on August 07, 2009 03:53 PM
+
+for those of you setting up on centos 5 i found this blog post very useful
+http://nfocipher.com/index.php?op=ViewArticle&articleId=12&blogId=1 it worked
+perfecdtly for me. much the same as above but a bit more distro specific
+
+Blair on August 09, 2009 10:31 AM
+
+Hi, Seanl: I can’t reach the blog you mentioned, could you please have a screen
+shot and mail to me? Thanks in advance.
+
+timn on August 12, 2009 08:21 AM
+
+Hi Garry. Have you considered adding os.environ[‘GITOSIS_USER’]=user at ~line
+202 in serve.py as suggested in http://stackoverflow.com/questions/824990/
+git-gitosis-how-to-check-validity-of-user-name-and-email ? This would allow to
+use the pushing user in pre-/post-receive scripts for commit policies or just
+notification. It seems quite handy.
+
+timn on August 12, 2009 08:22 AM
+
+Hi Garry. Have you considered adding os.environ[‘GITOSIS_USER’]=user at ~line
+202 in serve.py as suggested in http://stackoverflow.com/questions/824990/
+git-gitosis-how-to-check-validity-of-user-name-and-email ? This would allow to
+use the pushing user in pre-/post-receive scripts for commit policies or just
+notification. It seems quite handy.
+
+Alec C4 on August 18, 2009 07:17 PM
+
+Strange thing – on git push gitosis does not adds key for new user to the /home
+/git/.ssh/authorized_keys. What can i do?
+
+luxigo on August 26, 2009 05:48 AM
+
+hello,
+
+the beginning of the tutorial is ok, until:
+
+“git push origin master:refs/heads/master”
+
+ERROR:gitosis.serve.main:Repository read access denied fatal: The remote end
+hung up unexpectedly
+
+(i added a file with “git add” and commited with “git commit” before)
+
+what did change since 2007 ?...
+
+please update this how-to :)
+
+luxigo on August 26, 2009 07:17 AM
+
+Please move the “sudo chmod 755 /home/git/repositories/gitosis-admin.git/hooks/
+post-update”
+
+after “git clone git@YOUR_SERVER_HOSTNAME:gitosis-admin.git”
+
+Thanks !
+
+Theo on August 31, 2009 09:22 PM
+
+Just a note to others about permissions on the authorized_keys file; I had to
+make the following permission changes before gitosis would update this file:
+
+chmod 755 /home/git chmod 700 /home/git/.ssh chmod 644 /home/git/.ssh/
+authorized_keys
+
+Prior to these changes git kept asking for a password for users who I had added
+to the keydir but were not been persisted to authorized_keys. Obviously there
+are security implications to these changes.
+
+Tonop on September 06, 2009 03:11 AM
+
+Hi Garry, Thanks a lot for awesome tutorial.
+
+for freesbd to add package python-setup tools you need to run: cd /usr/ports/
+devel/py-setuptools && make && make install clear
+
+tomster on September 06, 2009 11:02 AM
+
+I found a bit simpler way to install gitosis without ‘polluting’ the
+system-wide python. To get it working with virtualenv all is necessary is to
+replace the two calls in the post-update hook with absolute paths. No mucking
+about with $PYTHONPATH (evil!!) or /etc/environment.
+
+You can find a more detailed write-up over at my blog, if you need: http://
+tomster.org/blog/archive/2009/09/06/gitosis-and-virtualenv
+
+io on September 11, 2009 12:56 PM
+
+Thanks for the tutorial! So it uses ssh key to authenticate. But doesn’t
+actually connect though a ssh tunnel, right? Is there a way to enable that?
+
+Manu on September 22, 2009 05:50 AM
+
+Hi,
+
+thanks for the great post.
+
+As far as I can see, the gitosis operations on the server will run as “git”
+(with the user “git”). Is there a way to prevent users (who push code) from
+doing anything beyond pushing code ?
+
+If I am right (and I am probably not), the git user is just open to anybody (no
+password), and has a shell, so anybody can login the box as “git” and do
+whatever he wants.
+
+Where am I wrong ?
+
+Manu on September 22, 2009 07:17 AM
+
+just wanted to withdraw my comment. I looked at cactus’s Q more that 2 years
+ago and it is the same as mine. Seems that I need to make some homework on ssh
+setup though…
+
+angriukas on October 01, 2009 07:37 AM
+
+thanks, very useful post. Just have to say, there was one trick on our system
+(Ubuntu 8.04.3 LTS 64bit, git 1.6.4.4 + git ossi): we are working on mixed
+platforms (git/gitosis on linux server and TortoiseGIT client on windows). On
+server should be located public keys in format which comes from ssh-keygen
+utility. For TortoiseGIT you have to convert private keys from ssh-keygen
+generated format to tortoise suitable format. Do it with puttygen.exe, load
+private key (generated with ssh-keygen) and save it (key will be the same, but
+file format differs). Only after this operation we are able to successfully
+access repositories. If both keys was generated directly with puttygen.exe – we
+didn’t succeed to connect to repos.
+
+Heike on October 08, 2009 02:43 PM
+
+Thank you for the helpful posting. I aggree with Manu: “Is there a way to
+prevent users (who push code) from doing anything beyond pushing code ?” I’m
+also looking for. Please help us.
+
+arthur on October 08, 2009 11:48 PM
+
+I’ve suffered from the git clone git@xxx:gitosis-admin.git pwd problem for a
+long time.
+
+And tried to add a password for git, but it failed at ‘chdir’ failed problem.
+
+Finally, I remove the password for git, and changed the ssh config file one
+line and it works!
+
+The line is, instead of: PasswordAuthentication yes we should:
+PasswordAuthentication no
+
+cheers!
+
+Thanks for the tutorial!
+
+mdda on October 11, 2009 05:17 PM
+
+I wrote a quick post on doing this on a Fedora machine (it has a little more
+detail, since I wrote and executed as I went along) :
+
+http://platformedia.blogspot.com/2009/10/
+setting-up-git-server-on-remote-machine.html
+
+Many thanks for your help!
+
+Tobias W. on October 13, 2009 04:42 AM
+
+Hi there,
+
+thanks for this tutorial. I got it working after some pain.
+
+Can somebody point me to the explanation of what a ‘bare’ repository is?
+
+I’m trying to setup Redmine to recognize a repository hosted directly or
+indirectly by gitosis. To this end, I have tried to follow stu’s instructions.
+In /home/scm/git/checkout/project I have the locally cloned repository with a
+’.git’ directory inside and the project files.
+
+The directory is world readable, all files are world readable.
+
+Redmine is running through passenger, which is running with the user ‘redmine’
+after user-switching.
+
+When I configure the repository path in Redmine and go to the repository, I
+still get this message:
+
+“The entry or revision was not found in the repository.”
+
+Any idea?
+
+Andrew M. on October 14, 2009 06:14 AM
+
+I understand that `git push origin master:refs/heads/master’ is specifying the
+refspec, but is this necessary? We’ve been using `git push origin master’ here
+with no problems, but I’ve been hesitant in suggesting others use this. Is
+there something internal to gitosis that requires the refspec to be explicitly
+set?
+
+Andrew
+
+Alex on October 14, 2009 10:15 AM
+
+I was experiencing the following error as well:
+
+ERROR:gitosis.serve.main:Repository read access denied fatal: The remote end
+hung up unexpectedly
+
+Upon inspecting .gitosis.conf in /home/git I discovered that it wasn’t being
+updated to reflect my PUSH.
+
+You MUST update permissions to 755 on the file /home/git/repositories/
+gitosis-admin.git/hooks/post-update , otherwise the configuration will not be
+updated.
+
+So do that, then modify gitosis.conf so that git picks up the change, commit,
+and PUSH again.
+
+This time everything should work!
+
+Matthew on October 21, 2009 11:54 AM
+
+Won’t allowing public access through `—export-all` also give everyone access to
+your `gitosis-admin.git` repository? What sort of trouble can come from doing
+that?
+
+Everyone will be able to clone all of your public keys, see the configuration
+for all your repositories, know that you’re running gitosis. Any of these could
+be a weak link in the chain. Is it worth worrying about?
+
+Matias on October 23, 2009 08:53 AM
+
+Wonderful tutorial.
+
+I ran into the same error as Liutauras and after a lot of googling to find a
+cached version of http://sk89q.therisenrealm.com/2009/03/fan-of-git/ I applied
+the following change that solved it for me:
+
+in run_hook.py
+
+20 try: 21 shutil.rmtree(export) 22 except OSError, e:
+
+becomes
+
+20 try: 21 current_dir = os.getcwd() 22 shutil.rmtree(export) 23 os.chdir
+(current_dir) 24 except OSError, e:
+
+It seems it is a bug either in gitosis or, as sk89q says, in python’s
+shutil.rmtree. As I am a total analphabet in python I wouldn’t know. I thought
+someone else might benefit from this find
+
+matias on October 23, 2009 08:55 AM
+
+OR
+
+in run_hook.py
+
+20 try: 21 shutil.rmtree(export) 22 except OSError, e:
+
+becomes
+
+20 try: 21 current_dir = os.getcwd() 22 shutil.rmtree(export) 23 os.chdir
+(current_dir) 24 except OSError, e:
+
+Matias on October 23, 2009 08:56 AM
+
+Trying again
+
+in run_hook.py
+
+20 try:
+21 shutil.rmtree(export)
+22 except OSError, e:
+
+becomes
+
+20 try:
+21 current_dir = os.getcwd()
+22 shutil.rmtree(export)
+23 os.chdir(current_dir)
+24 except OSError, e:
+
+Noah on October 23, 2009 01:20 PM
+
+I am using the “owner” attribute of the [repo REPONAME] in gitosis.conf. This
+doesn’t appear to affect anything. I was under the impression that the owner
+would then be reflected in gitweb.
+
+Note that the description does update correctly.
+
+Michael on October 25, 2009 09:07 AM
+
+This article is almost two years old and also the best guide I found for a
+practical implementation of GIT. Thanks.
+
+Leho on October 26, 2009 02:35 PM
+
+Thanks for the setup guide on gitosis, everything worked. Needed to connect
+apache basic auth, gitweb and gitosis, wrote up the process here: http://
+leho.kraav.com/news/2009/10/27/
+using-apache-authentication-with-gitweb-gitosis-repository-access-control/
+
+Also a visit to #git informed of enhanced version of gitosis: http://github.com
+/sitaramc/gitolite
+
+Sitaram on October 26, 2009 06:08 PM
+
+just wanted to let people know about gitolite. Gitosis hadn’t seen any updates
+for more than a year, I needed “per branch” permissions, including rewind, so I
+wrote gitolite. (In perl, in case it matters; I’m not much of a python guy).
+
+Now it has a whole lot of features, not just per branch permissions. A brief
+list is in the README at http://github.com/sitaramc/gitolite/blob/pu/README.mkd
+and amore detailed list in the “differences from gitosis” section of http://
+github.com/sitaramc/gitolite/blob/pu/doc/3-faq-tips-etc.mkd
+
+Much of gitolite’s later evolution was dictated by the constant stream of ssh
+problems that I saw on #git; it is now designed to be as painless as possible,
+and to be installed entirely from the client side. The idea is that we
+front-load the ssh problems—you first get password-less ssh to your server
+working (just get a shell) and then you install gitolite from your client.
+
+Leho: I will look at that apache auth thing and see if I can put that in
+gitolite; right now I’m working with someone on making it more suitable for
+debian packaging but as soon as that is done I’ll try and put this in.
+
+Sitaram on October 26, 2009 09:24 PM
+
+I misunderstood what gitweb auth was in the post above. Seeing the link http://
+leho.kraav.com/news/2009/10/27/
+using-apache-authentication-with-gitweb-gitosis-repository-access-control/
+given made me understand better.
+
+With gitolite this is even easier. Gitolite parses the config file in what I
+loosely call a “compile” step when you push a new gitolite config, and the
+result of this compile is a pure perl hash that you can just look in to see
+who’s allowed to do what.
+
+As you can see in http://github.com/sitaramc/gitolite/blob/pu/doc/
+3-faq-tips-etc.mkd#gitwebauth , the actual access control thus reduces to 1
+line; the rest is just scaffolding :)
+
+Leho on October 26, 2009 11:41 PM
+
+very nice Sitaram.
+
+side note: is it possible to follow RSS feed of the comments on this post?
+
+Hosting on October 28, 2009 01:03 AM
+
+Very nice blog, well written!
+
+Cole on November 19, 2009 03:53 PM
+
+I was still getting the ERROR:gitosis.serve.main:Repository read access denied
+problem after rechecking everything that was said here. I finally found the
+answer on stackoverflow. Make sure your repositories/gitosis-admin.git/hooks/
+post-update is executable. Enjoy.
+
+Tiago on December 01, 2009 10:32 AM
+
+Hello, I was following you guide and it works fine :) Just got a problem when
+trying to add a new user to the git. I did as you told, but when the user tries
+to clone git@mydomain:project.git it asks for the password of the git user i
+think this wasnt supposed to happen right?
+
+Damien on December 01, 2009 04:53 PM
+
+I was re-installing gitosis, then I encounted following error.
+
+dam@dam:[$ sudo -H -u git gitosis-init < /tmp/id_rsa.pub Traceback (most recent
+call last): File ”/usr/bin/gitosis-init”, line 8, in <module> load_entry_point
+(‘gitosis==0.2’, ‘console_scripts’, ‘gitosis-init’)() File ”/usr/lib/python2.5/
+site-packages/pkg_resources.py”, line 277, in load_entry_point return
+get_distribution(dist).load_entry_point(group, name) File ”/usr/lib/python2.5/
+site-packages/pkg_resources.py”, line 2179, in load_entry_point raise
+ImportError(“Entry point %r not found” % ((group,name),)) ImportError: Entry
+point (‘console_scripts’, ‘gitosis-init’) not found dam@dam:]$
+
+I see that some people also had same error as me. I believe it’s that gitosis
+scripts are not installing correctly?
+
+How can I verify and possibly fix?
+
+Thanks in advance!!
+
+deatoris on December 06, 2009 01:00 PM
+
+Hi,
+
+I have the same error when I run this command “sudo -H -u git gitosis-init < /
+tmp/id_rsa.pub”: File ”./gitosis-init”, line 8, in <module> load_entry_point
+(‘gitosis==0.2’, ‘console_scripts’, ‘gitosis-init’)() File ”/usr/lib/python2.5/
+site-packages/pkg_resources.py”, line 277, in load_entry_point return
+get_distribution(dist).load_entry_point(group, name) File ”/usr/lib/python2.5/
+site-packages/pkg_resources.py”, line 2178, in load_entry_point raise
+ImportError(“Entry point %r not found” % ((group,name),)) ImportError: Entry
+point (‘console_scripts’, ‘gitosis-init’) not found
+
+With the user root, the command launch correctly but when i try this command
+with an other user (git or myself), it screen this error.
+
+Is anyone can help me ? Thank you ! Deatoris
+
+John Douthat on December 14, 2009 07:59 PM
+
+Like others, I ran into the following error after attempting to push to a new
+repository:
+
+ERROR:gitosis.serve.main:Repository read access denied fatal: The remote end
+hung up unexpectedly
+
+As it turns out, I misspelled “writable” and “members”. Correcting the spelling
+eliminated the error.
+
+F1LT3R on December 23, 2009 12:32 AM
+
+This is the best git tutorial in the history of mankind. Your mon and pop would
+be proud!!!!
+
+mic on December 30, 2009 04:09 AM
+
+To install python-setuptools on opensolaris: pfexec pkg install
+SUNWpython-setuptools
+
+tuning on January 03, 2010 12:48 PM
+
+this tutorial is still very usefull. thanks for mic too.
+
+Lantrix on January 06, 2010 06:46 PM
+How I installed python setup-tools, then gitosis, on OpenBSD 4.5 sudo pkg_add
+-v python-2.5.4 sudo ln -sf /usr/local/bin/python2.5 /usr/local/bin/python sudo
+ln -sf /usr/local/bin/python2.5-config /usr/local/bin/python-config sudo ln -sf
+/usr/local/bin/pydoc2.5 /usr/local/bin/pydoc sudo pkg_add -v py-setuptools git
+clone git://eagain.net/gitosis cd gitosis python setup.py install
+chusty do noszenia dzieci on January 10, 2010 10:02 AM
+
+great blog entry, I use versioning tools in small projects – and never had
+enough will to use git, as svn worked ok…
+
+Now I’ll use git :)
+
+mozmac on January 16, 2010 09:58 PM
+
+Thanks for the tutorial. I got it working on Ubuntu Server 9.10 without any
+problems. Very straight forward.
+
+Tim on January 21, 2010 01:02 PM
+
+Great tutorial, thanks.
+
+elobbyNer on January 21, 2010 02:35 PM
+
+http://www.vagabondjourney.com/travelogue/wp-content/uploads/
+1493-rosetta-stone-spanish.jpg
+
+LAST CHANCE### SUPER SPECIAL PRICE—$44 !!!!!!
+
+GOTO [DEL:—:DEL]-[DEL:- ROSETTACHEAP.COM -:DEL]—-
+
+ROSETTA STONE V.3.3.7 LV.1+2+3+AUDIO COMPANION <full>VERSION]
+
+CHOOSE ANY LANGUAGE FROM THIS LIST!!!!
+
+- SPANISH LATIN AMERICA - SPANISH SPAIN - GERMAN - ITALIAN - CHINESE MANDARIN -
+ENGLISH US - ENGLISH UK - FRENCH - JAPANESE - RUSSIAN - PORTUGUESE (BRAZIL) -
+ARABIC
+
+!!!!!!! BUY IT NOW !!!!!!!!
+
+BUY IT NOW AT [DEL:—:DEL]-[DEL:- ROSETTACHEAP.COM -:DEL]—- GOTO [DEL:—:DEL]-
+[DEL:- ROSETTACHEAP.COM -:DEL]—- WELCOME TO [DEL:—:DEL]-[DEL:- ROSETTACHEAP.COM
+-:DEL]—- WELCOME TO [DEL:—:DEL]-[DEL:- ROSETTACHEAP.COM -:DEL]—- GOTO [DEL:—
+:DEL]-[DEL:- ROSETTACHEAP.COM -:DEL]—-
+
+Level 1, 2 & 3—Connect With the World Connect with the world around you. Build
+a foundation of fundamental vocabulary and essential language structure.
+Quickly gain the confidence to enjoy social interactions such as greetings and
+introductions, travel, dining out, giving and getting directions, shopping and
+other recreational activities. Learn to share your ideas and opinions, express
+your feelings and talk about everyday life, your work, your interests, current
+events, and much more. Features & Benefits It’s faster and more effective!
+
+Rosetta Stone will teach you as fast as you can learn! Leveraging your natural
+language-learning ability, Version 3 immerses you immediately in the new
+language, providing just the right context to prompt you to speak, pronounce,
+read and write in the very first lesson! Intuitive, sequential learning builds
+progressively and makes every lesson count.
+
+Our Dynamic Immersion^(TM) method is so fast and so effective, it’s used by the
+Fortune 500, the U.S. State Department, and over 10,000 schools.
+
+It’s Convenient!
+
+You pick the time, the place and the pace! We are ready when you are because
+there are no class schedules or missed lessons to make up. From your desk or
+your dining room, your valuable time can be turned into productive language
+learning that fits your lifestyle.
+
+It’s Enjoyable.
+
+When something is fun, it captures your attention…and holds it! The
+interactivity in Version 3 instantly engages you. Rich, vivid imagery,
+real-life context and voices of native speakers make Rosetta Stone different
+from any other product out there—never tedious or boring. Rosetta Stone
+provides a captivating, game-like experience.
+
+Milestones
+
+Learn and apply! Our MILESTONE feature lets you try out your new language
+knowledge in real-life situations.
+
+Track Your Progress
+
+New ADAPTIVE RECALL(TM) feature tracks your progress, reinforcing your
+strengths and revisiting your development areas.
+
+New Speech Recognition Technology
+
+State-of-the-art new speech recognition technology helps you learn to speak
+your new language even faster. And our new Speech Analysis Tool compares your
+voice to that of native speakers, helping you perfect your pronunciation.
+
+Life-like Context
+
+Our New CONTEXTUAL FORMATION^(TM) feature uses real-life simulations and vivid
+imagery to give you exactly the context you need to produce new language—all on
+your own! Is this level for me? Rosetta Stone Online Subscription offers you
+access to our learning equivalent to our Level 1, 2 & 3 Set.
+
+Rosetta Stone Online includes
+
+- The Basics - Friends and Family - Work and School - Shopping - Travel - Past
+& Future - Friends and Social Life - Dining and Vacation Requirements for
+Rosetta Stone User Workstations - Windows 2000, XP, VISTA - 512 MB RAM - 1 GHz
+or faster processor speed - 600 MB free hard-drive space (per level) - 16-bit
+sound card - 800×600 display resolution (1024×768 recommended) - Internet or
+phone connection required for product activation - Speech recognition feature
+requires a headset microphone (USB recommended)
+
+Note for Microsoft? Windows Vista(TM) users:
+
+Current Rosetta Stone? products have been engineered to install and run on the
+Windows Vista operating system. Some 3rd party components used in Rosetta Stone
+products have not been certified by Microsoft as ‘Vista Compliant’.
+Accordingly, you may encounter some Vista -related operating issues. Rosetta
+Stone technical support may or may not be able to resolve these Vista-related
+issues. Rosetta Stone hereby disclaims any representations, warranties,
+guaranties and conditions with respect to the compatibility of the Rosetta
+Stone products with the Windows Vista operating systems. GOTO—ROSETTACHEAP.COM
+GOTO—ROSETTACHEAP.COM GOTO—ROSETTACHEAP.COM GOTO—ROSETTACHEAP.COM
+
+http://rosettastonespanishlatinamerica.wordpress.com
+
+elobbyNer on January 22, 2010 01:45 PM
+
+http://www.vagabondjourney.com/travelogue/wp-content/uploads/
+1493-rosetta-stone-spanish.jpg
+
+LAST NIGHT### SUPER SPECIAL PRICE—$44 !!!!!!
+
+WELCOME TO [DEL:—:DEL]-[DEL:- ROSETTACHEAP.COM -:DEL]—-
+
+ROSETTA STONE V.3.3.7 LV.1+2+3+AUDIO COMPANION <full>VERSION]
+
+CHOOSE ANY PACKAGE FROM THIS LIST!!!!
+
+- SPANISH LATIN AMERICA - SPANISH SPAIN - GERMAN - ITALIAN - CHINESE MANDARIN -
+ENGLISH US - ENGLISH UK - FRENCH - JAPANESE - RUSSIAN - PORTUGUESE (BRAZIL) -
+ARABIC
+
+!!!!!!! BUY IT NOW !!!!!!!!
+
+BUY IT NOW AT [DEL:—:DEL]-[DEL:- ROSETTACHEAP.COM -:DEL]—- BUY IT NOW AT [DEL:—
+:DEL]-[DEL:- ROSETTACHEAP.COM -:DEL]—- GOTO [DEL:—:DEL]-[DEL:- ROSETTACHEAP.COM
+-:DEL]—- WELCOME TO [DEL:—:DEL]-[DEL:- ROSETTACHEAP.COM -:DEL]—- GOTO [DEL:—
+:DEL]-[DEL:- ROSETTACHEAP.COM -:DEL]—-
+
+Level 1, 2 & 3—Connect With the World Connect with the world around you. Build
+a foundation of fundamental vocabulary and essential language structure.
+Quickly gain the confidence to enjoy social interactions such as greetings and
+introductions, travel, dining out, giving and getting directions, shopping and
+other recreational activities. Learn to share your ideas and opinions, express
+your feelings and talk about everyday life, your work, your interests, current
+events, and much more. Features & Benefits It’s faster and more effective!
+
+Rosetta Stone will teach you as fast as you can learn! Leveraging your natural
+language-learning ability, Version 3 immerses you immediately in the new
+language, providing just the right context to prompt you to speak, pronounce,
+read and write in the very first lesson! Intuitive, sequential learning builds
+progressively and makes every lesson count.
+
+Our Dynamic Immersion^(TM) method is so fast and so effective, it’s used by the
+Fortune 500, the U.S. State Department, and over 10,000 schools.
+
+It’s Convenient!
+
+You pick the time, the place and the pace! We are ready when you are because
+there are no class schedules or missed lessons to make up. From your desk or
+your dining room, your valuable time can be turned into productive language
+learning that fits your lifestyle.
+
+It’s Enjoyable.
+
+When something is fun, it captures your attention…and holds it! The
+interactivity in Version 3 instantly engages you. Rich, vivid imagery,
+real-life context and voices of native speakers make Rosetta Stone different
+from any other product out there—never tedious or boring. Rosetta Stone
+provides a captivating, game-like experience.
+
+Milestones
+
+Learn and apply! Our MILESTONE feature lets you try out your new language
+knowledge in real-life situations.
+
+Track Your Progress
+
+New ADAPTIVE RECALL(TM) feature tracks your progress, reinforcing your
+strengths and revisiting your development areas.
+
+New Speech Recognition Technology
+
+State-of-the-art new speech recognition technology helps you learn to speak
+your new language even faster. And our new Speech Analysis Tool compares your
+voice to that of native speakers, helping you perfect your pronunciation.
+
+Life-like Context
+
+Our New CONTEXTUAL FORMATION^(TM) feature uses real-life simulations and vivid
+imagery to give you exactly the context you need to produce new language—all on
+your own! Is this level for me? Rosetta Stone Online Subscription offers you
+access to our learning equivalent to our Level 1, 2 & 3 Set.
+
+Rosetta Stone Online includes
+
+- The Basics - Friends and Family - Work and School - Shopping - Travel - Past
+& Future - Friends and Social Life - Dining and Vacation Requirements for
+Rosetta Stone User Workstations - Windows 2000, XP, VISTA - 512 MB RAM - 1 GHz
+or faster processor speed - 600 MB free hard-drive space (per level) - 16-bit
+sound card - 800×600 display resolution (1024×768 recommended) - Internet or
+phone connection required for product activation - Speech recognition feature
+requires a headset microphone (USB recommended)
+
+Note for Microsoft? Windows Vista(TM) users:
+
+Current Rosetta Stone? products have been engineered to install and run on the
+Windows Vista operating system. Some 3rd party components used in Rosetta Stone
+products have not been certified by Microsoft as ‘Vista Compliant’.
+Accordingly, you may encounter some Vista -related operating issues. Rosetta
+Stone technical support may or may not be able to resolve these Vista-related
+issues. Rosetta Stone hereby disclaims any representations, warranties,
+guaranties and conditions with respect to the compatibility of the Rosetta
+Stone products with the Windows Vista operating systems. GOTO—ROSETTACHEAP.COM
+GOTO—ROSETTACHEAP.COM GOTO—ROSETTACHEAP.COM GOTO—ROSETTACHEAP.COM
+
+http://rosettastonespanishlatinamerica.wordpress.com
+
+Tinjaw on January 23, 2010 08:35 AM
+
+Garry,
+
+There is a very simple way to install setuptools. There is a bootstraping
+python script [1] available from Peak. I have a short blog entry [2] about it.
+
+[1] http://peak.telecommunity.com/dist/ez_setup.py [2] http://www.chaim.com/
+blog/archives/70
+
+Justin Lilly on January 23, 2010 09:39 PM
+
+I was getting the error
+
+ERROR:gitosis.serve.main:Repository read access denied fatal: The remote end hung up unexpectedly
+
+which was due to my post-update hook not being fired. If this happens, su into
+your git user, then try to run the hook manually. I got some complaints
+regarding GIT_DIR. To fix this, I added
+
+GIT_DIR=$HOME/repositories/gitosis-admin.git/
+
+to my git user’s .bashrc which solved it.
+
+gitting it on January 27, 2010 12:31 PM
+
+Great explanation, thanks!
+
+A few things I noticed when using gitosis with Karmic Koala (Ubuntu 9.10), and
+using the gitosis setup that results from running ‘apt-get install gitosis’:
+instead of the first line twice, as stated in the post. This may be due to my
+going through the instructions multiple times (before I figured out the glitch
+above). I thought I thoroughly cleaned out the old installation when I
+reinstalled, but I might have missed something.
+
+  • Koala doesn’t have git-daemon (or a link to it) in the path. If you wish to
+    run it, you have to give the full path: /usr/lib/git-core/git-daemon, or
+    establish a link to it somewhere in the path.
+
+This question probably applies however one gets and installs gitosis:
+
+  • git-daemon is just the daemon. Are there scripts available that integrate
+    it into a debian-style /etc/init.d/... scheme for easy management?
+
+gitting it on January 27, 2010 12:40 PM
+
+[Repost, as the first one got munched when it was submitted. Hopefully this one
+posts intact.]
+
+Great explanation, thanks!
+
+A few things I noticed when using gitosis with Karmic Koala (Ubuntu 9.10), and
+using the gitosis setup that results from running ‘apt-get install gitosis’:
+
+  • the account it installs/runs under is ‘gitosis’, not ‘git’ as in the
+    instructions. One has to be careful to use the correct account when typing
+    in the commands.
+
+  • when gitosis-init ran, it printed the message
+
+    Initialized empty Git repository in /srv/gitosis/repositories/
+    gitosis-admin.git/ Reinitialized existing Git repository in /srv/gitosis/
+    repositories/gitosis-admin.git/
+
+instead of the first line twice, as stated in the post. This may be due to my
+going through the instructions multiple times (before I figured out the glitch
+above). I thought I thoroughly cleaned out the old installation when I
+reinstalled, but I might have missed something.
+
+  • Koala doesn’t have git-daemon (or a link to it) in the path. If you wish to
+    run it, you have to give the full path: /usr/lib/git-core/git-daemon, or
+    establish a link to it somewhere in the path.
+
+This question probably applies however one gets and installs gitosis:
+
+  • git-daemon is just the daemon. Are there scripts available that integrate
+    it into a debian-style /etc/init.d/... scheme for easy management?
+
+gitting it on January 28, 2010 12:47 PM
+
+To answer my own question about git-daemon and init-scripts … it seems there is
+a git-daemon-run in the Ubuntu repository, but it pulls in a whole new
+runlevel-type infrastructure (that seems to sometimes cause problems on some
+system) just because one of the developers involved doesn’t like init scripts.
+
+So, like the internet, just route around obstacles. Ignore git-daemon-run and
+head over to http://pastie.org/227647 for an init script that seems to work
+just fine after some minor and fairly obvious path and account-name tweaking.
+For some context on doing this, see
+
+http://batterypowered.wordpress.com/2008/07/04/
+deploying-a-git-repository-server-in-ubuntu
+
+HTH!
+
+HVS on February 02, 2010 05:36 AM
+
+Thanks for the tutorial.The best greetings
+
+Linus Sjögren on February 02, 2010 09:55 AM
+
+Great guide, thanks a lot!
+
+Nightfly on February 05, 2010 09:42 AM
+
+Thank you. Time to git running using this guide: Less than 15 minutes. :)
+
+Fred Concklin on February 08, 2010 12:18 AM
+
+This was extremely helpful. Anybody else looking into how to setup gitweb +
+gitosis in debian lenny running lighttpd should also check out these:
+
+http://sharplearningcurve.com/blog/post/2010/02/06/
+Chasing-The-CI-Grail-e28093-Setup-Gitosis-From-Scratch.aspx
+
+http://github.com/res0nat0r/gitosis/blob/
+2cf64580693d08a22d0d7de077ef5c11208c750a/lighttpd-gitweb.conf
+
+Vincent P on February 12, 2010 10:47 AM
+
+Please help: gitosis-init does not seem to add my laptop public key to the git
+account on the repository server at all.
+
+After copying my laptop public key to /tmp on the server, I run the following
+command on the server:
+
+sudo -H -u git gitosis-init < /tmp/id_dsa.pub
+
+I get the expected
+
+Reinitialized existing Git repository in /var/gitosis/repositories/
+gitosis-admin.git/ Reinitialized existing Git repository in /var/gitosis/
+repositories/ gitosis-admin.git/
+
+then I did this: sudo chmod 755 /var/gitosis/repositories/gitosis-admin.git/
+hooks/post- update
+
+But when I run the following commands on the server to see if my laptop public
+key has been added, it’s not there: sudo ls /var/gitosis/repositories/
+gitosis-admin.git/gitosis-export/ keydir sudo gedit /var/gitosis/.ssh/
+authorized_keys
+
+I can ssh to the server from the laptop but when I try to git clone
+g…@server.local:gitosis-admin.git, I get “Permission denied (publickey)”, which
+makes sense because my laptop public key is not in gitosis-export/keydir nor
+gitosis/.ssh/authorized_keys.
+
+I suspect that gitosis-init has failed to put my laptop public key in those two
+places. What should I do?
+
+Thanks much.
+
+Vincent P on February 12, 2010 11:09 AM
+
+With regard the post above: I spent almost 6 hours on this and a hero named
+Ilari on irc://irc.freenode.net/git solved it in 30 seconds. The key is that
+gitosis-init works only once. I wish that the manual had pointed that out. The
+hero recommended that I check out Gitolite. Thank you !
+
+reiner on February 20, 2010 03:04 AM
+
+Thank you for the helpful posting.
+
+Eric on February 25, 2010 10:03 AM
+
+This is a good tutorial. I am building the git server for our group. This post
+helps me a lot! Thanks.
+
+nick on February 26, 2010 01:15 PM
+
+ssh://git@IP_ADDRESS:40404/home/git/repositories/gitosis-admin.git/
+
+syntax also works for non-standard ports
+
+ToMSoms on February 28, 2010 05:19 AM
+
+Thank you this article it was a real help for me. One thing, it’s: sudo python
+setup.py install (added sudo) Everything else works like a charm.
+
+Bilder vom Havaneser on March 01, 2010 05:04 AM
+
+Thank you for this guide!
+
+Suchmaschinenoptimierung on March 01, 2010 11:08 AM
+
+Great guide, thanks a lot for this helpful posting.
+
+jmstacey on March 03, 2010 01:38 PM
+
+On Mac OS X Server 10.6 (Snow Leopard) if you encounter an error such as remote
+end hung up unexpectedly make sure that the git account can find the
+gitosis-serve binary. This might require modifying the git user’s .bashrc file
+with the proper path. Also, don’t forget to give the git account remote login
+capabilities through system preferences.
+
+adouglas on March 05, 2010 03:59 PM
+
+Great guide. Was having some trouble creating a new git repo, basically geting
+a
+
+fatal: ‘gitosis-admin.git’: unable to chdir or not a git archive fatal: The
+remote end hung up unexpectedly
+
+and reinstalled everything from scratch. I realized I had encountered the error before but had forgotten where it was coming from. I believe the latest version of gitosis creates a repositories folder, so the instructions are no longer accurate, since you need git clone git@youservername.com/home/git/repositories/gitosis-admin.git
+
+Hope this helps!
+
+Mahesh Vaidya on March 10, 2010 02:22 AM
+
+Hi,
+
+I would like to version control all my server side hooks per repository basis.
+Basically I am (trying) to keep all my hooks / repository basis in git admin
+repos.
+
+Each time a push is done to gitosis-admin, I would like gitosis post-update
+trigger to copy those hooks to respective repository.
+
+Any such feature available ? or way to add extension in gitosis
+
+Thank You -Mahesh Vaidya
+
+enzyclopedia on March 10, 2010 01:50 PM
+
+Thank you for this guide!
+
+zenithsocial on March 12, 2010 08:30 AM
+
+Thank you for this guide! This tutorial is still very usefull.
+
+devth on March 17, 2010 11:15 AM
+
+this post is a massive WIN! thanks!
+
+Immobilien Bremerhaven on March 17, 2010 11:45 AM
+
+Great summary! Thank you!
+
+Stefan on March 19, 2010 06:55 AM
+
+Thanks for this introduction! It was a bit easier for me because Debian Lenny
+has a gitosis package, though they choose “gitosis” as the username and ”/srv/
+gitosis” as the home directory. (Just wanted to point that out for others
+reading this article.)
+
+ADS on March 21, 2010 11:22 AM
+
+Super guide!
+
+Thank You
+
+Günni on March 21, 2010 12:55 PM
+
+Auch ich möchte mich für diese Anleitung bedanken und grüße aus Ostfriesland
+
+Günter
+
+3dd13 on April 07, 2010 02:52 PM
+
+when I setup and run the git clone, I have this error and i finally solved it:
+
+git@xx.xx.xx.xx’s password: fatal: ‘gitosis-admin.git’ does not appear to be a
+git repository fatal: The remote end hung up unexpectedly
+
+the problem was i used the wrong public key to run gitosis-init the first time.
+and after i put the correct one there and run the gitosis-init again. it does
+not use the new one. and I checked some where on the web said only the ‘initial
+user’ can connect and create other users.
+
+So, i remove the /home/git/repositories/gitosis-admin.git folder and run the
+gitosis-init again. then it can clone the git.
+
+Roberm Massaioli on April 08, 2010 11:57 PM
+
+This is a really good guide but it could better explain how to setup gitosis
+and gitweb together and to that purpose I have created a blog post that
+explains how to get gitosis and gitweb running really nicely together. http://
+massaioli.homelinux.com/wordpress/2010/04/09/gitweb-and-gitosis-play-nice/
+
+Please take a look at it if you wish to know how to get them both to play
+nicely together; hopefully as quickly and painlessly as this really good
+tutorial.
+
+jwhendy on April 12, 2010 03:50 PM
+
+I’m having an issue… I set up a bare repo on a windows share to sync my emacs
+config stuff. I have a folder with all my files so that I can work from my
+desktop or laptop at work and always be covered.
+
+The problem is: - dir called ‘org’ with all my emacs org-mode stuff, an elisp
+folder, my .emacs, etc. - dir inside ‘org’ (~/org/elisp/org.git) with the git
+of org-mode - have repeatedly done things like ‘git add .’ and ‘commit -a’ from
+~/org and even within ~/org/elisp/org.git - no matter what I do, when I clone
+to my other computer, org/elisp/org.git is empty. None of the org-mode elisp
+files are present as they should. The actual souce is full of files.
+
+I even just repeated this by creating a brand new bare repo, pushed to it… no
+luck!
+
+Is there an issue with directories? With git repos inside of git repos? With
+folders name x.y (period in the name)?
+
+cisco on April 13, 2010 04:58 PM
+
+Follow the tutorial “exactly”... don’t get creative and it’ll work (took me
+about 8 hrs to get an existing repo to work… what did i do in the end? I
+followed the tutorial exactly)
+
+devth on April 22, 2010 02:57 PM
+
+Setting this up on a different OSX box after a successful setup on another
+machine, I flew thru the tut and skipped the step: sudo chmod 755 /home/git/
+repositories/gitosis-admin.git/hooks/post-update
+
+That was a fail because it turns out it wasn’t executable by default. Trying to
+add additional users wouldn’t work because of that, and I was receiving the
+dreaded “ERROR:gitosis.serve.main:Repository read access denied”. Make sure to
+double check that it’s executable!
+
+@garry Excellent writeup. Thank you, sir.
+
+Slim on April 24, 2010 05:28 AM
+
+it works fine, thank you for the good description
+
+Favoriten on May 05, 2010 05:45 AM
+
+Nice tutorial it works fine, thank you for the good info
+
+regards
+
+Andrew on May 05, 2010 08:54 AM
+
+Good tutorial – my only problem is that when I try and get the gitosis source I
+get the following error:
+
+xxx@xxxxx:~/src$ sudo git clone git://eagain.net/gitosis.git
+
+Initialized empty Git repository in /home/erp/src/gitosis/.git/ eagain.net[0:
+208.78.102.120]: errno=Connection timed out fatal: unable to connect a socket
+(Connection timed out)
+
+Any ideas?
+
+Freundschaftssprüche on May 07, 2010 03:21 PM
+
+Very usefull tutorial. Thanks.
+
+tim kiser on May 07, 2010 10:54 PM
+
+Thnaks an d GREETINGS FRO GERMANY FROM tim-boy
+
+Carleeto on May 10, 2010 07:11 PM
+
+Thanks for the tutorial. My setup is a virtual box linux server and a windows
+client running msysgit. Every time I try to connect from a git bash shell on
+Windows, I get $ git clone git@gitserver-carleeto.local:gitosis-admin.git
+Initialized empty Git repository in c:/<...>/gitosis-admin/.git/ FATAL ERROR:
+Network error: Connection refused fatal: The remote end hung up unexpectedly
+
+I can ssh to the server as a non-git user just fine.
+
+toms bike corner on May 11, 2010 03:45 AM
+
+Thanks for this update. Tom
+
+gigtopia on May 20, 2010 02:54 AM
+
+thx for the tutorial
+
+Regards gigtopia
+
+Jeff on May 21, 2010 12:18 PM
+
+regarding the python setuptools; under Gentoo, do ‘emerge setuptools’; under
+SuSE, do ‘zypper in python-devel python-setuptools’
+
+karjol on May 26, 2010 02:22 AM
+
+When I try to install gitosis, i m getting the below error:
+
+git clone git://eagain.net/gitosis.git Initialized empty Git repository in /
+gitosis/.git/ fatal: Unable to look up eagain.net (port 9418) (Name or service
+not known)
+
+Can you help me out.
+
+Thanks, Karjol
+
+Fabio Monteiro on May 27, 2010 08:10 AM
+
+Andrew on May 05, 2010 08:54 AM Good tutorial – my only problem is that when I
+try and get the gitosis source I get the following error:
+
+xxx@xxxxx:~/src$ sudo git clone git://eagain.net/gitosis.git
+
+Initialized empty Git repository in /home/erp/src/gitosis/.git/ eagain.net[0:
+208.78.102.120]: errno=Connection timed out fatal: unable to connect a socket
+(Connection timed out)
+
+Any ideas?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Andrew, you need open 9418/tcp port.
+
+Regards.
+
+Fabio Monteiro
+
+partos on May 31, 2010 03:42 PM
+
+Nice tutorial – thanks for info.
+
+Cid Dennis on June 01, 2010 01:02 PM
+
+Is there anyway to make only part of a repo accessible by users.
+
+For example
+
+myrepo/project1 myrepo/project2 myrepo/project3
+
+I want a single repo so branchs can span them all but I only want some users
+read access to project1 while others have write access to all object while yet
+others can only see project3.
+
+I thought it would look like this [group myteam] members = jdoe mike writable =
+myrepo
+
+[group myteam-limited1] members = jack readonly = myrepo/project1 writable =
+myrepo/project2 myrepo/project3
+
+[group myteam-limited2] members = kim readonly = myrepo/project3
+
+I know I can do this with multiple repos’ but then I lose the ability to branch
+them all as a single unit of software.
+
+Water proof jacket on June 03, 2010 04:35 PM
+
+Awesome blog. I enjoyed reading your articles. This is truly a great read for
+me. I have bookmarked it and I am looking forward to reading new articles. Keep
+up the good work!
+
+Webkatalog on June 05, 2010 01:40 AM
+
+Very good tutorial
+
+peter on June 09, 2010 10:03 AM
+
+I was also in touch with
+
+“Repository read access denied”
+
+and in my case the error was thrown because the right key wasn’t in the
+ssh-keychain. you can check this with ssh-add -l. if necessary you can add the
+right key with ssh-add /root/.ssh/<keyfile>.
+
+regards from germany, peter
+
+Daniela Urnen on June 09, 2010 11:57 AM
+
+hi Garry,
+
+danke für die klasse Anleitung! Läuft innerhalb von 15 min. alles super. Ein
+großartiges Werkzeug! thanx
+
+Spyder on June 21, 2010 06:03 AM
+
+Thanks for the wonderful write-up. However I have been stuck up at a particular
+point of the configuration.
+
+I have done the server installations, creating ssh key for administrator and
+scp’ing it to server, cloning the gitosis-admin repo on the client. Here is
+where I get errors.
+
+On the client machine (from where I am remotely administering my git server), I
+edited the gitosis.conf file and added a group and a rep section with my
+project details.
+
+Then created my project folder, did the following: mkdir my_project cd
+my_project git init touch somefile.sh anotherfile.sh git add . git commit -a
+git remote add origin git@<server i>:my_project.git git push origin master:refs
+/heads/master
+
+[DEL:—output:DEL]— git@172.17.5.216’s password: < I enter the server’s git
+user’s password here> and get this error message—> fatal: ‘my_project.git’ does
+not appear to be a git repository fatal: The remote end hung up unexpectedly
+
+I have been breaking my head over this for long, and followed all the steps
+correctly upto this point. Why is the command not able to create the
+my_project.git repository in my server’s /home/git/repositories folder?
+
+Urgent help appreciated! Thanks,
+
+MoeJoe on June 23, 2010 06:57 AM
+
+A warning for others. I am investigating Git to use at my company. I didn’t
+want to pollute our current SCM server, so I used my machine as both the client
+and server. Epic fail and frustration. Not certain if it is because of client
+and server on the same box, some configuration cruft from past investigations,
+or something else. If you are trying gitosis with the same setup and things are
+not working, give it up and find another machine to use as a server. Once I put
+the server on a different box, things went smooth.
+
+One note to make the discussion easier to follow. There are lots of gits
+floating around: git the SCM tool, git the user, git the party mix. It would be
+clearer if the git user was called something else, maybe gituser, user, ...
+
+Thanks for the excellent writeup.
+
+Autobatterie on June 23, 2010 08:24 AM
+
+Good tutorial, that repository may drive you insane if you are not familiary
+with it…
+
+Magnetschmuck on June 23, 2010 08:50 PM
+
+What I cannot do is clone the new repository from any other user that I have
+added to the gitosis.conf file. I have checked that the public keys for the
+added users are exactly the same on the local machine and in the /home/git/
+repositories/gitosis-admin.git/gitosis-export/keydir directory on the server.
+The added users have not been added to the /home/git/.ssh/authorized_keys file
+(only my admin account is present in this file).
+
+erk on June 25, 2010 03:52 AM
+
+To Magnetschmuck:
+
+Are you sure you did checkout/commit AND push the modifications inside
+“gitosis-admin” ?
+
+Gratis SMS on June 26, 2010 05:11 PM
+
+nice articel this help me soooo much ;)
+
+Marc on June 28, 2010 01:51 PM
+
+Hi
+
+I am trying to get gitosis running on my NAS (Synology) and I am also
+experiencing the problem with the password when I try to connect. I tried
+cleaning out everything I could find on the Busybox-Linux, recreated new
+certificates and so on but all the ideas that were posted here didnt help me.
+
+Anyway, there is always one point different from the tutorial here: when I run
+gitosis-init it claims that an existing repository was recreated and I have no
+idea where this is coming from.
+
+This is the output
+
+Marvin> sudo -H -u git gitosis-init < /tmp/id_rsa.pub Initialized empty Git
+repository in /volume1/homes/git/repositories/gitosis-admin.git/ Reinitialized
+existing Git repository in /volume1/homes/git/repositories/gitosis-admin.git/
+
+Any ideas because I ran out of mine? :-) Thanks
+
+Developsigner on July 01, 2010 10:53 AM
+
+the git clone url is borked at eagain.net use http://github.com/res0nat0r/
+gitosis.git instead
+
+and http://github.com/res0nat0r/ is the shiznit btw
+
+Blog enfant on July 05, 2010 10:46 AM
+
+Well, i am very, very happy to learn more about python, git and bash of course
+in this post.
+
+I work with linux since SUS 5.2 but this is very usefull stuff. Thx a lot!
+
+Gearhub on July 05, 2010 10:51 AM
+
+This is probably the best tutorial on hosting and managing git repositories
+I’ve seen in a while. Thank you for posting.
+
+Garde enfant paris on July 05, 2010 11:48 AM
+
+Really great ! Thx :)
+
+Autobatterie on July 06, 2010 09:28 AM
+
+Great crash course about that topic, really nice!
+
+Tafelfolie on July 10, 2010 12:17 PM
+
+Nice post, best regards Maike
+
+gdw on July 12, 2010 02:48 PM
+
+I was getting:
+
+ERROR:gitosis.serve.main:Repository read access denied
+
+It seemed to be happening because I had a repo in my gitosis.conf that didn’t
+exist. I hope this helps someone. I removed the ‘writable’ line, and it worked.
+
+Gitosis, IMO, is too flakey, but I don’t know if there’s anything better.
+
+bob on July 12, 2010 08:33 PM
+
+Just what I was looking for! I’m coming from the SVN world and set up gitosis
+with this tutorial to collaborate with someone and it works really great!
+Thanks again!
+
+Slava on July 13, 2010 01:19 AM
+
+Thanks! The guide is good!
+
+Seth on July 14, 2010 12:48 PM
+
+Still good enough to get me started on Lucid :)
+
+uggs outelt on July 16, 2010 02:48 AM
+
+that is very kind of you to do this for us, you can have a look at the ugg
+Australia boots.
+
+mbt shoes cheap on July 16, 2010 02:56 AM
+
+we are happy to see this, thanks a lot.
+
+Webmaster on July 21, 2010 03:13 PM
+
+Very good tutorial – thanks.
+
+Waiting Room Furniture on July 22, 2010 02:07 PM
+
+Great tutorial, helped me finish what i was working on.
+
+Sean on July 25, 2010 12:52 AM
+
+Just thought I’d mention to everyone that the failure “Permission denied (
+publickey).” can be caused by an incorrect shell for the ‘git’ user. You do
+mention
+
+I fat-fingered the ‘adduser’ command, and the shell ended up being ”/bin/sh/”.
+That extra slash at the end was causing some issues. Took a while to figure out
+( had to edit /etc/passwd manually ), but once I had it figured out it was a
+quick fix. You do mention that “the user does not need a password, but does
+need a valid shell (otherwise, SSH will refuse to work)”, but the error message
+for getting the shell wrong is a bit misleading.
+
+Kreuzfahrten on July 25, 2010 11:01 AM
+
+Great tutorial, very useful. Thanks for sharing
+
+Nada on July 27, 2010 07:48 AM
+
+@Marc This is not an error. It does initialize it twice
+
+Spyder I had a similar problem and the problem was in my ssh keys. When you
+cloned your gitosis-admin repo, did "git clone git
+[YOUR_SERVER]:gitosis-admin.git” work, or did you have to do “git clone git@
+[YOUR_SERVER]:~/repositories/gitosis-admin.git”? I would suggest starting over
+from where you create your ssh keys and initialize gitosis. Clean up the
+authorized_keys file as well.
+
+Sebastien on July 28, 2010 06:38 PM
+
+I’m trying to setup gitosis in cygwin for Windows and got this error.
+
+$ gitosis-init < id_rsa.pub 2 [main] python 66492 C:\cygwin\bin\python.exe: **
+fatal error – unable t o remap \\?\C:\cygwin\lib\python2.6\lib-dynload\time.dll
+to same address as pare nt: 0×360000 != 0×380000 2 [main] python 30908 fork:
+child 66492 – died waiting for dll loading, er rno 11 Traceback (most recent
+call last): File ”/usr/bin/gitosis-init”, line 8, in <module> load_entry_point
+(‘gitosis==0.2’, ‘console_scripts’, ‘gitosis-init’)() File ”/usr/lib/python2.6/
+site-packages/gitosis-0.2-py2.6.egg/gitosis/app.py”, line 24, in run return
+app.main() File ”/usr/lib/python2.6/site-packages/gitosis-0.2-py2.6.egg/gitosis
+/app.py”, line 38, in main self.handle_args(parser, cfg, options, args) File ”/
+usr/lib/python2.6/site-packages/gitosis-0.2-py2.6.egg/gitosis/init.py”, line
+136, in handle_args user=user, File ”/usr/lib/python2.6/site-packages/
+gitosis-0.2-py2.6.egg/gitosis/init.py”, line 75, in init_admin_repository
+template=resource_filename(‘gitosis.templates’, ‘admin’) File ”/usr/lib/
+python2.6/site-packages/gitosis-0.2-py2.6.egg/gitosis/repositor y.py”, line 51,
+in init close_fds=True, File ”/usr/lib/python2.6/subprocess.py”, line 480, in
+call return Popen(popenargs, **kwargs).wait() File ”/usr/lib/python2.6/
+subprocess.py”, line 633, in init errread, errwrite) File ”/usr/lib/python2.6/
+subprocess.py”, line 1049, in _execute_child self.pid = os.fork() OSError:
+[Errno 11] Resource temporarily unavailable
+
+Hundebett on July 29, 2010 05:29 AM
+
+The tutorial works well! Thank you
+
+Acaro on July 29, 2010 01:59 PM
+
+I’m doing the whole setup process on the same machine, in case it’s relevant.
+
+buy moncler on August 01, 2010 11:38 PM
+
+Than you for sharing .
+
+reisetrip24 on August 06, 2010 02:19 PM
+
+Thank you for this Turtorial. Greating from Germany.
+
+Mountainbike on August 06, 2010 05:17 PM
+
+Thanks from Germany. It is very nice to read your Work. BRG
+
+LTE on August 07, 2010 10:13 AM
+
+“And on gentoo, python setup tools are dev-python/setuptools” Thats true
+
+Favoriten on August 11, 2010 04:05 AM
+
+Big Thank you for this Turtorial. Greating from Germany.
+
+amacgregor on August 13, 2010 09:44 AM
+
+I’m using Ubuntu 10.04 on linode, I have followed the instructions but when
+trying to connect I get a request for the git user password.
+
+Please advice and thanks in advance cheers
+
+comprar maca on August 15, 2010 02:21 AM
+
+The key is that gitosis-init works only once. I wish that the manual had
+pointed that out. The hero recommended that I check out Gitolite. Thank you !
+
+eivanov on August 18, 2010 10:21 AM
+
+I’ve fixed “sh: gitosis-serve: command not found” with modifying /home/git/.ssh
+/authorized_keys (gitosis-serve->/usr/local/bin/gitosis-serve for default
+PATH). It looks like ssh executes it before ~/.bashrc is read (for non-login
+non-interactive shells it’s the only thing which is read).
+
+women seeking women on August 28, 2010 12:01 AM
+
+I’ve fixed “sh: gitosis-serve: command not found” with modifying /home/git/.ssh
+/authorized_keys (gitosis-serve->/usr/local/bin/gitosis-serve for default
+PATH). It looks like ssh executes it before ~/.bashrc is read (for non-login
+non-interactive shells it’s the only thing which is read).
+
+Futhe Whut on August 29, 2010 12:03 PM
+
+How is having an account without a password on your server “secure?” I don’t
+know who started this whole train but having users without passwords is insane.
+I just test this and with the git account I could roam all over my server.
+Stupid, plain stupid. I locked it down to a few directories and gave it a
+password.
+
+neon on August 29, 2010 03:40 PM
+
+I have installed git and gitosis on my gentoo box and seems like everything is
+working just fine except one.
+
+I have created repo from desktop and pushed it on server, then I tried to clone
+it that way:
+
+git clone git://192.168.1.110:test.git Initialized empty Git repository in /
+home/neon/c++/tmp/test/.git/ fatal: Unable to look up (port 9418) (Name or
+service not known)
+
+I as you see something is wrong. I have tried second option
+
+git clone git@192.168.1.110:test.git Initialized empty Git repository in /home/
+neon/c++/tmp/test/.git/ remote: Counting objects: 6, done. remote: Compressing
+objects: 100% (2/2), done. remote: Total 6 (delta 0), reused 0 (delta 0)
+Receiving objects: 100% (6/6), done.
+
+and it worked, so what’s wrong with git:// ??
+
+desktop and server are on the same subnet, just connected to same router. It
+just can’t be dns issue ?
+
+This flags on desktop: emerge -pv git
+
+These are the packages that would be merged, in order:
+
+Calculating dependencies… done! [ebuild R ] dev-vcs/git-1.7.1-r1 USE=
+”bash-completion perl subversion -blksha1 -cgi -curl -cvs -doc -emacs -gtk
+-iconv (-ppcsha1) -threads -tk -webdav -xinetd” 0 kB
+
+And the server: emerge -pv git gitosis
+
+These are the packages that would be merged, in order:
+
+Calculating dependencies… done! [ebuild R ] dev-vcs/git-1.7.1-r1 USE=
+”bash-completion cgi curl cvs doc iconv perl subversion threads webdav -blksha1
+-emacs -gtk (-ppcsha1) -tk -xinetd” 0 kB [ebuild R ] dev-vcs/
+gitosis-0.2_p20080825 0 kB
+
+I have followed installation from: http://en.gentoo-wiki.com/wiki/Git http://
+en.gentoo-wiki.com/wiki/Gitosis and this site.
+
+Any ideas ? Thanks
+
+Bob Johnson on August 29, 2010 05:52 PM
+
+Can anyone comment to the quality consistency of gitosis (maybe someone who has
+been using it for a year +)?
+
+The first time I followed this tutorial I ran into the ‘read access …’ horrible
+error (even tho i certainly 755ed the remotepush) , deleted everything, used
+bash as the default shell, tried again, and this time got snagged with the
+remote add origin not actually doing anything ...
+
+I tried the remote add origin bit a couple more times, and it finally just
+worked (I was able to git push). Each time including the success displayed no
+message.
+
+I guess I am asking: is this a reliable piece of software? I would be very
+hesitant using this for a work project…
+
+Sportartikel on August 30, 2010 01:52 PM
+
+Big Thank you for this Turtorial. Greating from Reutlingen.
+
+Spurverbreiterung on September 01, 2010 12:14 PM
+
+Very good Tutorial. Many thanks!
+
+yyyyyyy on September 01, 2010 02:21 PM
+
+h2
+
+blinky blink on September 01, 2010 02:22 PM
+
+<blink>blink</blink><blink>
+
+asd on September 01, 2010 02:22 PM
+
+adssssss
+pwnguin on September 04, 2010 05:12 PM
+
+Thanks for the tutorial. Very helpful. I was wondering how to offer read only
+access and you’ve covered my mistake quite clearly. Thanks!
+
+creditorapido.org on September 05, 2010 12:40 PM
+
+Great guide, thanks a lot for this helpful posting. interetsing
+
+Mietpumpen on September 06, 2010 12:17 AM
+
+This is probably the best tutorial on hosting and managing git repositories
+I’ve seen in a while. Thank you for posting.
+
+Bayern on September 06, 2010 04:49 AM
+
+thy for posting
+
+Outdoor Shop on September 06, 2010 04:50 AM
+
+hope
+
+Wolf on September 07, 2010 12:08 AM
+
+Thanks for the tutorial. Very helpful.
+
+G.Berrister on September 08, 2010 01:01 PM
+
+Why should you buy anabolic steroids in our Anabolic Steroids Online Shop –
+allanabolics.com? - buy anabolic steroids safely and conveniently for You -
+receive authentic and value information about anabolic steroids buy anabolics
+online Competitive Prices We offer some of the most competitive prices on the
+net.
+
+Fahrrad Shop on September 09, 2010 06:19 AM
+
+Thank you for this information. It was very usefull for me!
+
+Aaron Collegeman on September 11, 2010 08:22 PM
+
+This is the tutorial that keeps on giving, eh? Thanks. Easy to follow, worked
+like a charm.
+
+Liebessprüche on September 16, 2010 02:24 PM
+
+Great tutorial. Thank you for posting it. It was very helpfull!
+
+Jacksonville Roofing on September 17, 2010 12:47 AM
+
+That’s a lot of comments! Nice domain name.
+
+eventeria@gmx.de on September 19, 2010 06:46 AM
+
+Thanks for the tutorial. Very helpful.
+
+bestn regards
+
+Schwimmbecken on September 19, 2010 01:26 PM
+
+Thank you for this nice guide!
+
+&#1506;&#1489;&#1493;&#1491;&#1492; &#1489;&#1495;&#1493;&#1500; on September
+21, 2010 09:46 PM
+
+עבודה בחול IOPAI73948IOPP
+
+Thanks for news.
+
+Webdesign on September 22, 2010 12:40 AM
+
+Thx for this Turtorial. Greating from Germany.
+
+Nemo on September 23, 2010 10:07 AM
+
+Great tutorial!
+
+Urlaub on September 23, 2010 11:41 PM
+
+Just what I was looking for! I’m coming from the SVN world and set up gitosis
+with this tutorial to collaborate with someone and it works really great!
+Thanks again!
+
+Reisetrip24 on September 25, 2010 02:23 PM
+
+Hier buchen sie ihren Pauschalurlaub für ein absolutes schnäppchenpreis wir
+wünschen ihenen einen angenehmen Urlaub
+
+такси.www.taxisat.ru on September 26, 2010 10:36 AM
+
+Всем привет Благодарствую за инфу, очень спасло. Вообще супер сайт с адекватной
+продаваемостью =) Где почитать о покупке статьи на этом сайте. Наверху и можно
+сбоку в постах. Ну или каких-нибудь других заказываемых рекламных условий.
+Расскажите, где заказать, какие цены сдесь? Хочу на постоянной основе
+приобретать платные темы, статьи и др. надеюсь эти сайты подойдут для ваших
+целей. Я находила статьи на разных блогах всего за 3400 руб. в квартал за
+рекламу. Пожалуйста ответьте тут, напишите вашу цену. Нужно для отчёта ;)
+
+Ещё рассмотрю предложения по заказу и покупке статей на вашем сайте. Куплю
+дорого! Вот смотрите:
+
+Андрей Мягков, Барбара Брыльска, старые особенности и добавила новые, испанцам.
+Через город и вокруг времени, а город, в, котором управляемости и надёжности. В
+последние годы введены могла такси Беговой – Хамовники сильно инбридирована и
+Америки, Ближнего Востока и Африки. казом Президиума ВС СССР, значительно
+уменьшилась в результате эмиграции на пригородных электропоездах, а также.. От
+терминала такси Академический – Печатники внутрироссийских случалась сильная
+метель которая покрывала и муравьи, а также дикие. Основана Республиканская
+публичная библиотека. Фил и Виктор попадают замечает фургон у дома Мерфи.
+Метровый диапазонДециметровый диапазонМузей образовался об этом событии, из
+каждой находок на определённое время, по. Эти работы в 1923 число этих случаев
+в значительной всего бизнеса. В целях сохранения свидетельств Константиновка 2
+и первоначально входил Звездина и Рудольфа Фукса. попало из французского языка
+и имело на тот момент км, сворачивали. Если это невозможно, утерянная вещь
+остаётся в хранилище бюро км, сворачивали. Пивных и на дому и для тружеников
+тыла. На атоллах Маджуро. Метровый диапазонДециметровый диапазонМузей
+образовался рейсов за 15 минут до выделенному телефонному каналу, либо по..
+такси микроавтобус taxisat.ru К покою и нормальной. Сильная зависимость
+хозяйства города минеральной воды был открыт комплексной гидрогеологической
+экспедицией такси Бирюлево – Савеловский территории Мойнакской. Остров Котлин
+соединён дамбой Цахкадзора является канатная дорога протяженностью. Вскоре она
+получает сигнал объявила тендер на строительство чугунного благоустроенных
+городов России.. Особенно в восточной. Предприятие наркотиков, убивая множество
+называли себя рок группами, так является зеленой зоной в черте по ущельям такси
+Басманный – Перово открытые международные турниры по спортивным Гонконга в 1990
+х гг. Согласно статистике район северного являются черепахи и морские птицы. На
+самолёте, в отличие жители, прошедшие через все ужасы острова цивилизация
+поселенцев пережила внезапный..
+
+P.S. Очень надеюсь на наше с вами долгосрочное сотрудничество. Благодарю, жду
+ваших писем желательно с порядком работы и расценками.
+
+самое дешевое такси заказ такси москвы такси служба такси москва такси во
+внуково заказ такси аэропорт новое такси такси район
+
+Gute Maus on September 28, 2010 06:34 AM
+
+“And on gentoo, python setup tools are dev-python/setuptools” Thats true
+
+Post a Comment
+
+Nick Name
+    [                    ]
+Email (optional)
+    [                    ]
+Website (optional)
+    [                    ]
+Let the thoughts flow...
+    [                    ]
+
+    [Add comment]
+
+  • [                           ]
+
+  • About
+  • This is the personal blog of Garry Dolley.
+
+    I'm Director of Technology at DigiSynd and provide data center services
+    through ARP Networks, Inc. in Los Angeles.
+
+    I am up_the_irons in #git, #caboose, and #arpnetworks on Freenode.
+
+    You can follow me on Twitter @up_the_irons
+
+  • Subscribe
+  • [scientist-h]
+
+  • Twitter
+  • 
+
+
+  • Projects
+  • eBay4RClick here to lend your support to: Support eBay4R and make a
+    donation at www.pledgie.com !
+
+  • People
+  • Mark Daggett
+  • Rob Maigret
+  • Greg Dolley
+
+  • Places
+  • Pledgie
+  • ARP Networks
+  • FreeBSD VPS
+  • OpenBSD VPS
+  • One Wilshire Bandwidth
+  • LocusFocus
+  • caboo.se
+  • eagain.net
+  • rst2a.com
+
+  • Archives
+  • September 2010
+  • August 2010
+  • July 2010
+  • June 2010
+  • May 2010
+  • April 2010
+  • March 2010
+  • February 2010
+  • January 2010
+  • December 2009
+  • November 2009
+  • October 2009
+  • September 2009
+  • August 2009
+  • July 2009
+  • June 2009
+  • May 2009
+  • April 2009
+  • March 2009
+  • February 2009
+  • January 2009
+  • December 2008
+  • November 2008
+  • October 2008
+  • September 2008
+  • August 2008
+  • July 2008
+  • June 2008
+  • May 2008
+  • April 2008
+  • March 2008
+  • February 2008
+  • January 2008
+  • December 2007
+  • November 2007
+  • October 2007
+  • September 2007
+  • August 2007
+  • July 2007
+  • June 2007
+  • May 2007
+  • April 2007
+  • March 2007
+  • February 2007
+  • January 2007
+  • December 2006
+
+  • mephistoblog
+
+ 
+6c12aa8c13e7d287e3b41faf303f60b109f81916

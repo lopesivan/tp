@@ -1,0 +1,62 @@
+#include <iostream>
+
+using namespace std;
+
+class A
+{
+public:
+	A();
+	~A();
+	void m1();
+	void m2();
+	void m3();
+	void m4(A*);
+	void m5(A&);
+private:
+};
+
+A::A() {};
+A::~A() {};
+
+void A::m5(A&oO)
+{
+	oO.m2();
+}
+
+void A::m4(A*oO)
+{
+	oO->m1();
+}
+
+void A::m3()
+{
+	this->m1();
+}
+
+void A::m1()
+{
+	cout << "m1" << endl;
+}
+
+void A::m2()
+{
+	cout << "m2" << endl;
+}
+
+int main ()
+{
+
+	A oA;
+	A *oB = new A;
+
+	oA.m1();
+	oB->m2();
+
+	oA.m3();
+	oB->m3();
+	oB->m4(&oA);
+	oB->m4(oB);
+	oB->m5(oA);
+
+	return 0;
+}

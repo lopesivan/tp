@@ -1,0 +1,1 @@
+cat create.user | sed 's/__USER__/einterativo/g; s/__PASS__/12345/g; s/__DATABASE__/esporte_interativo/g'

@@ -1,0 +1,28 @@
+#include <stdio.h>
+void func2(int lower,int upper);
+void func(int lower,int upper)
+{
+    printf("%d\n",upper);
+    func2(lower,--upper);
+}
+
+void func3(int lower,int upper)
+{
+    exit(-1);
+}
+
+void func2(int lower,int upper)
+{
+    void (*a)(int,int);
+    a = ((int)(&func) * !(!(upper-lower))) + ((int)(&func3) * (!(upper-lower))) ;
+    a(lower,upper);
+}
+
+main()
+{
+    int lower,upper;
+    scanf("%d",&lower);
+    scanf("%d",&upper);
+
+    func2(lower-1,upper);
+}

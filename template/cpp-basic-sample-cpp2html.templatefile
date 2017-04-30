@@ -1,0 +1,150 @@
+// reading a text file
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+#define _TABSIZE    4
+
+int tabsize = _TABSIZE;
+
+//
+// ---------------------------------------------------------------------------
+//
+
+class token
+{
+
+public:
+        token() : _what(code) {}
+
+protected:
+        enum type {code, comment, pp, keyword};
+        string _str;
+        type   _what;
+        friend istream& operator>>(istream&, token&);
+        friend ostream& operator<<(ostream&, const token&);
+};
+
+//
+// ---------------------------------------------------------------------------
+//
+
+bool iskeyword(const string& s)
+{
+        static const char* keywords[] =
+        {
+                "and",
+                "and_eq",
+                "asm",
+                "auto",
+                "bitand",
+                "bitor",
+                "bool",
+                "break",
+                "case",
+                "catch",
+                "char",
+                "class",
+                "compl",
+                "const",
+                "const_cast",
+                "continue",
+                "default",
+                "delete",
+                "do",
+                "double",
+                "dynamic_cast",
+                "else",
+                "enum",
+                "explicit",
+                "export",
+                "extern",
+                "false",
+                "float",
+                "for",
+                "friend",
+                "goto",
+                "if",
+                "inline",
+                "int",
+                "long",
+                "mutable",
+                "namespace",
+                "new",
+                "not",
+                "not_eq",
+                "operator",
+                "or",
+                "or_eq",
+                "private",
+                "protected",
+                "public",
+                "register",
+                "reinterpret_cast",
+                "return",
+                "short",
+                "signed",
+                "sizeof",
+                "static",
+                "static_cast",
+                "struct",
+                "switch",
+                "template",
+                "this",
+                "throw",
+                "true",
+                "try",
+                "typedef",
+                "typeid",
+                "typename",
+                "union",
+                "unsigned",
+                "using",
+                "virtual",
+                "void",
+                "volatile",
+                "wchar_t",
+                "while",
+                "xor",
+                "xor_eq"
+        };
+
+        for (int i = 0; i < sizeof(keywords) / sizeof(char*); i++)
+                if (string(keywords[i]) == s)
+                        return true;
+
+        return false;
+}
+
+bool containspp(const string& s)
+{
+        static const char* pptokens[] =
+        {
+                "define",
+                "elif",
+                "else",
+                "endif",
+                "error",
+                "if",
+                "ifdef",
+                "ifndef",
+                "include",
+                "line",
+                "pragma",
+                "undef"
+        };
+
+        for (int i = 0; i < sizeof(pptokens) / sizeof(char*); i++)
+                if (s.find(pptokens[i]) != string::npos)
+                        return true;
+
+        return false;
+}
+
+int main()
+{
+
+	return 0;
+}

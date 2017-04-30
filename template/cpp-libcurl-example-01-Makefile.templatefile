@@ -1,0 +1,31 @@
+main           = main.cpp
+prerequisite   = main.cpp
+
+# ----------------------------------------------------------------------------
+
+program        = curltest
+sources        = $(prerequisite)
+objects        = $(sources:.cpp=.o)
+
+dependences    = $(prerequisite:.cpp=.o)
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+CXX         = g++
+WARNINGS    = -Wall
+GDBFLAGS    = -g
+LDLIBS      = `curl-config --libs`
+INCLUDES    =
+DEFINEFLAGS =
+
+CPPFLAGS    = $(WARNINGS) $(GDBFLAGS) $(INCLUDES)
+
+all:          $(program)
+
+$(program):   $(dependences)
+	$(CXX) -o $@ $(LDLIBS) $^
+
+clean:
+	/bin/rm -rf $(program) $(objects)

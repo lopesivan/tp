@@ -1,0 +1,25 @@
+As vezes migrar/clonar é o caminho, seja por problemas de hardware, invasões, corrompimento de sistema de arquivos, um “rm -rf” mal feito(kkk).. etc
+
+É claro os pacotes, são só os pacotes, temos os dados e as configurações, não é o caso, retrataremos aqui, apenas a seleção de pacotes, mas torcemos pela integridade dos seus backups ;) .
+
+pre-requisito:
+
+1- S.O. origem/destino identicos, versão, arquitetura, etc
+2- Mesma lista de Repositórios e é claro sudo apt-get update
+
+Salvando a lista na maquina de origem: no console
+
+    * sudo dpkg –get-selections > packs.txt
+
+copie o arquivo packs.txt para o servidor destino….
+Restaurando a seleção na maquina destino
+
+    * cat packs.txt |sudo  dpkg –set-selections
+
+e em seguida…
+
+    * sudo apt-get dselect-upgrade
+
+ou se preferir utilize a ferramente dselect (apt-get install dselect)
+
+logo após, mãos a obra para restaurar os dados e as configurações, ao menos não será necessário utilizar o apt-get por um bom tempo.

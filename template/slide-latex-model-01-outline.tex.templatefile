@@ -1,0 +1,4 @@
+\begin{frame}{Outline}
+  \tableofcontents[hideallsubsections]
+\note<1>{Table of contents really only necessary when talk is 45 min or more.}
+\end{frame}

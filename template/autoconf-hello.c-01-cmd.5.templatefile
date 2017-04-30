@@ -1,0 +1,2 @@
+mv configure.scan configure.ac
+ls

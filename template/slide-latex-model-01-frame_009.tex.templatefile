@@ -1,0 +1,39 @@
+\begin{frame}[fragile=singleslide]{Templates, II}
+\begin{block}{Packages}
+\tiny
+\begin{verbatim}
+% Standard packages
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{pst-all}              % PStricks
+\usepackage{graphicx}             % Graphics formats
+%\usepackage{multimedia}
+
+%\usepackage{pgfpages}
+%\pgfpagesuselayout{4 on 1}[letterpaper,landscape,border shrink=5mm]
+
+%\logo{\includegraphics[width=0.05\textwidth]{utlogo.jpg}}
+\logo{\includegraphics[width=0.05\textwidth]{./img/PIC1}}
+
+% Author, Title, etc.
+
+\title[\LaTeX\ Tips and Tricks]{Presentations with \LaTeX: Tips and Tricks}
+
+\author[Saum]{ Michael A. Saum}
+\institute[Dept of Mathematics, UTK]
+{Department of Mathematics \\ The University of Tennessee, Knoxville}
+
+\date[10/10/07]{October 10, 2007}
+
+\begin{document}
+... frames ...
+\end{document}
+\end{verbatim}
+\end{block}
+\note<1>[item]{This is what I have found works well.  Your mileage may vary.}
+\note<1>[item]{A nice set of basic templates is contained in {\tt /usr/share/texmf/tex/latex/beamer/solutions/}
+subdirectory.}
+\end{frame}

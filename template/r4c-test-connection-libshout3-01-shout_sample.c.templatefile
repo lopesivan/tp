@@ -1,0 +1,177 @@
+/* example.c: Demonstration of the libshout API.
+ * $Id: example.c 8144 2004-10-30 01:24:47Z brendan $
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <shout/shout.h>
+
+struct _r4c
+{
+    char *ip;
+    int   port;
+    char *pass;
+};
+
+int
+main ()
+{
+    shout_t *shout;
+    char buff[4096];
+    long read, ret, total;
+
+    /*
+     * =================== Set default value for r4c server ==================
+     */
+
+    struct _r4c r4c;
+    int sz;
+
+    char *ip = "187.48.247.56";
+    int   port = 8000;
+    char *pass = "hackme";
+
+    /*
+     * ip
+     */
+    sz = strlen (ip);
+    r4c.ip = (char *) malloc ((size_t) (sz) * sizeof (char));
+
+    if (!r4c.ip)
+    {
+        fprintf (stderr, "!!ERROR!!");
+    }
+
+    strcpy (r4c.ip, ip);
+
+    fprintf (stdout, "ip   : %s\n", r4c.ip);
+
+    /*
+     * port
+     */
+    r4c.port = port;
+
+    fprintf (stdout, "port : %d\n", r4c.port);
+
+    /*
+     * pass
+     */
+    sz = strlen (pass);
+    r4c.pass = (char *) malloc ((size_t) (sz) * sizeof (char));
+
+    if (!r4c.pass)
+    {
+        fprintf (stderr, "!!ERROR!!");
+    }
+
+    strcpy (r4c.pass, pass);
+
+    fprintf (stdout, "pass : %s\n", r4c.pass);
+
+    /*
+     * =================== Set default value for r4c server ==================
+     * EOF
+     */
+
+    shout_init ();
+
+    if (!(shout = shout_new ()))
+    {
+        printf ("Could not allocate shout_t\n");
+        return 1;
+    }
+
+    if (shout_set_host (shout, r4c.ip) != SHOUTERR_SUCCESS)
+    {
+        printf ("Error setting hostname: %s\n", shout_get_error (shout));
+        return 1;
+    }
+
+    if (shout_set_protocol (shout, SHOUT_PROTOCOL_HTTP) != SHOUTERR_SUCCESS)
+    {
+        printf ("Error setting protocol: %s\n", shout_get_error (shout));
+        return 1;
+    }
+
+    if (shout_set_port (shout, r4c.port) != SHOUTERR_SUCCESS)
+    {
+        printf ("Error setting port: %s\n", shout_get_error (shout));
+        return 1;
+    }
+
+    if (shout_set_password (shout, r4c.pass) != SHOUTERR_SUCCESS)
+    {
+        printf ("Error setting password: %s\n", shout_get_error (shout));
+        return 1;
+    }
+
+    if (shout_set_mount (shout, "/example.ogg") != SHOUTERR_SUCCESS)
+    {
+        printf ("Error setting mount: %s\n", shout_get_error (shout));
+        return 1;
+    }
+
+    if (shout_set_user (shout, "source") != SHOUTERR_SUCCESS)
+    {
+        printf ("Error setting user: %s\n", shout_get_error (shout));
+        return 1;
+    }
+
+    if (shout_set_format (shout, SHOUT_FORMAT_OGG) != SHOUTERR_SUCCESS)
+    {
+        printf ("Error setting user: %s\n", shout_get_error (shout));
+        return 1;
+    }
+
+    if (shout_open (shout) == SHOUTERR_SUCCESS)
+    {
+        printf ("Connected to server...\n");
+        total = 0;
+
+        while (1)
+        {
+            read = fread (buff, 1, sizeof (buff), stdin);
+            total = total + read;
+
+            if (read > 0)
+            {
+                ret = shout_send (shout, buff, read);
+
+                if (ret != SHOUTERR_SUCCESS)
+                {
+                    printf ("DEBUG: Send error: %s\n", shout_get_error (shout));
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+
+            shout_sync (shout);
+        }
+    }
+    else
+    {
+        printf ("Error connecting: %s\n", shout_get_error (shout));
+    }
+
+    shout_close (shout);
+
+    shout_shutdown ();
+
+    /*
+     * ======================== Clean Malloc allocation ======================
+     */
+    free (r4c.ip);
+    free (r4c.pass);
+
+    /*
+     * ======================== Clean Malloc allocation ======================
+     * EOF
+     */
+
+    return 0;
+}

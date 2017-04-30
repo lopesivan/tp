@@ -1,0 +1,18 @@
+#ifndef TEST_H
+#define TEST_H
+
+#include "getset.h"
+
+class Teste
+{
+    GETSET(int, _x);	 // declarando um atributo _x do tipo int e seu mtodo get e set
+    GETSET(int, _y);	 // declarando um atributo _y do tipo int e seu mtodo get e set
+};
+
+/*****************************************************************************
+ *                                                                           *
+ *  --------------------------- Public Interface --------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+#endif				/* Test.h */

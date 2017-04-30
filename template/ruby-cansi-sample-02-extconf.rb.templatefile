@@ -1,0 +1,6 @@
+# extconf.rb
+require 'mkmf'
+dir_config('tcl')
+dir_config('libc2')
+create_makefile('libc2')
+

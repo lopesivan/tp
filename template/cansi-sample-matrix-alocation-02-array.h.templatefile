@@ -1,0 +1,63 @@
+#ifndef __ARRAY_H__
+#define __ARRAY_H__
+
+#include "types.h"
+
+typedef const unsigned long Size;
+typedef data_t              Scalar;
+typedef data_t             *Array;
+
+Array _new_array          ( Size,        void *(*) (size_t)  );
+void _delete_array        ( Array, Size, void  (*) (void *)  );
+
+void  _zero               ( Array, Size );
+void  _one                ( Array, Size );
+void  _two                ( Array, Size );
+void  _three              ( Array, Size );
+
+/*****************************************************************************
+ *                                                                           *
+ *  --------------------------- Public Interface --------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+void grand         ( Array, Size );
+void print_array   ( Array, Size );
+
+# define delete_array(array, size)\
+	_delete_array ((array), (size), free)
+
+# define new_array(size)\
+	_new_array ((size), malloc)
+
+# define fatal_error(message)\
+	fprintf(stderr,                             \
+		"%s:In function `%s':\n" "%s:%d: %s\n", \
+		__FILE__,                               \
+		__FUNCTION__,                           \
+		__FILE__,                               \
+		__LINE__,                               \
+		message"\n"                             \
+		)
+
+/*
+ * A[i] = 0
+ */
+# define zero(array, size)     _zero  ((array), (size))
+
+/*
+ * A[i] = 1
+ */
+# define one(array, size)      _one   ((array), (size))
+
+/*
+ * A[i] = 2
+ */
+# define two(array, size)      _two   ((array), (size))
+
+/*
+ * A[i] = 3
+ */
+# define three(array, size)    _three ((array), (size))
+
+#endif				/* array.h */

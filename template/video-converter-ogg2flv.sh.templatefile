@@ -1,0 +1,24 @@
+#!/bin/bash
+
+function ogg2flv()
+{
+
+	out_ogg=$1
+	out_avi=${out_ogg%.ogg}.avi
+	out_flv=${out_ogg%.ogg}.flv
+
+	mencoder                   \
+	-ovc xvid                  \
+	-nosound                   \
+	-xvidencopts bitrate=1100  \
+	-vf scale=640:400          \
+	-o $out_avi $out_ogg
+
+	mencoder $out_avi                                                       \
+	-o $out_flv                                                             \
+	-of lavf                                                                \
+	-ovc lavc                                                               \
+	-lavcopts vcodec=flv:vbitrate=500:mbd=2:mv0:trell:v4mv:cbp:last_pred=3
+}
+
+ogg2flv $1

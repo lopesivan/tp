@@ -1,0 +1,22 @@
+maven-archetype-quickstart:
+	@mvn archetype:generate -DgroupId=$(package) -DartifactId=$(project) -DarchetypeArtifactId=$@ -DinteractiveMode=false
+
+maven-archetype-webapp:
+	@mvn archetype:generate -DgroupId=$(package) -DartifactId=$(project) -DarchetypeArtifactId=$@ -DinteractiveMode=false
+
+clean-maven-project:
+	@rm -rf $(project)
+	@rm $(checkfile)*
+
+clean:
+	@(cd $(project); mvn $@)
+
+package:
+	@(cd $(project); mvn $@)
+
+compile:
+	@(cd $(project); mvn $@)
+
+run:
+	@(cd $(project); mvn exec:java -Dexec.mainClass="$(package).App")
+

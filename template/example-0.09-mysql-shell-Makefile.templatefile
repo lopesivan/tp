@@ -1,0 +1,24 @@
+table    = gecom
+database = mysql_bash
+
+all: create insert select
+
+create:
+	mysql -u `whoami` $(database) <	$@.$(table).sql
+
+insert:
+	mysql -u `whoami` $(database) <	$@.$(table).sql
+
+drop  :
+	mysql -u `whoami` $(database) <	$@.$(table).sql
+
+select:
+	mysql -u `whoami` -e "`cat $@.$(table).sql`" $(database)
+
+show:
+	mysql -u `whoami` -e "show tables" $(database)
+
+desc:
+	mysql -u `whoami` -e "desc gecom" $(database)
+
+clean : drop

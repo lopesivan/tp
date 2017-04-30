@@ -1,0 +1,14 @@
+\begin{frame}{References}
+\begin{itemize}
+\item {\tt beamer} documentation
+\begin{itemize}
+\item {\tt /usr/share/texmf/tex/latex/beamer/doc}
+\item {\tt /usr/share/texmf/tex/latex/beamer/examples}
+\item {\tt /usr/share/texmf/tex/latex/beamer/solutions}
+\item {\tt /usr/share/texmf/tex/latex/beamer/themes}
+\end{itemize}
+\item {\tt PStricks}: {\tt http://tug.org/PSTricks/}
+\item {\tt pgf/TikZ}: {\tt /usr/share/texmf/tex/latex/pgf/doc/generic/pgf}
+\item {\tt \LaTeX\ Navigator}: {\tt http://tex.loria.fr/}
+\end{itemize}
+\end{frame}

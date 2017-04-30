@@ -1,0 +1,94 @@
+###############
+# get source. #
+###############
+cmd='--xml-xslproc-sample-validate-01'
+n=$(expr "$(tp list ${cmd}| nl| tail -2| head -1)" : '[[:blank:]]*\([0-9]*\)')
+
+arr=( empty empty `tp list ${cmd} | sed -n "2,${n}s/.*-//p"` ) && seq -f"tp %g " 2 $n | sed 's/tp \([0-9]\+\)/& > ${arr[\1]}/' > prj
+
+xml=sample.xml
+
+# prj
+cat << EOF >> prj
+XMLLINT=`which xmllint`
+[    "\$XMLLINT" ] || exit 1
+[ -e "\$XMLLINT" ] || exit 1
+xmllint --valid $xml
+
+CODE=\$?
+case \$CODE in
+	0) ECHO="No error";;
+	1) ECHO="Unclassified";;
+	2) ECHO="Error in DTD";;
+	3) ECHO="Validation error";;
+	4) ECHO="Validation error";;
+	5) ECHO="Error in schema compilation";;
+	6) ECHO="Error writing output";;
+	7) ECHO="Error in pattern (generated when [--pattern] option is used)";;
+	8) ECHO="Error in Reader registration (generated when [--chkregister] option is used)";;
+	9) ECHO="Out of memory error";;
+esac
+
+if [ "\$CODE" -ne 0 ]; then
+	echo -e "\033[31;1mERROR\033[m"
+	echo Error Return Codes
+	echo On the completion of execution, Xmllint returns the following error codes:
+	echo \$ECHO
+else
+	echo -e "\033[32;1mOK\033[m"
+fi
+
+XSLTPROC=`which xsltproc`
+[    "\$XSLTPROC" ] || exit 1
+[ -e "\$XSLTPROC" ] || exit 1
+xsltproc -o sample.html /dependences/src/docbook-xsl-1.69.1/html/docbook.xsl $xml
+
+# exit 0
+EOF
+
+# validate.sh
+cat << EOF > validate.sh
+#! /bin/bash
+XMLLINT=`which xmllint`
+[    "\$XMLLINT" ] || exit 1
+[ -e "\$XMLLINT" ] || exit 1
+xmllint --valid $xml
+
+CODE=\$?
+case \$CODE in
+	0) ECHO="No error";;
+	1) ECHO="Unclassified";;
+	2) ECHO="Error in DTD";;
+	3) ECHO="Validation error";;
+	4) ECHO="Validation error";;
+	5) ECHO="Error in schema compilation";;
+	6) ECHO="Error writing output";;
+	7) ECHO="Error in pattern (generated when [--pattern] option is used)";;
+	8) ECHO="Error in Reader registration (generated when [--chkregister] option is used)";;
+	9) ECHO="Out of memory error";;
+esac
+
+if [ "\$CODE" -ne 0 ]; then
+	echo -e "\033[31;1mERROR\033[m"
+	echo Error Return Codes
+	echo On the completion of execution, Xmllint returns the following error codes:
+	echo \$ECHO
+else
+	echo -e "\033[32;1mOK\033[m"
+fi
+
+XSLTPROC=`which xsltproc`
+[    "\$XSLTPROC" ] || exit 1
+[ -e "\$XSLTPROC" ] || exit 1
+xsltproc -o sample.html /dependences/src/docbook-xsl-1.69.1/html/docbook.xsl $xml
+
+# exit 0
+EOF
+
+chmod +x validate.sh
+
+# run
+. prj
+
+# clean
+history | tail -1 | sed 's/.*\./rm prj  /'| sh

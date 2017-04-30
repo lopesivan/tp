@@ -1,0 +1,54 @@
+TEMPLATE_DIR    = tools
+
+EXECULABLE      = proto.prj
+
+HEADER          = $(TEMPLATE_DIR)/info.txt
+
+FRAME           = $(TEMPLATE_DIR)/MyFrame.hpp.T $(TEMPLATE_DIR)/MyFrame.cpp.T
+
+APP             = $(TEMPLATE_DIR)/MyApp.cpp.T   $(TEMPLATE_DIR)/MyApp.hpp.T
+
+MAIN            = $(TEMPLATE_DIR)/app.cpp.T $(TEMPLATE_DIR)/app.hpp.T
+
+XPM             = $(TEMPLATE_DIR)/mondrian.xpm.T
+
+variables       = variables.txt valid_variables.txt
+
+BASHFUNCTIONS   = $(TEMPLATE_DIR)/comment.sh
+
+target          = frame app main
+
+all: foo $(target) footer
+
+frame:
+	@echo 'Frame'
+	@cat $(FRAME)         >> $(EXECULABLE)
+
+app:
+	@echo 'App'
+	@cat $(APP)           >> $(EXECULABLE)
+
+main:
+	@echo 'main'
+	@cat $(MAIN)          >> $(EXECULABLE)
+
+header:
+	@echo 'Header'
+	@echo '# !/bin/bash'  > $(EXECULABLE)
+	@cat  $(HEADER)       >> $(EXECULABLE)
+
+foo:    header
+	@echo 'Functions'
+	@cat $(BASHFUNCTIONS) >> $(EXECULABLE)
+
+makefile:
+	@cat $(MAKEFILE)      >> $(EXECULABLE)
+
+footer:
+	@echo 'Footer'
+	@cat $(XPM)                   >> $(EXECULABLE)
+	@cat $(TEMPLATE_DIR)/Makefile >> $(EXECULABLE)
+	@chmod +x $(EXECULABLE)
+
+clean:
+	rm -rf $(EXECULABLE)

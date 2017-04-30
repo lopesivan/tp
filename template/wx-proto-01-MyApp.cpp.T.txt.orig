@@ -1,0 +1,47 @@
+: ${application_name:=wx}
+
+: ${HEADER_DIR:=include}
+: ${SOURCE_DIR:=src}
+
+: ${ID_F_HEADER_MYAPP:=MyApp.hpp}
+: ${ID_F_SOURCE_MYAPP:=MyApp.cpp}
+
+: ${ID_F_HEADER_MYFRAME:=MyFrame.hpp}
+: ${ID_F_SOURCE_MYFRAME:=MyFrame.cpp}
+
+: ${ID_C_MYFRAME:=MyFrame}
+: ${ID_C_MYAPP:=MyApp}
+
+: ${ID_M_ONQUIT:=OnQuit}
+: ${ID_M_ONABOUT:=OnAbout}
+
+: ${ID_C_O_FRAME:=frame}
+
+: ${ID_MSG_01:="Minimal wxWidgets App"}
+
+MK_MYAPP_CPP()
+{
+cat << __EOF__ | sed 's/[ \t]*$//; /./,/^$/!d' > ${application_name}/${SOURCE_DIR}/${ID_F_SOURCE_MYAPP}
+$(comment.cpp.box $ID_F_SOURCE_MYAPP)
+
+#include "wx/wx.h"
+#include "${ID_F_HEADER_APP}"
+#include "${ID_F_HEADER_MYFRAME}"
+
+// Initialize the application
+bool ${ID_C_MYAPP}::OnInit()
+{
+	// Create the main application window
+	${ID_C_MYFRAME} *${ID_C_O_FRAME} = new ${ID_C_MYFRAME}(wxT("${ID_MSG_01}"));
+
+	// Show it
+	${ID_C_O_FRAME}->Show(true);
+
+	// Start the event loop
+	return true;
+}
+
+__EOF__
+}
+
+MK_MYAPP_CPP

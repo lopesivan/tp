@@ -1,0 +1,63 @@
+Dicas para Linux - Diversos
+
+Como saber a versão do Linux que eu estou executando?
+digite: uname -a
+
+Como listar em ordem os processos que estão consumindo mais memória?
+ps aux|sort -k 5 -n ou ps aux|sort +4n
+
+Como listar em ordem os maiores arquivos do diretório atual?
+ls -l | sort +4n
+
+E para os maiores arquivos do sistema inteiro?
+ls -lR | sort +4n
+
+Como visualizar, em ordem crescente de uid, cada usuário da máquina?
+cat /etc/passwd | sort -t “:” -k 3 -n
+
+Como visualizar em ordem alfabética os logins da máquina?
+cat /etc/passwd | sort -t “:” -k 1
+
+Como visualizar em ordem alfabética os nomes de usuários da máquina?
+cat /etc/passwd | sort -t “:” -k 5
+
+Como montar um diretório na máquina por NFS?
+mount -o size=4096,rsize=4096,hard maquina_onde_esta_o_diretorio:/diretorio /ponto_de_montagem
+
+Como configurar os aliases para o bash?
+digite alias x=”comando”, por exemplo, para ter o ls colorido, digite alias ls=”ls –color”
+
+Onde colocar os alias para serem iniciados automaticamente?
+edite o arquivo /etc/bashrc se quiser que as alterações seja para todos os usuários
+
+edite o arquivo ~/.bashrc se quiser que as alteraçõs sejam somente para um usuário
+
+Como “rolar” a tela no modo texto?
+Pressione conjuntamente shift e page up ou page down
+
+Como alternar entre consoles virtuais? Se você tiver no modo texto:
+pressione alt e fx (onde fx são as teclas de função f1, f2, …)
+
+Se você estiver no modo gráfico (X-window):
+pressione ctrl, alt e fx.
+
+Como criar um “apelido” para cada um dos boots possíveis através do lilo?
+Edite o arquivo /etc/lilo.conf
+
+Adicione a linha single-key logo após boot=/dev/hda
+
+Coloque um apelido (alias) depois de label=linux
+alias=l
+
+Coloque um apelido depois de label=win
+alias=w
+
+Salve o arquivo e execute o lilo
+O alias tem como função facilitar na hora do boot, você digita apenas l e
+entra no Linux. Você pode colocar qualquer letra ou número como alias.
+
+Como mudar a cor das letras no console ?
+Digite: setterm -store -foreground cor -background outracor
+obs: o nome das cores deve estar em inglês
+
+se não quiser que as alterações sejam permanentes, não use o parâmetro store

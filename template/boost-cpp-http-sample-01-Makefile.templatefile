@@ -1,0 +1,6 @@
+# Makefile: A standard Makefile for test.cpp
+LDFLAGS=-lboost_system -lpthread -lboost_thread
+all  : test
+clean:
+	/bin/rm -rf test test.o
+# END OF FILE

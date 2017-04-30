@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE calculation SYSTEM "calculation.dtd">
+<calculation>
+  <!-- an XML document representing the expression
+                   ((4 * 3) + 3) * (4/2)
+    -->
+  <mul>
+    <add>
+      <value number="3"/>
+      <mul>
+      <value number="4"/>
+      <value number="3"/>
+      </mul>
+    </add>
+    <div>
+      <value number="4"/>
+      <value number="2"/>
+    </div>
+  </mul>
+</calculation>
+

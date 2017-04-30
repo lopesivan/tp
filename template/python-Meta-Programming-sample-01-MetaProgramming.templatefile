@@ -1,0 +1,148 @@
+Monday, March 23, 2009
+
+Metaprogramação em Python
+
+Recentemente eu dei um curso de Python para uns programadores muito bons que
+curtem Ruby, e eles queriam saber sobre "metaprogramação" em Python.
+
+Python tem uma longa e sólida tradição de metaprogramação, mas esse não é um
+termo que a gente usa muito na comunidade Python. Meus exemplos de
+metaprogramação sempre ficaram numa pasta chamada "introspecção". Realmente
+temos muito que aprender com a comunidade Ruby no quesito marketing.
+Metaprogramação é muito mais sexy.
+
+Para ilustrar metaprogramação em Python, fiz este pequeno exemplo inspirado
+numa feature muito importante do Rails 3, que é a possibilidade de acessar
+itens usando ordinais como first, second etc. Dizem que o DHH implementou todos
+os ordinais até fortysecond, mas eu não testei.
+
+A idéia fica bem clara num doctest:
+
+'''
+Os itens contidos em objetos da classe Lista podem ser acessados pelos
+ordinais de 'primeiro' até 'decimo', ou por abreviaturas de três letras
+destes ordinais:
+
+>>> l = Lista([11, 22, 33, 44, 55])
+>>> l.primeiro
+11
+>>> l.ter
+33
+
+'''
+
+A implementação ficou assim:
+
+from itertools import count
+
+class Lista(list):
+
+    __ordinais = ('primeiro segundo terceiro quarto quinto sexto setimo'
+                  ' oitavo nono decimo').split()
+    __abrevs = [s[:3] for s in __ordinais]
+
+    def __getattr__(self, atrib):
+        atr = atrib[:3]
+        for i, ordinal, abrev in zip(count(), self.__ordinais, self.__abrevs):
+             if atrib == ordinal or atr == abrev:
+                 return self[i]
+        else:
+             msg = "'%s' object has no attribute '%s'"
+             raise AttributeError(msg % (self.__class__.__name__, atrib))
+
+    @property
+    def ultimo(self):
+        return self[-1]
+
+    ult = ultimo
+
+Vou comentar alguns lances que podem ser novidade para alguém.
+
+Economia de aspas e vírgulas
+
+Quando faço listas de identificadores tipo aquela dos __ordinais eu costumo
+colocar tudo numa única string e depois usar split, para economizar a digitação
+de um monte de aspas e vírgulas. Mas isso não é ineficiente? Não, porque aquela
+atribuição acontece só uma vez, quando o módulo é importado a primeira vez.
+
+O que faz o __getattr__
+
+O método especial __getattr__ é invocado quando um atributo inexistente é
+acessado. A obrigação dele é devolver um valor, ou levantar AttributeError.
+Existe também um __setattr__ e até um __delattr__. Tem também um
+__getattribute__ nas classes novas, mas este é mais difícil de usar
+corretamente.
+
+Desde que Python ganhou o mecanismo de property, a gente usa menos estes
+métodos, mas eles ainda são essenciais.
+
+Iterar com índices
+
+O comando for em Python é mais fácil de usar que em outras linguagens, porque
+não obriga a lidar com o índice que em geral não interessa.
+
+Mas às vezes a gente precisa do índice, e neste caso basta fazer
+
+for i, item in enumerate(sequencia):
+
+No for deste __getattr__ eu usei zip e count porque queria formar tuplas de
+três elementos: o índice, o ordinal e a abreviatura. Vale muito a pena estudar
+o que tem lá no módulo itertools: entender como usar aquelas funções vai te
+fazer pensar diferente.
+
+Propriedade
+
+Em Python uma property serve para implementar um atributo calculado, ou seja,
+um método que pode ser invocado usando a sintaxe de acesso a atributo (i.é. x.a
+em vez de x.a()).
+
+Para definir uma propriedade apenas para leitura, usamos o decorador @property
+acima do método em questão.
+
+E por último, ult = ultimo
+
+Propriedades, funções e até classes em Python são objetos de primeira classe,
+ou seja, podem ser atribuidos a variáveis, passados como parâmetros e
+devolvidos como resultados de expressões. Isso significa que para criar uma
+propriedade ult, bastou atribuir ultimo a este identificador. Simples e
+elegante.
+
+Este post mal arranhou o vasto e fascimante tema da metaprogramação em Python.
+Uma ótima referência para o tema é a palestra do Werneck na PyConBrasil 2007 em
+Joinville: "O que o Python faz quando você não está olhando".
+Posted by Luciano Ramalho at 6:57 AM ●
+
+2 comments:
+
+●
+    Paulo Brito said...
+
+    Muito interessante a função __getattr__.
+
+    Tenho tentado há algum tempo me entrosar com Python. Mas, preciso dizer: a
+    sintaxe me parece muito bagunçada! E esses montes de underscores pioram
+    tudo!
+
+    Será que a versão 3 tem novidades neste quesito?
+
+    March 24, 2009 9:18 AM [icon_delet]
+●
+    Luciano Ramalho said...
+
+    Paulo, a sintaxe de Python é super organizada, consistente e regular, não
+    tem quase nada "bagunçado" na minha opinião. Não tem aqueles $ ; -> @ e {}
+    que causam tanto ruído visual em outras linguagens. É uma questão de
+    hábito, ou de gosto, mas é fato que a sintaxe de Python é simples, traz
+    poucas surpresas e oferece poucos recursos para escrever código obscuro
+    (obfuscated).
+
+    O uso de __x__ pode parecer estranho inicialmente, mas é consistente e
+    interessante para destacar visualmente os métodos especiais que implementam
+    os protocolos básicos da linguagem. Nada disso mudou no Python 3,
+    felizmente!
+
+    Uma coisa que me incomoda em Python é que a API da biblioteca padrão não é
+    consistente no uso de caixa alta e baixa. Mas isso não tem a ver com a
+    sintaxe da linguagem. Alguns ajustes nesse sentido foram feitos na
+    biblioteca da versão 3, mas ainda tá longe de ficar consistente neste
+    aspecto.

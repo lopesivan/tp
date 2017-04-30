@@ -1,0 +1,21 @@
+#!/bin/bash
+# vi:set nu nowrap:
+# join-lines.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: join-lines.sh
+#        Date: Thu 20 May 2010 09:44:21 AM BRT
+# Description:
+#
+#
+
+# ----------------------------------------------------------------------------
+lsb_release -drc| sed -e :a -e '$!N; s/\n/ /; ta'
+
+# ----------------------------------------------------------------------------
+exit 0

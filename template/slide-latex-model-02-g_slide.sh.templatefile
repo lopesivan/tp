@@ -1,0 +1,48 @@
+#!/bin/bash
+# ----------------------------------------------------------------------------
+if [ -e .1 ];
+then
+	rm .1
+	echo \\input{preamble-0.tex}
+else
+	echo \\input{preamble-1.tex}
+	touch .1
+fi
+
+echo \\input{preamble.tex}
+
+cat sep-long.tex
+
+echo \\input{variables.tex}
+
+cat sep-short.tex
+
+echo \\input{author.tex}
+
+cat sep-long.tex
+
+cat doc-begin.tex
+
+for foreword in  foreword-*.tex; do
+	echo \\input{$foreword}
+done
+
+cat sep-short.tex
+
+echo \\input{title.tex}
+
+#cat sep-short.tex
+
+#echo \\input{outline.tex}
+
+cat sep-long.tex
+
+for frame in frame-*.tex; do
+	echo \\input{$frame}
+done
+
+cat sep-short.tex
+
+cat doc-end.tex
+# ----------------------------------------------------------------------------
+exit 0

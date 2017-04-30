@@ -1,0 +1,4 @@
+color="rgb(255,255,0)"
+convert -respect-parenthesis \( -size 100x100 xc:"$color" \) \
+-background white -fill black -font Helvetica -pointsize 10 \
+label:"$color" -gravity south -append miff:- | convert - show:

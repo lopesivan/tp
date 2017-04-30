@@ -1,0 +1,5 @@
+CREATE TABLE tb_last_image_int (
+	id MEDIUMINT NOT NULL AUTO_INCREMENT,
+	fileName VARCHAR(255) NOT NULL,
+	PRIMARY KEY (id)
+)

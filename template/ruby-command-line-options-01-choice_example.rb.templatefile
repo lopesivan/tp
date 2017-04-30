@@ -1,0 +1,43 @@
+require 'rubygems'
+require 'choice'
+
+Choice.options do
+	header 'Application options:'
+
+	separator 'Required:'
+
+	option :title, :required => true do
+		short '-t'
+		long '--title=TITLE'
+		desc 'The document title.'
+	end
+
+	separator 'Optional:'
+
+	option :footer do
+		short '-f'
+		long '--footer=FOOTER'
+		desc 'The document footer.'
+		default 'Standard footer'
+	end
+
+	separator 'Common:'
+
+	option :help do
+		short '-h'
+		long '--help'
+		desc 'Show this message.'
+	end
+
+	option :version do
+		short '-v'
+		long '--version'
+		desc 'Show version.'
+		action do
+			puts 'ChoiceExample version 1.0'
+			exit
+		end
+	end
+end
+
+puts "Creating document with title '#{Choice.choices.title}' and footer '#{Choice.choices[:footer]}'"

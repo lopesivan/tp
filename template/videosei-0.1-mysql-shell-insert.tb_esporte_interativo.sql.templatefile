@@ -1,0 +1,63 @@
+INSERT INTO tb_esporte_interativo (
+	grp,
+	id_name,
+	title,
+	description,
+	link_img,
+	link_video
+)
+VALUES
+(
+	'youtube' ,
+	'000cB7VPf8Y',
+	'Confira todos os gols de quarta-feira pela 16ª rodada do Brasileirão',
+	'Destaque do dia foi a vitória do líder Fluminense por 3 a 0 sobre o Goiás, dentro do Serra Dourada',
+	'http://i1.ytimg.com/vi/HWwtoX-HlPY/default.jpg',
+	'http://www.youtube.com/watch?v=HWwtoX-HlPY'
+),
+
+(
+	'youtube' ,
+	'000cB7VPf8Y',
+	'Confira todos os gols de quarta-feira pela 16ª rodada do Brasileirão',
+	'Destaque do dia foi a vitória do líder Fluminense por 3 a 0 sobre o Goiás, dentro do Serra Dourada',
+	'http://i1.ytimg.com/vi/HWwtoX-HlPY/default.jpg',
+	'http://www.youtube.com/watch?v=HWwtoX-HlPY'
+),
+
+(
+	'terra' ,
+	'000cB7VPf8Y',
+	'Confira todos os gols de quarta-feira pela 16ª rodada do Brasileirão',
+	'Destaque do dia foi a vitória do líder Fluminense por 3 a 0 sobre o Goiás, dentro do Serra Dourada',
+	'http://i1.ytimg.com/vi/HWwtoX-HlPY/default.jpg',
+	'http://www.youtube.com/watch?v=HWwtoX-HlPY'
+),
+
+(
+	'terra' ,
+	'000cB7VPf8Y',
+	'Confira todos os gols de quarta-feira pela 16ª rodada do Brasileirão',
+	'Destaque do dia foi a vitória do líder Fluminense por 3 a 0 sobre o Goiás, dentro do Serra Dourada',
+	'http://i1.ytimg.com/vi/HWwtoX-HlPY/default.jpg',
+	'http://www.youtube.com/watch?v=HWwtoX-HlPY'
+),
+
+(
+	'terra' ,
+	'000cB7VPf8Y',
+	'Confira todos os gols de quarta-feira pela 16ª rodada do Brasileirão',
+	'Destaque do dia foi a vitória do líder Fluminense por 3 a 0 sobre o Goiás, dentro do Serra Dourada',
+	'http://i1.ytimg.com/vi/HWwtoX-HlPY/default.jpg',
+	'http://www.youtube.com/watch?v=HWwtoX-HlPY'
+),
+
+(
+	'terra' ,
+	'000cB7VPf8Y',
+	'Confira todos os gols de quarta-feira pela 16ª rodada do Brasileirão',
+	'Destaque do dia foi a vitória do líder Fluminense por 3 a 0 sobre o Goiás, dentro do Serra Dourada',
+	'http://i1.ytimg.com/vi/HWwtoX-HlPY/default.jpg',
+	'http://www.youtube.com/watch?v=HWwtoX-HlPY'
+)
+

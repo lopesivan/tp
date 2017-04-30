@@ -1,0 +1,9 @@
+# Makefile: A standard Makefile for triangulos.c
+
+LIBS        = -L/usr/X11R6/lib -lGL -lGLU -lglut -lXi -lXmu -lXext -lX11 -lm
+LDFLAGS    += $(LIBS)
+
+all  : triangulos
+clean:
+	/bin/rm -rf triangulos triangulos.o
+# END OF FILE

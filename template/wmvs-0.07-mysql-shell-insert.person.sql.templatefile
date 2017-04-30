@@ -1,0 +1,20 @@
+insert into person values
+	(null, 'antonio paz');
+
+select @last := last_insert_id();
+
+insert into shirt values
+	(null , 'polo'    , 'blue'  , @last ),
+	(null , 'dress'   , 'white' , @last ),
+	(null , 't-shirt' , 'blue'  , @last );
+
+insert into person values
+	(null, 'lilliana angelovska');
+
+select @last := last_insert_id();
+
+insert into shirt values
+	(null , 'dress'   , 'orange' , @last ),
+	(null , 'polo'    , 'red'    , @last ),
+	(null , 'dress'   , 'blue'   , @last ),
+	(null , 't-shirt' , 'white'  , @last );

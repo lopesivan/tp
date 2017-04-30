@@ -1,0 +1,35 @@
+.dot.ps:
+	$(DOT) -Tps $(DOTFLAGS) $@ $<
+
+.dot.svg:
+	$(DOT) -Tsvg $(DOTFLAGS) $@ $<
+
+.dot.svgz:
+	$(DOT) -Tsvgz $(DOTFLAGS) $@ $<
+
+.dot.fig:
+	$(DOT) -Tfig $(DOTFLAGS) $@ $<
+
+.dot.mif:
+	$(DOT) -Tmif $(DOTFLAGS) $@ $<
+
+.dot.hpgl:
+	$(DOT) -Thpgl $(DOTFLAGS) $@ $<
+
+.dot.pcl:
+	$(DOT) -Tpcl $(DOTFLAGS) $@ $<
+
+.dot.png:
+	$(DOT) -Tpng $(DOTFLAGS) $@ $<
+
+.dot.gif:
+	$(DOT) -Tgif $(DOTFLAGS) $@ $<
+
+.dot.dia:
+	$(DOT) -Tdia $(DOTFLAGS) $@ $<
+
+.dot.imap:
+	$(DOT) -Timap $(DOTFLAGS) $@ $<
+
+.dot.cmapx:
+	$(DOT) -Tcmapx $(DOTFLAGS) $@ $<

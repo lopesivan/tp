@@ -1,0 +1,47 @@
+Under LINUX (including Knoppix):
+    	# add the public key to your keyring
+	gpg --import _______
+
+	# verify the signature of the .md5 file
+	gpg --verify KNOPPIX_V3.2-2003-03-30-EN.iso.md5.asc
+
+	# check the .iso file
+	md5sum -c KNOPPIX_V3.2-2003-03-30-EN.iso.md5
+
+##############################################################################
+##############################################################################
+
+Dica 16 - Criptografia usando GPG - dicas rápidas
+O gpg (GnuPG) é uma ferramenta livre para o uso de criptografia. É utilizado
+para criptografar arquivos, emails e etc.
+
+Para criptografar, você precisará ter sua chave privada e a chave pública de
+quem vai receber o arquivo. Quem for receber o arquivo, deverá ter a sua chave
+pública, senão não terá como descriptografar seu arquivo.
+
+Para gerar seu par de chaves, use:
+
+$gpg --gen-key
+
+A idéia é que quando alguém for enviar algo para você, utilize sua chave
+pública para criptografar e você, com sua senha, descriptografe. Para isso,
+você deve enviar sua chave pública antes de enviar os arquivos. Para exportar
+sua chave (e assim ter como enviar ela para alguém), use:
+
+$gpg --export -a -o minhachave.asc
+
+Quando alguém te enviar uma chave, você tem que importá-la antes de usar,
+assim:
+
+$gpg --import achavequeteenviaram.asc
+
+Para criptografar um arquivo para alguém, após ter importado a chave, use:
+
+$gpg -e arquivoasercriptografado
+
+Para descriptografar um arquivo enviado por alguém, use:
+
+$gpg -o arquivodescriptografado -d arquivoaindacriptografado.gpg
+
+Basicamente este é o uso do gpg. Com o tempo pretendo adicionar mais detalhes
+e opções a este tutorial.

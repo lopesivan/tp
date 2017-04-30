@@ -1,0 +1,17 @@
+all: serialtest.ihx
+
+serialtest.ihx: serialtest.c
+	sdcc -mmcs51 $^ -o $@
+
+clean:
+	rm -rf serialtest.asm serialtest.ihx serialtest.lnk serialtest.lst serialtest.map serialtest.mem serialtest.rel serialtest.rst serialtest.sym
+
+creates_two_pseudo-terminals:
+	socat -v -x PTY,link=./tty1 PTY,link=./tty2
+
+execute_the_serialtest_program_using_the_uCsim_8051_simulator:
+	s51 serialtest.ihx -s ./tty1
+
+connect_with_the_simulator_from_the_other_side_of_the_channel:
+	screen ./tty2
+

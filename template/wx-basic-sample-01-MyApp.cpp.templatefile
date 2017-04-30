@@ -1,0 +1,23 @@
+//////////////////////////////////////////////////////////////////////////////
+//                                                                           /
+// ------------------------------- MyApp.cpp ------------------------------- /
+//                                                                           /
+//////////////////////////////////////////////////////////////////////////////
+
+#include "wx/wx.h"
+#include "app.hpp"
+#include "MyFrame.hpp"
+
+// Initialize the application
+bool MyApp::OnInit()
+{
+    // Create the main application window
+    MyFrame *frame = new MyFrame(wxT("Minimal wxWidgets App"));
+
+    // Show it
+    frame->Show(true);
+
+    // Start the event loop
+    return true;
+}
+

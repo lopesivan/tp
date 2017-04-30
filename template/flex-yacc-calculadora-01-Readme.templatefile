@@ -1,0 +1,59 @@
+/********************************************************************************
+*		  EXPRESSION EVALUATOR USING LEX AND YACC			*
+*			    (CALCULATOR)					*
+*							File: Readme		*
+*										*
+*	This is a expression evaluator program (calculator) with addition,	*
+* Multiplication, Division, Subtraction functionalities. It is also capable 	*
+* of handling user precedence using '(',')' and handling new variable decla- 	*
+* ration and evaluating expressions involving variables.			*
+*										*
+*										*
+*			AUTHOR - ARINDAM PAUL					*
+*			ENROLL - BT06CSE018					*
+*			7TH SEMESTER, CSE DEPT.					*
+*		     VNIT NAGPUR, NAGPUR - 440010				*
+*			DATE - 16TH AUG. 2009					*
+*		   All Rights Reserved @ Arindam Paul				*
+*********************************************************************************/
+
+
+Please Follow this instructions to compile and run the calculator program:
+
+	1> Make sure you have lex and yacc tool already installed in the system.
+	
+	2> In GNU context, lex tool is has a modified version named 'flex' and 
+	   yacc have a modified version named 'bison'.
+	
+	3> Unzip the package to a folder. The package should contain these files,
+	   	* calc.l
+	   	* calc.y
+	   	* makefile
+	   	* Readme
+	
+	4> Go to the unzipped folder inthe teminal winodw.
+	
+	5> Type the following to get the executable.
+		$ make calculator
+	
+	6> You will have a executable file calculator in the same directory.
+	
+	7> Execute the program and Enjoy !!!
+	
+	8> Hit enter on a blank line to 'exit' the program.
+	
+
+These are few examples that can be tried out with the calculator:
+
+	user: 23 * (4 + 5)
+	calc: 207
+	user: a = 45
+	user: b = 23
+	user: x = a + (4 + 3*b)
+	user: x
+	calc: 118
+	user: b
+	calc: 23
+	user: x + 2*a
+	calc: 208
+	

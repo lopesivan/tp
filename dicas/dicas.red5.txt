@@ -1,0 +1,156 @@
+Skip to Content
+
+Garrett Novotny
+
+Networking, Security, Linux - No Problem
+
+  • Home
+  • Blog
+  • Resume
+
+Home » Blog
+
+Blog
+
+How to Install Red5 on Ubuntu
+
+Quick Install on Hardy (8.04)
+
+
+sudo apt-get install sun-java6-jre sun-java6-jdk ant ant-optional subversion
+export JAVA_HOME=/usr/lib/jvm/java-6-sun
+export ANT_HOME=/usr/share/ant
+svn co https://svn.apache.org/repos/asf/ant/ivy/core/trunk ivy
+cd ivy
+ant jar
+cd ../
+sudo cp ivy/build/artifact/jars/ivy.jar /usr/share/ant/lib/
+svn co http://red5.googlecode.com/svn/java/server/trunk red5
+cd red5
+ant prepare
+ant dist
+cd dist
+./red5.sh &
+
+Go to http://localhost:5080/demos/port_tester.swf to verify it is working.
+
+Quick Install on Karmic (9.10)
+
+
+sudo apt-get install sun-java6-jre sun-java6-jdk ant ant-optional ivy
+subversion
+export JAVA_HOME=/usr/lib/jvm/java-6-sun
+export ANT_HOME=/usr/share/ant
+sudo ln -s /usr/share/java/ivy-2.1.0~rc1.jar /usr/share/ant/lib/
+svn co http://red5.googlecode.com/svn/java/server/trunk red5
+cd red5
+ant prepare
+ant dist
+cd dist
+./red5.sh &
+
+Go to http://localhost:5080/demos/port_tester.swf to verify it is working.
+
+Make it a Easy to Manage Service
+
+Setting up red5 as a service in init.d
+
+Either run this command to shutdown red5 or reboot the server…
+
+./red5-shutdown.sh
+
+Move the contents of dist into /red5
+Example commands:
+sudo mkdir /red5 ← You might want to map a separate drive here
+sudo mv red5/dist/* /red5/ ← Assumes you are in the folder where you ran the
+svn command above
+
+sudo nano /etc/init.d/red5
+
+
+#! /bin/sh
+# /etc/init.d/red5
+#
+
+# Some things that run always
+cd /red5/
+app="red5"
+export PIDFILE=/var/run/$app.pid
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+start)
+if [ -f ${PIDFILE} ]; then
+echo "Red5 is already running. Please use restart or stop."
+else
+sudo -u red5 sh /red5/red5.sh > /dev/null 2>&1 &
+ps -fe | grep $app | head -n1 | cut -d" " -f 6 > ${PIDFILE}
+echo "Red5 Started"
+fi
+;;
+stop)
+sh /red5/red5-shutdown.sh
+if [ -f ${PIDFILE} ]; then
+rm ${PIDFILE}
+fi
+;;
+status)
+if [ -f ${PIDFILE} ]; then
+echo "Red5 is running"
+else
+echo "Red5 is probably not running. There is no pid"
+fi
+;;
+restart)
+if [ -f ${PIDFILE} ]; then
+sh /red5/red5-shutdown.sh
+rm ${PIDFILE}
+sudo -u red5 sh /red5/red5.sh > /dev/null 2>&1 &
+ps -fe | grep $app | head -n1 | cut -d" " -f 6 > ${PIDFILE}
+echo "Red5 Restarted"
+else
+echo "Red5 does not seem to be running. Please use start instead."
+fi
+;;
+*)
+echo "Usage: /etc/init.d/red5 {start|stop}"
+exit 1
+;;
+esac
+
+exit 0
+
+Change the permissions on this file so only root can execute…
+
+
+sudo chmod 744 /etc/init.d/red5
+
+Like other services in Ubuntu you can now use the following to control Red5…
+
+sudo /etc/init.d/red5 start
+sudo /etc/init.d/red5 stop
+sudo /etc/init.d/red5 restart
+sudo /etc/init.d/red5 status
+
+Add Red5 to Startup
+
+Complete section “Make it a Easy to Manage Service” first!
+
+
+sudo update-rc.d red5 defaults
+
+To undo this from startup use this…
+
+
+sudo update-rc.d -f red5 remove
+
+  • Add new comment
+
+
+
+  • Home
+  • Blog
+  • Resume
+
+Copyright © 2010 Garrett Novotny.
+Theme by Dr. Radut.

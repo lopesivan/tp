@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+images=(
+  ivan/sharelatex
+  ivan/chef-solo-texlive
+  ivan/chef-server
+  ivan/chef-solo
+  ubuntu-debootstrap
+)
+
+for image in ${images[*]}; do
+  echo "docker save $image| gzip -9 > ${image}.tgz"
+  echo "docker rmi $image"
+  echo "gzip -d ${image}.tgz"
+  echo "docker load -i ./${image}.tar"
+done
+
+exit 0

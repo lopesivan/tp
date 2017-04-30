@@ -1,0 +1,52 @@
+div
+ :border 1px solid #333233
+
+#container
+ :width 780px
+ :margin auto
+ :border 0px
+
+#head
+ :height 100px
+
+#header
+ :text-align center
+ :margin-top 30px
+ :border 0px
+
+#menubar_horizontal
+ :margin-top 5px
+ :padding 5px
+ :text-align right
+
+#content
+ :margin-top 5px
+ :padding 5px
+
+#leftpanel
+ :height 350px
+ :width 200px
+ :padding 5px
+ :float left
+
+#menubar_vertical, #news
+ :width 190px
+ :margin auto
+ :margin-top 5px
+ :padding 5px
+
+#menubar_vertical
+ :height 150px
+
+#news
+ :height 180px
+
+#body
+ :left 210px
+ :height 359px
+ :padding 5px
+
+#footer
+ :margin-top 5px
+ :padding 5px
+

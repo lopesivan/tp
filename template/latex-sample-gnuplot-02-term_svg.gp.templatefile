@@ -1,0 +1,7 @@
+set terminal svg rounded size 450,360
+set output 'sombrero.svg'
+load 'sombrero.gp'
+set output
+# Compression
+!gzip -S z sombrero.svg
+quit

@@ -1,0 +1,105 @@
+CRON
+@=@=@003
+@
+@
+É uma agenda de tarefas do sistema. Com ele você pode agendar a execução de
+comandos e programas.
+
+O cron implementa uma agenda de tarefas para cada usuário. Sendo assim o
+comando ou programa será executado sob o UID do usuário que o agendou.
+
+Depois de executar a tarefa agendada, o cron envia um e-mail para o usuário
+relatando a saida padrão que seu programa ou comando gerou. Um exemplo básico
+e um tanto fútil é agendar um “ls $HOME” para ser executado às 13h, o e-mail
+conterá os arquivos que estavam no diretório às 13h. Se quisermos que o e-mail
+seja enviado para outra pessoa deveremos incluir no arquivo agenda a tag
+“MAILTO=<usuario>”.
+
+O servidor cron deve estar rodando para que as tarefas sejam executadas. Ele
+pode ser executado na linha de comando, sendo que não necessita de &, pois ele
+roda em backgroud nativamente. Uma forma mais fácil de iniciar o cron é
+colocá-lo no /etc/rc.d/rc.local, assim ele será iniciado no boot do sistema.
+
+Para agendar as tarefas usamos o comando crontab com a sintaxe descrita a
+baixo:
+
+crontab [-u usuário] { -e | -l | -r }
+
+A opção -u permite que o superusuário agende tarefas para outros usuários,
+pois o comando su pode atrapalhar o crontab. Um usuário comum não precisa usar
+essa opção para especificar ele próprio.
+
+A opção -e edita o arquivo de tarefas agendadas pelo usuário. A formatação
+desse arquivo será descrita mais adiante.
+
+A opção -l lista o arquivo de tarefas agendadas pelo usuário.
+
+A opção -r apaga o arquivo de tarefas agendadas pelo usuário.
+
+Basicamente, para agendarmos uma tarefa deveremos editar o nosso arquivo
+“agenda” com o comando: crontab -e
+
+O arquivo agenda tem as seguintes características: as linhas em branco,
+espaços iniciais e tabs são ignorados. As linhas cujo primeiro caractere
+não-branco for um “#” são comentários, e são ignoradas. Uma linha ativa em um
+arquivo agenda é uma definição de ambiente ou um comando do cron.
+
+Definição de ambiente:
+
+Forma:
+nome = valor A string valor pode ser colocada entre aspas (simples ou duplas,
+mas correspondentes) para preservar espaços iniciais ou finais.
+
+Várias variáveis de ambiente são definidas automaticamente pelo servidor cron.
+SHELL é definida como /bin/sh, LOGNAME e HOME são definidos a partir da linha
+do /etc/passwd referente ao usuário que agendou a tarefa. HOME e SHELL podem
+ser modificadas, mas LOGNAME não.
+
+O formato de um comando do cron é em grande parte o padrão V7. Cada linha tem cinco campos de hora e data, seguidos por um comando. Os comandos são executados pelo servidor cron quando os campos minuto, hora, e mês correspondem à hora atual, e quando pelo menos um dos campos de dia (dia do mês, ou dia da semana) correspondem ao dia atual. Os campos de hora e data são:
+campo 	    valores permitidos
+minuto 	        0-59
+hora 	        0-23
+dia do mês 	    0-31
+mês 	        0-12 (ou nome)
+dia da semana 	0-7 (0 ou 7 é domingo, ou nome)
+
+Podemos usar intervalos de número usando o ífem “-” (ex: 1-10), um asterisco
+“*” indica um intervalo do primeiro ao último valor permitido. Dentro do
+intervalo poderemos determinar o passo (incremento) com uma barra “/” (ex:
+1-10/2 ou */2). Podemos, também, usar listas de números usando vírgula “,”
+(ex: 1,3,10). É interessante a possibilidade de mesclarmos intervalos e listas
+(ex: 1-10/2,15,20-22,30). Lembre-se que não são permitidos intervalos ou
+listas de nomes.
+
+Os nomes dos meses e dos dias da semana são as primeiras três letras dos nomes
+correspondentes em inglês. Veja as tabelas:
+Mês 	  Abrev. 	dia 	 Abrev.
+Janeiro 	Jan 	Domingo 	Sun
+Fevereiro 	Feb 	Segunda 	Mon
+Março 	    Mar 	Terça 	    Tus
+Abril 	    Apr 	Quarta 	    Wed
+Maio 	    Mai 	Quinta 	    Thu
+Junho 	    Jun 	Sexta 	    Fri
+Julho 	    Jul 	Sábado 	    Sat
+Agosto 	    Ago
+Setembro 	Sep
+Outubro 	Oct
+Novembro 	Nov
+Dezembro 	Dec
+
+Observação: o dia de execução de um comando pode ser especificado em dois
+campos (dia do mês/dia da semana). Se ambos os campos são determinados, isso
+é, diferentes de “*”, o comando será executado quando qualquer dos dois campos
+corresponder à data atual.
+
+Exemplos de entradas para o arquivo agenda:
+
+A linha abaixo copia todo o conteúdo do home do usuário para o disquete todo
+domingo às 13h e 40min. (backup de dados)
+
+40 13 * * Sun cp $HOME/* ./floppy -R -f
+
+A linha abaixo apaga os arquivos core do home do usuário todos os dias à meia
+noite
+
+0 0 * * * rm $HOME/core -f

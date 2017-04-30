@@ -1,0 +1,13 @@
+Usando o google maps não é possível, pois quem controla o cache do mapa para
+mostrar off-line é ele mesmo.
+Se você realmente precisa de mapa, eis a solução:
+
+- Usar a API de mapa estático do Google:
+  https://developers.google.com/maps/documentation/staticmaps/?hl=pt-br
+Essa API funciona da seguinte forma, você monta uma URL com parâmetros como
+latitude e logitude, faz o request dessa URL e google te retorna uma imagem
+(mapa) estática daquele ponto.
+- Com essa imagem, você pode cachear ela off-line no SDCard ou mesmo utilizar
+  uma lib como o SmartImageView que faz isso apra você, a partir desse momento
+  mesmo off-line você pode mostrar essa imagem pro usuário.
+

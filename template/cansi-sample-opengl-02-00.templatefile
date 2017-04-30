@@ -1,0 +1,20 @@
+###############
+# get source. #
+###############
+cmd='--cansi-sample-opengl-02'
+n=$(expr "$(tp list ${cmd}| nl| tail -2| head -1)" : '[[:blank:]]*\([0-9]*\)')
+
+arr=( empty empty `tp list ${cmd} | sed -n "2,${n}s/.*-//p"` ) && seq -f"tp %g " 2 $n | sed 's/tp \([0-9]\+\)/& > ${arr[\1]}/' > prj
+cat << EOF >> prj
+#chmod +x compile.sh clean.sh
+make
+EOF
+
+# run
+. prj
+
+# clean
+history | tail -1 | sed 's/.*\./rm prj  /'| sh
+
+# restore
+tp list ${cmd}-00| sed '1iRestore build template mode:\nUsage: tp 1 > a; . a'

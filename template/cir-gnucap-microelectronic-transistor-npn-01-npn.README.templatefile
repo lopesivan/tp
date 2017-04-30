@@ -1,0 +1,47 @@
+Bipolar junction transistor
+Vpower (vcc 0)   dc vcc
+Vin    ( in 0)   generator
+Q1     (  c b e) small
+Rc     (vcc c)   rc
+Re     (  e 0)   re
+Rb1    (vcc b)   rb1
+Rb2    (  b 0)   rb2
+.model small npn (bf=beta)
+
+* Thevenin's Theorem
+
+vbb = vcc * rb2/(rb1 + rb2)
+rbb = (rb1 || rb2) = (rb1*rb2)/(rb1 + rb2)
+
+:. 1/rbb = 1/rb1 + 1/rb2
+
+* Kirchhoff's Current Law (KCL)
+
+ie = ib + ic
+
+* Bipolar junction transistor
+ic = beta*ib = alpha*ie
+alpha = beta/(beta + 1)
+
+* Kirchhoff's Voltage Law (KVL)
+
+vbb = ib*rbb + vbe + ie*re
+
+ic = beta*ib = alpha*ie
+     beta*ib = alpha*ie
+-> ib = (alpha*ie)/beta   = [( beta/(beta+1) )*ie]/beta
+-> ib = [ 1/(beta+1) ]*ie = ie/(beta+1)
+
+   vbb = ib*rbb + vbe + ie*re
+-> vbb = [ie/(beta+1)]*rbb + vbe + ie*re
+-> vbb = ie * [ (1/(beta+1))*rbb + re ] + vbe
+-> vbb - vbe = ie * [ (1/(beta+1))*rbb + re ]
+-> ie = (vbb - vbe)/[ (1/(beta+1))*rbb + re ]
+
+ib = ie/(beta+1)
+ic = ib * bata
+
+* ddp
+vc = vcc - rc*ic
+ve = re*ie
+vb = vbb - rbb*ib

@@ -1,0 +1,9 @@
+- links = {:home  => "/",
+           :docs  => "/docs",
+           :about => "/about"}
+%p=links[:home]
+%p=links[:docs]
+%p=links[:about]
+
+%p= "olha o link aqui = " + links[:about]
+

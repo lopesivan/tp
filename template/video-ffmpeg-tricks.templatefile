@@ -1,0 +1,8 @@
+# usando o Flowplay
+ffmpeg -acodec mp3 -i inputfile.avi -r 30 -ar 44100 -s 320x240 -f flv outputfile.flv
+
+# convercao simples para flv
+ffmpeg -i inputfile.ogg -s 320x240 -r 30 -f flv outputfile.flv
+
+# convertendo para avi
+mencoder -ovc xvid -nosound -xvidencopts bitrate=1100 -vf scale=640:400 -o out.avi out.ogg

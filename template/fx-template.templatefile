@@ -1,0 +1,270 @@
+#! /bin/bash
+          TARGET=`which xulrunner`
+ aplication_name=nome_da_aplicacao
+      start_page=paginaInicial
+    project_name=NomeDoProjeto
+        winTitle="Ivan Carlos Da Silva Lopes"
+         id_link=LinkInterno
+        language=en-US
+         version=0.1
+
+##############################################################################
+##############################################################################
+
+line_comment_html ()
+{
+    if test $# -ne 1; then
+
+	    echo |\
+	    sed   \
+	    ':begin;s/^.\{69\}$/&/;tend;s/$/*/;tbegin;:end;s/.*/<!-- & -->/'
+    else
+	    echo "$*" |\
+	    sed ':begin;s/^.\{69\}$/&/;tend;s/$/ /;tbegin;:end;s/.*/<!-- & -->/'
+    fi
+
+}
+
+##############################################################################
+id_link=$(echo $id_link | tr '[A-Z]' '[a-z]')
+
+##############################################################################
+
+mkdir -p ${aplication_name}/chrome/content/${aplication_name}           \
+         ${aplication_name}/chrome/locale/${language}/${aplication_name}\
+         ${aplication_name}/defaults/preferences
+
+##############################################################################
+
+cat  >   ${aplication_name}/chrome/chrome.manifest << __EOF__
+content  ${id_link} file:content/${aplication_name}/
+locale   ${id_link} ${language} file:locale/${language}/${aplication_name}/
+__EOF__
+
+##############################################################################
+
+cat  > ${aplication_name}/defaults/preferences/prefs.js << __EOF__
+pref("toolkit.defaultChromeURI", "chrome://${id_link}/content/${start_page}.xul");
+pref("general.useragent.extra.${aplication_name}", "${project_name}/${version}");
+__EOF__
+
+##############################################################################
+
+cat  > ${aplication_name}/chrome/locale/${language}/${aplication_name}/${start_page}.dtd << __EOF__
+<!-- EMPTY -->
+__EOF__
+
+##############################################################################
+
+cat  > ${aplication_name}/application.ini << __EOF__
+[App]
+;
+; This field specifies your organization's name.  This field is recommended,
+; but optional.
+Vendor=ICSL
+;
+; This field specifies your application's name.  This field is required.
+Name=${project_name}
+;
+; This field specifies your application's version.  This field is optional.
+Version=${version}
+;
+; This field specifies your application's build ID (timestamp).  This field is
+; required.
+BuildID=`date +%y%m%d`
+;
+; This field specifies a compact copyright notice for your application.  This
+; field is optional.
+Copyright=Copyright (c) 2006 Ivan Carlos da Silva Lopes
+;
+; This ID is just an example.  Every XUL app ought to have it's own unique ID.
+; You can use the microsoft "guidgen" or "uuidgen" tools, or go on
+; irc.mozilla.org and /msg botbot uuid.  This field is optional.
+ID={`uuidgen`}
+
+[Gecko]
+;
+; This field is required.  It specifies the minimum Gecko version that this
+; application requires.  Specifying 1.8 matches all releases with a version
+; prefixed by 1.8 (e.g., 1.8a4, 1.8b, 1.8.2).
+MinVersion=1.8
+;
+; This field is optional.  It specifies the maximum Gecko version that this
+; application requires.  It should be specified if your application uses
+; unfrozen interfaces.  Specifying 1.8 matches all releases with a version
+; prefixed by 1.8 (e.g., 1.8a4, 1.8b, 1.8.2).
+MaxVersion=1.9.0.*
+__EOF__
+
+cat  > ${aplication_name}/chrome/content/${aplication_name}/${start_page}.js << __EOF__
+function buttonPressed(event)
+{
+	alert('Button was pressed!');
+}
+
+function boxPressed(event)
+{
+	alert('Box was pressed!');
+	event.stopPropagation();
+}
+
+var button   = document.getElementById("win-hbox-00-btn-00-${start_page}");
+
+button.addEventListener('command', buttonPressed, true);
+
+var outerbox = document.getElementById("win-hbox-00-${start_page}");
+outerbox.addEventListener('command', boxPressed, true);
+__EOF__
+
+cat  > ${aplication_name}/chrome/content/${aplication_name}/${start_page}.xul << __EOF__
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!--
+<!DOCTYPE window SYSTEM "chrome://${id_link}/locale/${start_page}.dtd">
+-->
+
+<window
+	id     = "${aplication_name}"
+	title  = "${aplication_name}"
+	width  = "800"
+	height = "600"
+	xmlns  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+
+<!--
+LINK IN OUR MAIN JAVASCRIPT
+-->
+
+				     <!--
+				 DRAW OUR GUI
+				     -->
+<!-- ===================================================================== -->
+
+`line_comment_html open hbox: win-hbox-00-${start_page}`
+	<hbox
+		id = "win-hbox-00-${start_page}">
+
+`line_comment_html`
+		<button
+                        id   = "win-hbox-00-btn-00-${start_page}"
+                        label= "OK"
+		/>
+
+`line_comment_html`
+		<caption
+                        id   = "win-hbox-00--ctn-00-${start_page}"
+                        label= "I'm a caption!"
+		/>
+	</hbox>
+`line_comment_html close hbox: win-hbox-00-${start_page}`
+
+<!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+
+`line_comment_html open hbox`
+	<hbox>
+
+`line_comment_html`
+		<button
+			id       = "back"
+			label    = "btn-00"
+			oncommand= "method1();"
+			disabled = "true"
+		/>
+
+`line_comment_html`
+		<textbox
+			id        = "urlbar"
+			value     = ""
+			flex      = "1"
+			oncommand = "method2();"
+		/>
+
+`line_comment_html`
+		<button
+			id       = "go"
+			label    = "btn-01"
+			oncommand= "go();"
+		/>
+
+	</hbox>
+`line_comment_html close hbox`
+
+`line_comment_html browser`
+		<browser
+			flex= "1"
+			id  = "browser"
+			src = ""
+			type= "content-primary"
+		/>
+
+`line_comment_html open statusbar`
+	<statusbar>
+			<statusbarpanel
+				id   = "status"
+				label= ""
+				crop = "end"
+				flex = "1"
+			/>
+
+			<progressmeter
+				id   = "progress"
+				mode = "determined"
+				value= "0%"
+				style= "display:none
+			"/>
+
+			<statusbarpanel
+				id   = "security"
+				label= ""
+				style= "display: none"
+			/>
+
+	</statusbar>
+`line_comment_html close statusbar`
+	<script src="${start_page}.js"/>
+</window>
+<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+__EOF__
+
+cat > ${aplication_name}/run.sh << __EOF__
+#! /bin/bash
+# vi:set nu nowrap:
+
+   TARGET=${TARGET}
+XULRUNNER=\$TARGET
+ OPTFLAGS=
+# ----------------------------------------------------------------------------
+\$XULRUNNER \${OPTFLAGS} application.ini
+# ----------------------------------------------------------------------------
+exit 0
+__EOF__
+
+chmod +x  ${aplication_name}/run.sh
+
+exit 0
+##############################################################################
+
+# __create jar files__
+
+(
+cd ${aplication_name}/chrome/;
+zip -r ${aplication_name}.jar content;
+rm -rf content
+)
+
+cat  >   ${aplication_name}/chrome/chrome.manifest << __EOF__
+content  ${id_link} jar:${aplication_name}.jar!/content/${aplication_name}/
+__EOF__
+
+(
+cd ${aplication_name}/chrome/;
+zip -r ${language}.jar locale;
+rm -rf locale
+)
+
+cat  >>  ${aplication_name}/chrome/chrome.manifest << __EOF__
+locale   ${id_link} ${language} jar:${language}.jar!/locale/${language}/${aplication_name}/
+__EOF__
+
+##############################################################################
+

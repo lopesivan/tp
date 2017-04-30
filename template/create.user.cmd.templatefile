@@ -1,0 +1,1 @@
+cat create.user | sed 's/__USER__/ivan/g; s/__PASS__/12345/g; s/__DATABASE__/django_database/g'

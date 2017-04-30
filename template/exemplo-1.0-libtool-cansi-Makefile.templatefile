@@ -1,0 +1,17 @@
+name   =biblioteca
+OBJECTS=biblioteca.o
+
+all:
+	@for x in *.c ; do echo "    [CC] $$x -> `basename $$x .c`.o" ;libtool --silent --mode=compile gcc -c $$x; done
+	@echo "    [LD] ${OBJECTS} -> lib$(name).la"
+	@libtool --silent --mode=link gcc -export-dynamic -no-undefined -rpath /usr/local/lib -o lib$(name).la *.lo
+
+clean:
+	@rm -f *.o *~ *.lo *.la .libs
+
+install:
+	@libtool --silent --mode=install cp libast.la /usr/local/lib
+	@cp biblioteca.h /usr/local/etc
+
+uninstall:
+	@libtool --silent --mode=uninstall rm -f /usr/local/lib/lib$(name)* 

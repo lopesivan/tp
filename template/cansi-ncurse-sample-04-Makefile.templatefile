@@ -1,0 +1,29 @@
+sources        = $(wildcard *.c)
+objects        = $(sources:.c=.o)
+programs       = goodbye hw ncurse_prompt olamundo
+
+NCURSE_CFLAGS  = -lncurses
+LDFLAGS       += $(NCURSE_CFLAGS)
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+CC          = gcc
+LD          = $(CC)
+WARNINGS    = -Wall -ansi
+GDBFLAGS    = -g
+
+CFLAGS      = $(WARNINGS) $(GDBFLAGS) $(INCLUDE) $(DEFINEFLAGS)
+
+all:          $(programs)
+
+goodbye:
+hw:
+ncurse_prompt: incurse.o
+olamundo:
+
+clean:
+	/bin/rm -rf $(programs) $(objects) *.orig *.A
+
+# END OF FILE

@@ -1,0 +1,9 @@
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+
+!!!
+%html
+  %head
+    %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}
+      %title JSP Page
+  %body
+    %h1 Hello World!

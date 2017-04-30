@@ -1,0 +1,5 @@
+# android-ndk-r5
+# ==============
+
+export PATH=${PATH}:/home/ivan/workspace/android-ndk-r5b
+export ANDROID_NDK_ROOT=/workspace/android-ndk-r5b

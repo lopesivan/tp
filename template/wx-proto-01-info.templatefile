@@ -1,0 +1,46 @@
+application_name=test
+
+WXWIDGETS_PATH=${ICSL_DEPS}/src/wxWidgets-2.8.7
+HEADER_DIR=include
+SOURCE_DIR=src
+
+##############################################################################
+
+ID_C_MYAPP=MyApp
+ID_C_MYFRAME=MyFrame
+ID_C_O_FRAME=frame
+ID_C_O_WXMENU_fileMenu=fileMenu
+ID_C_O_WXMENU_helpMenu=helpMenu
+ID_C_O_WXMENU_menuBar=menuBar
+ID_F_HEADER_APP=app.hpp
+ID_F_HEADER_MYAPP=MyApp.hpp
+ID_F_HEADER_MYFRAME=MyFrame.hpp
+ID_F_SOURCE_APP=app.cpp
+ID_F_SOURCE_MYAPP=MyApp.cpp
+ID_F_SOURCE_MYFRAME=MyFrame.cpp
+ID_M_ONABOUT=OnAbout
+ID_M_ONINIT=OnInit
+ID_M_ONQUIT=OnQuit
+ID_MSG_01="Minimal wxWidgets App"
+ID_MSG_02="Quit this program"
+ID_MSG_03="Show about dialog"
+ID_MSG_04="Welcome to wxWidgets by ICSL!"
+ID_MSG_05="Hello and welcome to"
+ID_MSG_06="About ICSL"
+ID_MSG_07="E&xit\tAlt-X"
+ID_MSG_08="&About...\tF1"
+ID_MSG_09="&File"
+ID_MSG_10="&Help"
+
+##############################################################################
+
+# ----------------------------------------------------------------------------
+
+##############################################################################
+
+mkdir -p ${application_name}/${HEADER_DIR}\
+         ${application_name}/${SOURCE_DIR}
+
+##############################################################################
+# User:
+#

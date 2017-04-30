@@ -1,0 +1,7 @@
+# Makefile: A standard Makefile for shout_sample.c
+
+LDFLAGS = -L/usr/local/lib -lshout
+all  : shout_sample
+clean:
+	/bin/rm -rf shout_sample shout_sample.o
+# END OF FILE

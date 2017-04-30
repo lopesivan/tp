@@ -1,0 +1,27 @@
+//////////////////////////////////////////////////////////////////////////////
+//                                                                           /
+// ------------------------------ MyFrame.hpp ------------------------------ /
+//                                                                           /
+//////////////////////////////////////////////////////////////////////////////
+
+#ifndef MYFRAME_HPP
+#define MYFRAME_HPP
+
+#include "wx/wx.h"
+
+// Declare our main frame class
+class MyFrame : public wxFrame
+{
+public:
+	// Constructor
+	MyFrame(const wxString&);
+
+	// Event handlers
+	void OnQuit (wxCommandEvent&);
+	void OnAbout(wxCommandEvent&);
+private:
+	// This class handles events
+	DECLARE_EVENT_TABLE()
+};
+
+#endif				// MYFRAME_HPP

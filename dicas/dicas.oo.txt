@@ -1,0 +1,83 @@
+Hello World orientado a objetos
+Em C++
+$ gvim helloWorld.cpp
+ 1 #include <iostream>
+ 2 #include <string>
+ 3 using namespace std;
+ 4 
+ 5 class HelloWorld{
+ 6 
+ 7 public:
+ 8         // construtor!
+ 9         HelloWorld(string mensagem) {
+10                 this->_mensagem = mensagem;
+11         }
+12 
+13         // metodo show
+14         void show() const {
+15                 cout << "mensagem: "
+16                      << this->_mensagem
+17                      << endl;
+18         }
+19 
+20 private:
+21         string _mensagem;
+22 };
+23 
+24 int main()
+25 {
+26         HelloWorld obj ("ola mundo");
+27         obj.show();
+28 
+29         return 0;
+30 }
+
+
+Compilando:
+$ make helloWorld
+
+
+Em Vim Script
+ 1 " metodos
+ 2 """""""""
+ 3 
+ 4 function helloWorld#Show() dict
+ 5       echo s:message
+ 6 endfunction
+ 7 
+ 8 function helloWorld#Get() dict
+ 9         call self.Show()
+10 endfunction
+11 
+12 function helloWorld#Set(message) dict
+13         let s:message = a:message
+14 endfunction
+15 
+16 
+17 " Costrutor
+18 """""""""""
+19 
+20 function helloWorld#New(message)
+21 
+22         let s:message = a:message
+23 
+24         let Retval = {
+25                         \ 'message': s:message,
+26                         \ 'Set'         : function ('helloWorld#Set'),
+27                         \ 'Get'         : function ('helloWorld#Get'),
+28                         \ 'Show'   : function ('helloWorld#Show')
+29         \}
+30 
+31         return Retval
+32 
+33 endfunction helloWorld#New
+
+
+Usando:
+$ cat usaHelloWorld.vim
+let obj = helloWorld#New("Hello World")
+
+echo "mensagem:" obj.message
+echo "obj.Get:" | call obj.Get()
+call obj.Set ("Ola Mundo!")
+echo "obj.Get:" | call obj.Get()

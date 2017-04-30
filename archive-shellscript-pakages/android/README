@@ -1,0 +1,45 @@
+a.emu
+a.emu 1
+a.emu  1
+a.emu  10
+a.emu 10 -c
+a.emu  10 -d
+a.emu  13
+a.emu  13 -c
+a.emu 13 -c
+a.emu  13 -d
+a.emu  13 -n
+a.emu  14 -c
+a.emu 18
+a.emu 18 -c
+a.emu  18 -d
+a.emu 18 -d
+a.emu 18 -n
+a.emu  1 -c
+a.emu 1 -c
+a.emu  1 -d
+a.emu 1 -d
+a.emu 1 -l
+a.emu  20
+a.emu  20 -c
+a.emu  20 -d
+a.emu  34
+a.emu  34 -c
+a.emu 34  -c
+a.emu  34 -d
+a.emu 34  -d
+a.emu 7
+a.emu 7 -c
+a.emu 7 -d
+a.emu  -d
+a.emu -d
+a.emu  -d 18 -c
+a.emu  -d 18 -n
+a.emu  -d 4 -c
+a.emu -d 4 -c
+a.emu  -l
+a.emu -l
+a.emu  -L
+a.emu -L
+a.emu  -L| sh
+history | grep a.emu

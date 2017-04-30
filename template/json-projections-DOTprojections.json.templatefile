@@ -1,0 +1,26 @@
+{
+    "`<  =app/views/*.generic=  >`": {
+    "type": "`<  =model=  >`",
+    "skeleton": "`<  =model=  >`",
+    "make": "`<  =python {file|basename} 1.yaml=  >`",
+    "start": "`<  =ptpython --vi --interactive={file|basename} 1.yaml=  >`",
+    "dispatch": "`<  =bpython -i {file|basename} 1.yaml=  >`"
+  },
+
+    "`<  =app/views/*.generic=  >`": {
+    "type": "`<  =view=  >`",
+    "skeleton": "`<  =view=  >`",
+    "make": "`<  =python {file|basename} 1.yaml=  >`",
+    "start": "`<  =ptpython --vi --interactive={file|basename} 1.yaml=  >`",
+    "dispatch": "`<  =bpython -i {file|basename} 1.yaml=  >`"
+  },
+
+    "`<  =app/controllers/*.generic=  >`": {
+    "type": "`<  =controller=  >`",
+    "skeleton": "`<  =controller=  >`",
+    "make": "`<  =python {file|basename} 1.yaml=  >`",
+    "start": "`<  =ptpython --vi --interactive={file|basename} 1.yaml=  >`",
+    "dispatch": "`<  =bpython -i {file|basename} 1.yaml=  >`"
+  }
+}
+

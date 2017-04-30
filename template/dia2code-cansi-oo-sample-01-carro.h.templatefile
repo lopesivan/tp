@@ -1,0 +1,26 @@
+#ifndef __CARRO_H__
+#define __CARRO_H__
+
+#define CARRO(OBJ) ((Carro*)OBJ)
+
+#ifndef String
+#define String char*
+#endif
+
+
+typedef struct _Carro Carro;
+
+struct _Carro {
+  /** Attributes **/
+  /*public*/
+    String modelo;
+    int ano;
+    int placa;
+  /** Associations **/
+/** Operations **/
+};
+
+/** Operations **/
+/*public*/
+void Carro_dirigir ( Carro *this );
+#endif

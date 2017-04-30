@@ -1,0 +1,6 @@
+# Makefile: A standard Makefile for hello.c
+LDFLAGS= `pkg-config --cflags --libs gstreamer-0.10`
+all  : hello
+clean:
+	/bin/rm -rf hello hello.o
+# END OF FILE

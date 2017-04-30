@@ -1,0 +1,5 @@
+#!/bin/bash
+# ----------------------------------------------------------------------------
+( ./g-slide.sh > app.tex; make; make show )
+#( ./g-frame.sh; ./g-slide.sh > app.tex; make; make show )
+

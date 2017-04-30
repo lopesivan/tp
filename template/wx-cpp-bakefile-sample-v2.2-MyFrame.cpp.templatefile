@@ -1,0 +1,8 @@
+#include "MyFrame.h"
+
+MyFrame::MyFrame(const wxString &title)
+	: wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(250, 150))
+{
+	wxPanel *panel = new wxPanel(this);
+	Centre();
+}

@@ -1,0 +1,20 @@
+\begin{frame}{More Choices}
+\begin{itemize}
+\item Presentation Themes
+\begin{itemize}
+\item With/Without Navigation bars?
+\item Tree-like Navigation bar?
+\item Table of Contents sidebar? 
+\item Mini-Frame Navigation? 
+\end{itemize}
+\item Outer Themes
+\item Inner Themes
+\item Color Themes
+\item Font Themes
+\end{itemize}
+\note<1>[item]{Note the nesting of the itemize environments.}
+\note<1>[item]{Navigation bars sometimes take away from the presentation.  Use with caution!}
+\note<1>[item]{Outer Themes govern how frame title, navigation, etc. appear.}
+\note<1>[item]{Inner Themes govern how list environments appear, etc.}
+\note<1>[item]{Sometimes choosing different Font and Color Themes don't work well together.}
+\end{frame}

@@ -1,0 +1,15 @@
+\begin{frame}
+\frametitle{Famous Composers}
+\begin{center}
+  \rowcolors{1}{RoyalBlue!20}{RoyalBlue!5}
+  \begin{tabular}{|l|c|}\hline
+  J.\ S.\ Bach   & 1685--1750 \\
+  W.\ A.\ Mozart & 1756--1791 \\
+  L.\ Beethoven & 1770--1827 \\
+  F.\ Chopin     & 1810--1849 \\
+  R.\ Schumann   & 1810--1856 \\
+  B.\ Bart\’{o}k & 1881--1945 \\ \hline
+  \end{tabular}
+\end{center}
+\end{frame}
+

@@ -1,0 +1,109 @@
+O Singleton é um dos padrões de projecto mais simples. Ele é usado quando for
+necessária a existência de apenas uma instância de uma classe. Foi apresentado
+no GoF como um padrão de criação, por lidar com a criação de objectos.
+
+Segundo o GoF para uma classe ser um singleton, deve-se garantir que haverá
+apenas uma instância na aplicação e que deve-se fornecer um ponto de acesso à
+mesma. Mas como garantir que haverá apenas uma instância? É de conhecimento
+comum que, para criar uma instância de uma classe, devemos chamar o seu
+construtor. Assim, para resolvermos o problema, devemos restringir o acesso ao
+construtor, tornando-o um método privado. Em seguida, deve-se utilizar um
+método público que faça o controle da instanciação, de modo que ela só possa
+ser feita uma vez. A Figura 1 mostra o diagrama de classes do singleton:
+
+[ Figura 1: Diagrama de Classes do Singleton. ]
+
+A implementação mais comum do singleton  pode ser vista no código apresentado
+em seguida.
+
+Código
+
+public class Singleton {
+
+   private static Singleton instance;
+
+   private Singleton() {
+
+   }
+
+   public static Singleton getInstance() {
+      if (instance == null)
+         instance = new Singleton();
+      return instance;
+   }
+}
+
+[Código 1]
+
+O diagrama de classes da Figura 1 e o Código 1 acima mostram apenas o
+necessário para a instanciação de singleton. Obviamente, a classe deve conter
+outros atributos e métodos.
+
+A Figura 2 mostra um diagrama de sequências que representa o processo de
+criação de um singleton. Quando um objecto chama o singleton pela primeira
+vez, é realizada a instanciação da classe. Os demais acessos irão utilizar a
+instância já criada.
+
+[ Figura 2: Diagrama de Seqüências de um Singleton. ]
+
+O Código 1  pode ser problemático em ambientes multi-threaded, ou seja, ele
+não é uma solução thread-safe. Se uma thread  chamar o método getInstance() e
+for interrompida antes de realizar a instanciação, uma outra thread  poderá
+chamar o método e realizar a instanciação. Neste caso, duas instâncias serão
+construídas, o que fere os requisitos do singleton . Uma solução para este
+problema seria utilizar o atributo synchronized  em getInstance(), como visto
+no Código 2 , para que uma outra thread  não possa acessá-lo até que a thread
+que o acessou pela primeira vez tenha terminado de fazê-lo.
+
+Código
+
+public class Singleton {
+
+   private static Singleton instance;
+
+   private Singleton() {
+
+   }
+
+   public static synchronized Singleton getInstance() {
+      if (instance == null)
+         instance = new Singleton();
+      return instance;
+   }
+}
+
+[Código 2]
+
+O problema com o synchronized  é que a sincronização é bastante dispendiosa.
+Estima-se que métodos sincronizados sejam cerca de cem vezes mais lentos que
+métodos não sincronizados. Uma alternativa simples, rápida e thread-safe  é a
+instanciação do singleton  assim que ele for declarado. Como podemos ver no
+Código 3.
+
+Código
+
+public class Singleton {
+
+   private static Singleton instance = new Singleton();
+
+   private Singleton() {
+
+   }
+
+   public static Singleton getInstance() {
+      return instance;
+   }
+}
+
+[Código 3]
+
+Conclusões:
+
+Além de ser um dos padrões mais simples, o singleton  é também um dos mais
+criticados e mal usados. Uma situação em que realmente é necessário que exista
+apenas uma instância de uma classe é difícil e o seu uso pode levar a muitos
+problemas. O uso abusivo de singletons  leva a soluções onde a dependência
+entre objetos é muito forte e a testabilidade é fraca. Um outro problema é que
+os singletons dificultam o hot redeploy por permanecerem em cache, bloqueando
+mudanças de configuração. Por esses e outros problemas, deve-se ter cuidado
+com o uso abusivo de singletons.

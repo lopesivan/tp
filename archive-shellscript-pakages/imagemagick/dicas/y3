@@ -1,0 +1,1 @@
+convert -size 128x128 xc:black -fill white -draw "point 64,64" -alpha off -blur 0x8 -contrast-stretch 0 -negate gaussian8_neg.png

@@ -1,0 +1,11 @@
+<html>
+	<head>
+	</head>
+	<body>
+		<table border=1>
+			<tr><th>Order</th><th>Value</th></tr>
+#for $d in $data:
+			<tr><td>$d[0]</td><td>$d[1]</td></tr>
+#end for
+		</table>
+</body></html>

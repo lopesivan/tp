@@ -1,0 +1,21 @@
+# -*- coding: utf-8 -*-
+
+'''
+Created on Mar 4, 2011
+
+@author: ivan
+'''
+
+import wx
+from MyFrame import MyFrame
+
+class MyApp(wx.App):
+	def OnInit(self):
+		self.frame = MyFrame(None, title="The Main Frame")
+		self.SetTopWindow(self.frame)
+		self.frame.Show()
+
+
+		return True
+	# end def OnInit
+# end class MyApp

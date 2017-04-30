@@ -1,0 +1,15 @@
+#include <iostream>
+#include <thread>
+
+void thFun()
+{
+	std::cout << "Hi from thread!\n";
+}
+
+int main()
+{
+	std::thread th(&thFun);
+	std::cout << "Hi from main!\n";
+	th.join();
+	return 0;
+}

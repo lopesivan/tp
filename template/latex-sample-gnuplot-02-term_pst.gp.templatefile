@@ -1,0 +1,4 @@
+set terminal pstricks
+set output 'sombrero_pst.pst'
+load 'sombrero.gp'
+quit

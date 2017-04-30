@@ -1,0 +1,15 @@
+\begin{frame}{\LaTeX\ Presentation Support - History}
+\begin{itemize}
+\item foiltex
+\item seminar
+\item prosper
+\item beamer
+\end{itemize}
+\note<1>[item]{{\tt foiltex} was used in the early days of \LaTeX.}
+\note<1>[item]{{\tt seminar} is nice and simple, but not much in the way of color enhancement.}
+\note<1>[item]{{\tt prosper} was a major step forward in that it grouped together different elements
+to present a cohesive ''template'' based on particular ''themes''.  However, it was difficult
+to fine tune and to get exactly right.}
+\note<1>[item]{{\tt beamer} comes close to providing a complete set of interchangeable elements (themes)
+which allow one to focus more on the content rather than the appearance.}
+\end{frame}

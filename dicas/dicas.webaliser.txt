@@ -1,0 +1,36 @@
+   1. install webalizer
+
+          sudo apt-get install webalizer
+
+      If webalizer is not found, you have to add sources in /etc/apt/sources.list: can comment the universe sources.
+   2. Enable the apache2 hostname resolution: go into /etc/apache2/apache2.conf: Change
+
+    HostnameLookups Off
+
+into
+
+    HostnameLookups On
+
+   1. By default webalizer is not well configured: it does not check in the good log. In /etc/webalizer.conf: Change
+
+          LogFile         /var/log/apache/access.log.1
+
+      to
+
+          LogFile         /var/log/apache2/access.log
+
+   2. Test webalizer:
+
+          sudo webalizer
+
+      If you get a warning like warning: Truncating …
+      It is because you did not put the hostnameLookup. If afterward, you get this message, it can be because you are attacked by a virus…
+   3. Run webalizer as a cronjob. This has to be run as root: Edit the root cronjobs by running the command:
+
+          sudo crontab -e
+
+      and add the line:
+
+          0 * * * * webalizer
+
+

@@ -1,0 +1,10 @@
+#include <ncurses.h>
+
+int main(void)
+{
+  initscr();
+  addstr("Goodbye, cruel C programming!");
+
+  endwin();
+  return 0;
+}

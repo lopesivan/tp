@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# The error function print menssage of error.
+#
+_error() {
+	exec 4>&1  # stdout duplicado ( FD 4 tem as mesmas caracteristicas
+	           # do STDOUT), aponta para o terminal.
+	exec 1>&2
+
+	echo ERROR: "$*"
+
+	exec 1>&4  # FD 1 recebe as caracteristicas de FD 4.
+	           # FD 1 ressetado.
+
+	exec 4>&-  # FD 4 eh liberado.
+}
+
+# The error function print menssage of error.
+#
+_abort_now() {
+	_error '***' aborted '***'
+	exit 1
+}
+
+[ "$1" ]  || {
+	_error "deve-se determinar o nome do diretorio onde as fotos serao obtidas";
+	_abort_now
+}
+
+#-----------------------------------  main -----------------------------------
+[ -e $1 ] || mkdir $1
+
+(
+cd $1
+touch name_{a..h}{0..4}.JPG
+
+../main <( ls *.JPG ) ../outfile.txt
+)
+
+cat outfile.txt
+
+# ----------------------------------------------------------------------------
+exit 0

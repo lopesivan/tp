@@ -1,0 +1,21 @@
+\begin{frame}{Choices to Make}
+\begin{itemize}[<+->]
+\item Linux or Windows?
+\item User Interface - Text editor?
+\item Output Choices - Presentation or Handout?
+\end{itemize}
+\note<1>[item]{Note incremental display of lines.}
+\note<1>[item]{On linux systems, everything \LaTeX\ related is
+usually contained in {\tt /usr/share/texmf/} subdirectory (including documentation) and is called the
+{\tt tetex} distribution.  On Windows systems, one should install the MikTeX system and ensure it is
+the latest version.  Note that the MikTeX system is basically the same {\em source code} as that contained
+in the the tetex distribution.  This allows for ease of transport of the {\tt .tex} files between systems
+and platforms.}
+\note<1>[item]{ Choices include {\tt vi}, {\tt emacs}, and {\tt winedt} (windows only).  Note that if working on 
+Windows, the winedt ''official'' version costs \$.  However, the trial version works just as well.  Note
+also that the winedt/MikTeX system has a nice user interface controlling creation of {\tt .dvi, .ps, and .pdf}
+files at the click of a button.  Power users do not use GUI interfaces and therefore use linux.}
+\note<1>[item]{ If one desires a handout, one usually will desire multiple slides on a page, or include notes about each
+slide.  Usually, one will want handouts to be printed in black and white.  Presentations will usually have
+color associated with them.  Switching between these modes can easily be done, as will be shown later.}
+\end{frame}

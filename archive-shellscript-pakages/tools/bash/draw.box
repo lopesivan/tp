@@ -1,0 +1,62 @@
+source ${TARGET}/util
+#
+# ---------------------------- Box/line comments -----------------------------
+#
+
+GV_COMPONENT_TOP='/'
+GV_COMPONENT_BOTTON=$GV_COMPONENT_TOP
+
+draw.box() {
+	local TW=$1    # text width
+# ============================================================================
+	shift          # popstack
+
+        local wd=$1    # word
+        local sc=$2    # start_comment
+        local c1=$3    # comment1
+        local c2=$4    # comment2
+        local c3=$5    # comment3
+        local c4=$6    # comment4
+        local ec=$7    # end_comment
+# ============================================================================
+
+	local size=$((
+		${#wd} + ${#sc} + ${#c1} + ${#c2} + ${#c3} + ${#c4} + ${#ec}
+	))
+
+	local diff=$(( TW - size ))
+
+#	echo TW $TW
+#	echo size $size
+#	echo diff $diff
+
+	test $diff -le 2 && {
+		_error "draw.box() line too long"
+		abort_now
+	}
+
+	if [ $(( diff % 2 )) = 0 ]; then
+
+		local i=$(( diff / 2))
+		local j=$i
+
+	else
+
+		local i=$(( (diff - 1)/2 ))
+		local j=$(( i + 1))
+
+	fi
+
+#	echo i = $i
+#	echo j = $j
+
+	repeat $GV_COMPONENT_TOP 78
+	echo -n ${sc}${c1}$( repeat '-' $i )${c2}${wd}${c3}$( repeat '-' $j )${c4}${ec}
+	echo
+	repeat $GV_COMPONENT_BOTTON 78
+}
+
+# draw.box 78 ivan 'sc' 'c1' 'c2' 'c3' 'c4' 'ec'
+
+# ----------------------------------------------------------------------------
+

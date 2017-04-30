@@ -1,0 +1,11 @@
+# UDP
+# Do not work: 
+# ERROR                 ffmpeg :0:: Extradata is too small.
+
+PORTCLIENT=5000
+
+gst-launch -v --gst-debug-level=2 \
+	udpsrc port=$PORTCLIENT caps="video/x-pn-realvideo, width=(int)352, height=(int)288, framerate=(fraction)25/1, systemstream=(boolean)false, rmversion=(int)2, format=(int)0" \
+	! queue ! ffdec_rv20 \
+	! ffmpegcolorspace ! autovideosink 
+

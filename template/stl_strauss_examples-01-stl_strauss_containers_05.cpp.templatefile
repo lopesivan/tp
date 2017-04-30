@@ -1,0 +1,41 @@
+#include <vector>
+#include <algorithm>
+#include <assert.h>
+ 
+//
+// esse é o nosso algoritmo que soma um número a
+// cada item de um container. Note que durante a execução
+// o tipo T será o tipo do iterator, e não do container
+//
+template<typename T >
+void soma_num(T begin, T end, int num)
+{
+  for(T i = begin; i != end ; ++i)
+    *i += num;
+}
+ 
+ 
+int main()
+{
+  std::vector<int> v;
+  std::vector<int> l;
+  int arr[10];
+
+  for(int a = 0 ; a < 10 ; ++a)
+  {
+    v.push_back(a);
+    l.push_back(a);
+    arr[a] = a;
+  }
+ 
+  //
+  // vamos somar 10 aos número de todos os containers
+  //
+  soma_num(v.begin(), v.end(), 10);
+  soma_num(l.begin(), l.end(), 10);
+ 
+  //
+  // somando 10 somente aos 5 primeiros itens do array
+  //
+  soma_num(arr, arr + 5, 10);
+}

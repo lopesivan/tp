@@ -1,0 +1,20 @@
+#!/bin/bash
+# vi:set nu nowrap:
+# compile.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: compile.sh
+#        Date: Wed 15 Jul 2009 01:34:37 AM BRT
+# Description:
+#
+#
+
+# ----------------------------------------------------------------------------
+rm *.so dl complete_sample
+# ----------------------------------------------------------------------------
+exit 0

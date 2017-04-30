@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!--
+  $Id: main.bkl 31612 2005-01-27 22:47:37Z VS $
+-->
+<!--
+  Document   : main.bkl
+  Created on : Tue Mar 06 21:19:25 -0300 2012
+  Author     : ivan
+  Description:
+  Purpose of the document follows.
+-->
+<makefile>
+  <include file='presets/wx.bkl' />
+  <exe id='main' template='wx'>
+    <app-type>
+      gui
+    </app-type>
+    <debug-info>
+      on
+    </debug-info>
+    <runtime-libs>
+      dynamic
+    </runtime-libs>
+    <!--
+      Sources Files:
+    -->
+    <sources>
+      MyApp.cpp
+      main.cpp
+    </sources>
+    <!--
+      Wx Libs:
+    -->
+    <wx-lib>
+      core
+    </wx-lib>
+    <wx-lib>
+      base
+    </wx-lib>
+  </exe>
+</makefile>

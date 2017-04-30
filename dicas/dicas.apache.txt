@@ -1,0 +1,75 @@
+Aqui uma breve dica de como instalar tudo rapidinho no Ubuntu.Antes de mais nada vamos fazer um sudo aptitude update depois.
+
+    $ sudo apt-get install apache2 mysql-server-5.1 php5 php5-mysql php5-cli -y
+
+O simples comando acima irá instalar o apache 2, o mysql 5.1 e o php5, durante a instalação será pedido a senha do root para o mysql que não precisa ser a mesma do usuário root do sistema, depois para testar se está tudo devidamente bem instalado crie um arquivo dentro de /var/www por exemplo
+
+    $ sudo vi teste.php
+
+Dentro dele insira a linha
+
+    <?php phpinfo(); ?>
+
+Salve e saia, agora abra o seu navegador e digite http://localhost/teste.php se estiver tudo correto irás ver uma tela com várias informações sobre o seu servidor.
+
+Importante: Se ao fazer o teste houver uma solicitação para baixar o arquivo php, edite o seguinte arquivo:
+
+    $  sudo vi /etc/apache2/apache2.conf
+
+E adicione ao final do arquivo o seguinte conteúdo:
+
+    ### Para executar PHP http://andregondim.eti.br
+    AddType application/x-httpd-php .php
+
+Pronto, agora temos o Apache, o MySQL e o PHP rodando, pode melhorar?
+
+Claro que pode, um bom administrador de MySQL é o phpmysql, então faça o seguinte:
+
+    $ sudo apt-get install phpmyadmin -y
+
+Agora se quiser usar a interface é só digitar
+
+     http://localhost/phpmyadmin/
+
+Mas eu gostaria de ter meu site em um host legal que não fosse meu ip, já que meu ip muda sempre que reconecto, para isso use o serviço do no-ip. Faça o cadastro e o seu domínio logo em seguida, assim:
+
+    sudo apt-get install noip2 -y
+
+Agora vamos criar o host no seu apache assim:
+
+    sudo vi /etc/apache2/httpd.conf
+
+Agora insira o seguinte:
+
+    <VirtualHost *>
+    DocumentRoot /var/www/
+    ServerName “aqui vc coloca o host que vc criou no site do no-ip,sem aspas”
+    #allow from all
+    #Options +Indexes
+    </VirtualHost>
+
+agora vamos no hosts:
+
+    sudo vi /etc/hosts
+
+e coloque o ip da sua placa de redes local e o nome do host que você criou no site do NO-IP.Exemplo:
+
+192.168.13.10 andregondim.no-ip.com
+
+Ok,salve o arquivo.
+
+Agora vamos configurar o No-IP assim:
+
+    $ sudo no-ip -C
+
+Depois disso, estará pronto e funcionando e a cada 15 segundos ele atualizará o host no No-IP.
+
+A parte do No-IP, foi retirada do Under-Linux.
+
+Agora construa sua página e fique tranquilo.
+
+Atualizado e testado 04/08/2010
+
+Meu twitter: @AndreGondim
+
+

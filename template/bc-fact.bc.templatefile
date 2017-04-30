@@ -1,0 +1,19 @@
+define f (x) {
+	if (x <= 1) return (1);
+    	return (f(x-1) * x);
+}
+
+define showfact(n) {
+	print n,"! = ", f(n), "\n"
+}
+
+
+define dof()
+{
+
+	/* initialize */
+	n = 5
+	showfact(n)
+}
+
+dof()

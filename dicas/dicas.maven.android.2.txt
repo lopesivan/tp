@@ -1,0 +1,181 @@
+ 
+
+  • Overview
+  • Components
+  • Details
+  • Licensing
+  • Contact
+
+  • bootstrap
+  • independency
+  • logging
+  • tests
+  • integration
+  • play
+  • feedback
+  • enterprise
+
+  • Maven Plugin
+  • Maven Archetypes
+  • Rindirect
+  • Androlog
+  • Marvin
+  • Roboject
+
+Deutsch
+
+Bootstrap projects using the maven-android-archetypes
+
+Using Apache Maven is sometimes cumbersome to initiate a project. Thanks to the
+akquinet maven-android-archetypes, you get a completely configured project in
+less than 5 minutes. The archetypes not only generate the project skeleton, but
+also configure the release process, the integration tests, the modularity
+support, the emulator and the eclipse settings, and add the common
+dependencies.
+
+  • Source Code: GitHub
+  • License: Apache License 2.0
+
+android-quickstart-archetype
+
+This archetypes creates an dummy Android Application, ready to be deployed on
+an android device (real or emulator). To create the skeleton, just launch:
+
+ mvn archetype:generate \
+  -DarchetypeArtifactId=android-quickstart \
+  -DarchetypeGroupId=de.akquinet.android.archetypes \
+  -DarchetypeVersion=1.0.8 \
+  -DgroupId=your.company \
+  -DartifactId=my-android-application
+
+You can also set three optional properties :
+
+  • The created 'package' with '-Dpackage=your.company.android'. By default it
+    uses the given groupId.
+  • The Android emulator's name to use with '-Demulator=my-avd'. If none
+    specified the property will be ignored in the pom file.
+  • The targeted Android platform with '-Dplatform=7'. The Android SDK version
+    will be automatically fetched to fit the corresponding API level. Available
+    API Level are 3, 4, 7, 8, 9, 10 and 14. By default, it uses 10 (Android
+    2.3.3).
+
+Once generated, the application is ready to be built and deployed. Start an
+Android emulator, or plug an Android Dev Phone, and launch:
+
+ cd my-android-application
+ mvn clean install android:deploy
+
+The artifacts are based on the android-maven-plugin. Currently version 3.1.1 is
+used. You can change the default maven-android-plugin version by specifying the
+'android-plugin-version' parameter. As the archetypes used the new archetype
+format, they don't work with the deprecated goal 'archetype:create'
+
+Android with test Archetype
+
+This archetype generates a multi-module project:
+
+  • a parent pom
+  • a module containing a dummy application
+  • a module testing the dummy application (integration-tests)
+
+To generate this structure, just launch:
+
+ mvn archetype:generate \
+  -DarchetypeArtifactId=android-with-test \
+  -DarchetypeGroupId=de.akquinet.android.archetypes \
+  -DarchetypeVersion=1.0.8 \
+  -DgroupId=com.foo.bar \
+  -DartifactId=my-android-project \
+  -Dpackage=com.foo.bar.android
+
+The 'package' value is optional (by default use the groupId). You can also set
+the targeted Android platform with -Dplatform=x. By default, it uses 10
+(Android 2.3.3)
+
+Once generated, the application is ready to be built and tested. Start an
+android emulator, or plug an Android Dev Phone, and launch:
+
+cd my-android-project
+mvn clean install
+
+The application will be built, then the integration-tests will be built and
+executed on the Android device.
+
+Android-Release Archetype
+
+This archetype extends the 'with-test' archetype and so generates a
+multi-module project:
+
+  • a parent pom
+  • a module containing a dummy application
+  • a module testing the dummy application (integration-tests)
+
+The generated projects contains the release process configuration creating
+'marketplace-ready' artifacts.
+
+To generate this structure, just launch:
+
+  mvn archetype:generate \
+  -DarchetypeArtifactId=android-release \
+  -DarchetypeGroupId=de.akquinet.android.archetypes \
+  -DarchetypeVersion=1.0.8 \
+  -DgroupId=com.foo.bar \
+  -DartifactId=my-android-project \
+  -Dpackage=com.foo.bar.android
+
+The 'package' value is optional (by default use the groupId). You can also set
+the targeted Android platform with -Dplatform=x. By default, it uses 10
+(Android 2.3.3)
+
+Once generated, the application is ready to be built and tested. Start an
+android emulator, or plug an Android dev phone, and launch:
+
+cd my-android-project
+mvn clean install
+
+The application will be built, then the integration-tests will be built and
+executed on the Android device. When you release your application, it will
+generate a signed, zipaligned and ProGuard-processed apk. The given proguard
+configuration is simplistic and you should update it to meet your needs.
+
+You will have to add a profile to your settings.xml containing the signing
+informations:
+
+<profile>
+  <id>android-release</id>
+  <properties>
+    <sign.keystore>/path/to/keystore</sign.keystore>
+    <sign.alias>key alias</sign.alias>
+    <sign.storepass>keystore password</sign.storepass>
+    <sign.keypass>key password</sign.keypass>
+  </properties>
+</profile>
+
+or directly pass those properties through the command line:
+
+mvn release:prepare
+mvn release:perform -Dsign.keystore=/path/to/keystore \
+                    -Dsign.alias=key-alias \
+                    -Dsign.storepass=keystore-password \
+                    -Dsign.keypass=key-password
+mvn release:clean
+
+The archetype contains a test key store which MUST NOT BE USED IN PRODUCTION.
+However you can use it for testing:
+
+mvn clean install -Prelease \
+-Dsign.keystore=
+   PATH_OF_THE_PROJECT/my-android-project/test-key.keystore \
+-Dsign.alias=mykey \
+-Dsign.storepass=testtest \
+-Dsign.keypass=testtest
+
+Be aware that Android cannot re-deploy artifacts using a different key, so be
+sure to undeploy all artifacts before running the release.
+
+ 
+
+  • Legal
+  • akquinet
+  • Blog
+

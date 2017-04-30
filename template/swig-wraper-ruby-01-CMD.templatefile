@@ -1,0 +1,10 @@
+swig -ruby example.i
+
+cat << EOF > extconf.rb
+require 'mkmf'
+create_makefile('example')
+EOF
+
+ruby extconf.rb
+make
+

@@ -1,0 +1,91 @@
+#! /bin/bash
+# vi:set nu nowrap:
+# indent.cansi.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: indent.cpp
+#        Date: Thu 17 Jan 2008 01:51:19 AM BRST
+# Description:
+#
+#
+
+##############################################################################
+
+#-----------------------------------------------------------------------------
+# global variables
+#
+TABSTOP=8
+mndent=
+scriptname=`basename $0`
+
+# define usage of script
+#
+_usage()
+{
+	echo Usage: $scriptname $1
+}
+
+# not allow empty arguments
+#
+if test $# -eq 0; then
+	_usage "[file(s)]"
+	exit 1
+fi
+
+# This function checks whether we have a given program on the system.
+# No need for bulky functions in memory if we don't.
+#
+have()
+{
+	unset -v have
+	PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type $1 &>/dev/null &&
+		have="yes"
+}
+
+bCode()
+{
+	sed -i 's/^[ ]\{2,\}/\t/; s/[ \t]*$//; /./,/^$/!d' $1;
+	sed -i '/\s\+\/\*\*/,/\s\+\*\//{ /\/\*\*/bf;s/\*/ &/;:f}' $1
+}
+
+# Define function _astyle and options
+#
+have astyle && {
+_astyle()
+{
+	local i
+
+	astyleopt[i++]="--break-blocks=all"
+	astyleopt[i++]="--break-elseifs"
+	astyleopt[i++]="--force-indent=tab=$TABSTOP"
+	astyleopt[i++]="--indent-classes"
+	astyleopt[i++]="--indent-labels"
+	astyleopt[i++]="--indent-namespaces"
+	astyleopt[i++]="--indent-preprocessor"
+	astyleopt[i++]="--indent-switches"
+	astyleopt[i++]="--max-instatement-indent=$((TABSTOP*4))"
+	astyleopt[i++]="--min-conditional-indent=$TABSTOP"
+	astyleopt[i++]="--mode=c"
+	astyleopt[i++]="--one-line=keep-blocks"
+	astyleopt[i++]="--pad=oper"
+	astyleopt[i++]="--style=linux"
+ 	astyleopt[i++]="--indent-namespaces"
+        astyleopt[i++]="--pad=paren-out"
+
+	#astyleopt[i++]="--pad=paren-in"
+	#astyleopt[i++]="--fill-empty-lines"
+
+	# emulate cat -s, squeeze empty lines
+	for f in $@; do bCode $f; done
+
+	astyle ${astyleopt[*]} $@
+}
+# execute command in list of files
+#
+_astyle $@
+}

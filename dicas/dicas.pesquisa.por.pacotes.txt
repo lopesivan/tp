@@ -1,0 +1,34 @@
+ Pesquisa de pacotes
+As atividades de procura são efetuadas com o comando apt-cache. Exemplos
+utilizando o software apache http server:
+
+#apt-cache search apache
+É a pesquisa mais abrangente, pesquisará pela ocorrëncia da palavra apache em
+qualquer um dos campos de informação armazenados pelo dpkg. Este comando
+retornará uma lista de pacotes que contém a palavra apache em qualquer campo
+resultado do comando apt-cache show.
+
+#apt-cache show apache2
+Este comando é utilizado para exibir todas as informações que o dpkg armazena
+sobre um pacote. O comando acima mostrará todas as informações existentes
+sobre o pacote apache2 um dos pacotes retornados pela pesquisa com apt-cache
+search.
+
+#apt-cache pkgnames
+Mostra a lista com todos os pacotes disponíveis no sistema a partir do
+source.list. é claro que esta pesquisa não é muito interessante, mas em
+conjunto com o grep vocë pode pesquisar por nomes de pacotes que contenham um
+texto desejado. Ex:
+
+#apt-cache pkgnames | grep -i apache
+O comando acima irá listar todos os pacotes cujo nome do arquivo contenha a
+palavra apache, ou seja, restringe a pesquisa ao campo Package apenas.
+
+Pesquisa de pacotes instalados
+Se desejar saber quais os pacotes instalados em sua máquina, utilize:
+#dpkg -l.
+ Este comando exibirá uma lista com todos os pacotes instalados/removidos de
+sua máquina.  O uso mais comum é por exemplo
+#dpkg -l |grep -i apache
+para saber quais pacotes existem instalados na máquina que tenham a palavra
+apache em seu nome.

@@ -1,0 +1,3 @@
+#! /bin/sed -f
+
+y/abcdefghijklmnopqrstuvwxyzáàãâéêíóõúüçABCDEFGHIJKLMNOPQRSTUVWXYZÁÀÃÂÉÊÍÓÕÚÜÇ/ABCDEFGHIJKLMNOPQRSTUVWXYZÁÀÃÂÉÊÍÓÕÚÜÇabcdefghijklmnopqrstuvwxyzáàãâéêíóõúüç/

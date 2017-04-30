@@ -1,0 +1,129 @@
+Installing ffmpeg from command line with h264 (AVC) and mp3
+
+Posted on September 23, 2010 by Breedt Didier
+
+Step by step guide on installing the following ffmpeg installation:
+
+configuration: --enable-libmp3lame
+--enable-libvorbis --enable-libxvid --enable-gpl --enable-shared --enable-version3
+--enable-nonfree --enable-pthreads --enable-libfaac --enable-libfaad
+--enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora
+--enable-libx264 --enable-libxvid --enable-x11grab
+
+I would advise you to fetch all the following files inside a single directory.
+What I usually do, which has been working for me quite well, is I would start
+with fetching the ffmpeg installation and immediately start the above configure
+command, then as it fails due to dependiencies, I just install them one by one.
+I will now log the entire install here for you to grab a read and perhaps try
+yourself.
+
+export TMPDIR={ffmpeg_install}/tmp
+./configure --enable-libmp3lame --enable-libvorbis --enable-libxvid --enable-gpl --enable-shared --enable-version3 --enable-nonfree --enable-pthreads --enable-libfaac --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab
+
+ERROR yasm not found
+
+cd ..
+wget http://www.tortall.net/projects/yasm/releases/yasm-1.1.0.tar.gz
+tar -xf yasm-1.1.0.tar.gz
+cd yasm-1.1.0
+./configure
+make && make install clean
+
+cd ..
+cd ffmpeg-checkout-2010-09-23
+./configure --enable-libmp3lame --enable-libvorbis --enable-libxvid --enable-gpl --enable-shared --enable-version3 --enable-nonfree --enable-pthreads --enable-libfaac --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab
+
+ERROR: libfaac not found
+
+cd ..
+wget http://downloads.sourceforge.net/faac/faac-1.28.tar.gz
+tar -xf faac-1.28.tar.gz
+cd faac-1.28
+./configure
+make && make install cleancd
+
+cd ..
+cd ffmpeg-checkout-2010-09-23
+./configure --enable-libmp3lame --enable-libvorbis --enable-libxvid --enable-gpl --enable-shared --enable-version3 --enable-nonfree --enable-pthreads --enable-libfaac --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab
+
+ERROR: libmp3lame >= 3.98.3 not found
+
+cd ..
+wget http://downloads.sourceforge.net/project/lame/lame/3.98.4/lame-3.98.4.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Flame%2Ffiles%2Flame%2F&ts=1285256527&use_mirror=ufpr
+tar -xf lame-3.98.4.tar
+cd lame-3.98.4
+./configure
+make && make install clean
+
+cd ..
+cd ffmpeg-checkout-2010-09-23
+./configure --enable-libmp3lame --enable-libvorbis --enable-libxvid --enable-gpl --enable-shared --enable-version3 --enable-nonfree --enable-pthreads --enable-libfaac --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab
+
+ERROR: libopencore_amrnb not found
+
+cd ..
+wget http://downloads.sourceforge.net/project/opencore-amr/opencore-amr/0.1.2/opencore-amr-0.1.2.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fopencore-amr%2F&ts=1285256783&use_mirror=ufpr
+tar -xf opencore-amr-0.1.2.tar.gz
+cd opencore-amr-0.1.2
+./configure
+make && make install clean
+
+cd ..
+cd ffmpeg-checkout-2010-09-23
+./configure --enable-libmp3lame --enable-libvorbis --enable-libxvid --enable-gpl --enable-shared --enable-version3 --enable-nonfree --enable-pthreads --enable-libfaac --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab
+
+ERROR: libtheora not found
+
+cd ..
+wget http://downloads.xiph.org/releases/theora/libtheora-1.1.1.tar.bz2
+tar -xf libtheora-1.1.1.tar.bz2
+cd libtheora-1.1.1
+./configure
+make && make install clean
+
+cd ..
+cd ffmpeg-checkout-2010-09-23
+./configure --enable-libmp3lame --enable-libvorbis --enable-libxvid --enable-gpl --enable-shared --enable-version3 --enable-nonfree --enable-pthreads --enable-libfaac --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab
+
+ERROR: libx264 not found
+
+cd ..
+wget ftp://ftp.videolan.org/pub/videolan/x264/snapshots/x264-snapshot-20100922-2245.tar.bz2
+tar -xf x264-snapshot-20100922-2245.tar.bz2
+cd x264-snapshot-20100922-2245
+./configure
+make && make install clean
+
+cd ..
+cd ffmpeg-checkout-2010-09-23
+./configure --enable-libmp3lame --enable-libvorbis --enable-libxvid --enable-gpl --enable-shared --enable-version3 --enable-nonfree --enable-pthreads --enable-libfaac --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab
+
+ERROR: libxvid not found
+
+cd ..
+wget http://downloads.xvid.org/downloads/xvidcore-1.2.2.tar.gz
+tar -xf xvidcore-1.2.2.tar.gz
+cd xvidcore/build/generic
+./configure
+make && make install clean
+
+cd ..
+cd ffmpeg-checkout-2010-09-23
+./configure --enable-libmp3lame --enable-libvorbis --enable-libxvid --enable-gpl --enable-shared --enable-version3 --enable-nonfree --enable-pthreads --enable-libfaac --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab
+
+Depending on your system, you may need to update your GNU make as well if you get this error:
+common.mak:28: *** unterminated call to function `foreach': missing `)'.  Stop.
+
+cd ..
+wget http://ftp.gnu.org/gnu/make/make-3.82.tar.gz
+tar -xf make-3.82.tar.gz
+cd make-3.82.tar
+./configure
+make && make install clean
+bash -l
+cd ..
+cd ffmpeg-checkout-2010-09-23
+make && make install clean
+ldconfig
+bash -l
+

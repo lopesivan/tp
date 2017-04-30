@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <dlfcn.h>
+#include <stdlib.h>
+
+main(int argc, char **argv)
+{
+    int (*speak)(void);
+    void *dh0, *dh1;
+    void (*dh0f)(void), (*dh1f)(void);
+
+    dh0 = dlopen("./dh0.so", RTLD_LAZY);
+
+    if (dh0 == NULL)
+    {
+        fprintf(stderr, "%s: open/load of dh0.so failed: %sn",
+                argv[0], dlerror()
+               );
+        exit(1);
+    }
+
+    dh1 = dlopen("./dh1.so", RTLD_LAZY);
+
+    if (dh1 == NULL)
+    {
+        fprintf(stderr, "%s: open/load of dh1.so failed: %sn",
+                argv[0], dlerror()
+               );
+
+        exit(1);
+    }
+
+    dh0f = (void(*)(void))dlsym(dh0, "greeting");
+
+    if (dh0f == NULL)
+    {
+        fprintf(stderr, "%s: symbol lookup in dh0.so failed: %s\n",
+                argv[0], dlerror()
+               );
+
+        exit(2);
+    }
+
+    dh1f = (void(*)(void))dlsym(dh1, "goodbye");
+
+    if (dh1f == NULL)
+    {
+        fprintf(stderr, "%s: symbol lookup in dh1.so failed: %s\n",
+                argv[0], dlerror()
+               );
+
+        exit(2);
+    }
+
+    dh0f();
+
+    dh1f();
+
+    dlclose(dh0);
+    dlclose(dh1);
+
+    exit(0);
+
+}

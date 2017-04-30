@@ -1,0 +1,4 @@
+#! /bin/bash
+
+file=fatorial_big
+test -e $file && rm $file

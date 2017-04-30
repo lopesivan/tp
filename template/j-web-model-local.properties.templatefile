@@ -1,0 +1,5 @@
+tomcat.password  = apcx2030
+java.dir         = src
+haml.dir         = haml
+
+

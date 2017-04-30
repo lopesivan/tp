@@ -1,0 +1,14 @@
+TARGETS =  output.txt output.html
+
+all: $(TARGETS)
+
+output.txt: transform.xsl data.xml
+	xsltproc transform.xsl data.xml > output.txt
+
+output.html: transform2.xsl data2.xml
+	xsltproc transform2.xsl data2.xml > output.html
+
+clean:
+	rm $(TARGETS)
+# eof
+

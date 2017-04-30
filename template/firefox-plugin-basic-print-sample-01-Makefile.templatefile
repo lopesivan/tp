@@ -1,0 +1,61 @@
+DEPTH           = ${ICSL_DEPS}/src/firefox/prj/3/mozilla
+topsrcdir	= $(DEPTH)
+DESTDIR         = ~/.mozilla
+srcdir		= .
+VPATH		= .
+
+include $(DEPTH)/config/autoconf.mk
+
+MODULE       = plugin
+LIBRARY_NAME = unixprintplugin
+GRE_MODULE   = 1
+
+PACKAGE_FILE = npprint.pkg
+
+REQUIRES	= java \
+		  $(NULL)
+
+CSRCS		= \
+		npshell.c \
+		printplugin.c \
+		npunix.c \
+		$(NULL)
+
+# plugins should always be shared, even in the "static" build
+FORCE_SHARED_LIB = 1
+
+# Force use of PIC
+FORCE_USE_PIC	 = 1
+
+NO_DIST_INSTALL  = 1
+NO_INSTALL       = 1
+
+include $(topsrcdir)/config/rules.mk
+
+EXTRA_DSO_LDOPTS += $(MOZ_COMPONENT_LIBS) $(XT_LIBS) \
+		$(NULL)
+
+EXTRA_DSO_LDOPTS += $(XLDFLAGS) $(XLIBS)
+
+ifeq ($(OS_ARCH), OpenVMS)
+DEFINES		 += -DGENERIC_MOTIF_REDEFINES
+OS_CXXFLAGS	 += -Wc,warn=disa=NOSIMPINT
+endif
+
+install-plugin: $(SHARED_LIBRARY)
+ifdef SHARED_LIBRARY
+	$(INSTALL) $(SHARED_LIBRARY) $(DIST)/bin/plugins
+endif
+
+libs:: install-plugin
+
+ifdef SHARED_LIBRARY
+install:: $(SHARED_LIBRARY)
+	$(SYSINSTALL) $(IFLAGS2) $< $(DESTDIR)$(mozappdir)/plugins
+	@cp $< $(DESTDIR)$(mozappdir)/plugins
+endif
+
+ifdef SHARED_LIBRARY
+unistall:
+	rm $(DESTDIR)$(mozappdir)/plugins/$(SHARED_LIBRARY) $(DIST)/bin/plugins/$(SHARED_LIBRARY)
+endif

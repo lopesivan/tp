@@ -1,0 +1,17 @@
+#include "Test.h"
+
+#include <iostream>
+
+using namespace std;
+
+int main ()
+{
+    Teste t;
+
+    t.set_x (2);
+    t.set_y (3);
+
+    cout << "_y = " << t.get_y () << endl;
+
+    return 0;
+}

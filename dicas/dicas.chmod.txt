@@ -1,0 +1,3 @@
+* chmod reverso.
+stat -c %A" : "%a" : "%n *.jpg
+

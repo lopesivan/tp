@@ -1,0 +1,11 @@
+sources   = $(wildcard *.cpp)
+objects   = $(sources:.cpp=.o)
+targets   = $(sources:.cpp=)
+
+CPPFLAGS  = -g -Wall
+CXX       = g++
+
+all: $(targets)
+
+clean:
+	/bin/rm -rf $(targets) $(objects) tags *.orig

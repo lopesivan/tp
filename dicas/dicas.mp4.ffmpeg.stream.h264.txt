@@ -1,0 +1,147 @@
+For one pass (newer commandline):
+
+ffmpeg -i INPUT -acodec libfaac -ab 128k -ar 48000 -s WIDTHxHEIGHT -r FRAME_RATE -vcodec libx264 -b BIT_RATE -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me umh -subq 5 -trellis 1 -refs 2 -bf 1 -coder 1 -me_range 16 -g 300 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -bt BIT_RATE -maxrate 4M -bufsize 4M -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -level 21 OUTPUT.mp4
+For two pass (newer commandline):
+
+ffmpeg -i INPUT -an -pass 1 -s WIDTHxHEIGHT -r FRAME_RATE -vcodec libx264 -b BIT_RATE -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me dia -subq 1 -trellis 0 -refs 1 -bf 1 -b_strategy 1 -coder 1 -me_range 16 -g 300 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -bt BIT_RATE -maxrate 4k -bufsize 4k -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 OUTPUT.mp4
+
+ffmpeg -i INPUT -acodec libfaac -ab 128k -ar 48000 -pass 2 -s WIDTHxHEIGHT -r FRAME_RATE -vcodec libx264 -b BIT_RATE -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -flags2 +mixed_refs -me umh -subq 5 -trellis 1 -refs 2 -bf 1 -b_strategy 1 -coder 1 -me_range 16 -g 300 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -bt BIT_RATE -maxrate 4k -bufsize 4k -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -level 21 OUTPUT.mp4
+1.5Mbit/s 640×480 H.264 videos (for improved quality using TV out) For one pass:
+
+ffmpeg -i INPUT -acodec libfaac -ab 128k -s WIDTHxHEIGHT -vcodec libx264 -b BIT_RATE -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me umh -subq 5 -trellis 1 -refs 1 -coder 0 -me_range 16 -g 300 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -bt BIT_RATE -maxrate 10M -bufsize 10M -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -level 30 -aspect WIDTH:HEIGHT OUTPUT.mp4
+For two pass:
+
+ffmpeg -i INPUT -an -pass 1 -s WIDTHxHEIGHT -vcodec libx264 -b BIT_RATE -flags +loop -cmp +chroma -partitions 0 -me epzs -subq 1 -trellis 0 -refs 1 -coder 0 -me_range 16 -g 300 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -bt BIT_RATE -maxrate 10M -bufsize 10M -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -level 30 -aspect WIDTH:HEIGHT OUTPUT.mp4
+
+ffmpeg -i INPUT -acodec libfaac -ab 128k -pass 2 -s WIDTHxHEIGHT -vcodec libx264 -b BIT_RATE -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me umh -subq 5 -trellis 1 -refs 1 -coder 0 -me_range 16 -g 300 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -bt BIT_RATE -maxrate 10M -bufsize 10M -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -level 30 -aspect WIDTH:HEIGHT OUTPUT.mp4
+768kbit/s 320×240 H.264 videos For one pass:
+
+ffmpeg -i INPUT -acodec libfaac -ab 128k -s WIDTHxHEIGHT -vcodec libx264 -b BIT_RATE -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -flags2 +mixed_refs -me umh -subq 5 -trellis 1 -refs 5 -coder 0 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -bt BIT_RATE -maxrate 768k -bufsize 2M -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -level 13 -title SOME_TITLE OUTPUT.mp4
+For two pass:
+
+ffmpeg -i INPUT -an -pass 1 -s WIDTHxHEIGHT -vcodec libx264 -b BIT_RATE -flags +loop -cmp +chroma -partitions 0 -me epzs -subq 1 -trellis 0 -refs 1 -coder 0 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -bt BIT_RATE -maxrate 768k -bufsize 2M -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -level 13 -title SOME_TITLE OUTPUT.mp4
+
+ffmpeg -i INPUT -acodec libfaac -ab 128k -pass 2 -s WIDTHxHEIGHT -vcodec libx264 -b BIT_RATE -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -flags2 +mixed_refs -me umh -subq 5 -trellis 1 -refs 5 -coder 0 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -bt BIT_RATE -maxrate 768k -bufsize 2M -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -level 13 -title SOME_TITLE OUTPUT.mp4
+2.5Mbit/s 640×480 MPEG-4 SP videos For one pass:
+
+ffmpeg -i INPUT -acodec libfaac -ab 128k -s WIDTHxHEIGHT -vcodec mpeg4 -b BIT_RATE -flags +aic+cbp+mv0+mv4+trell -mbd 2 -cmp 2 -subcmp 2 -g 250 -maxrate 2.5M -bufsize 2M -title SOME_TITLE OUTPUT.mp4
+For two pass:
+
+ffmpeg -i INPUT -an -pass 1 -s WIDTHxHEIGHT -vcodec mpeg4 -b BIT_RATE -flags +aic+cbp+mv0+mv4+trell -mbd 2 -cmp 2 -subcmp 2 -g 250 -maxrate 2.5M -bufsize 2M -title SOME_TITLE OUTPUT.mp4
+
+ffmpeg -i INPUT -acodec libfaac -ab 128k -pass 2 -s WIDTHxHEIGHT -vcodec mpeg4 -b BIT_RATE -flags +aic+cbp+mv0+mv4+trell -mbd 2 -cmp 2 -subcmp 2 -g 250 -maxrate 2.5M -bufsize 2M -title SOME_TITLE OUTPUT.mp4
+
+
+
+
+
+  
+LoginHelp/GuideAbout TracPreferences
+WikiSearchDiscussion
+wiki:Smooth-Streaming-Encoding
+Start PageIndexHistory
+Last modified 2 years ago
+Encoding Smooth Streaming videos
+back
+
+Encoding Smooth Streaming videos
+GUI
+Commandline
+Do it yourself
+The ins & outs
+Encoding multi bit rate H264 video with X264
+Encoding AAC audio
+Mux the AAC audio with one of the video streams
+Pre-fragmenting the MP4 file
+Generating the server and client manifest
+Publishing / Deploying
+GUI
+
+Encoding Smooth Streaming with Microsoft's Expression Encoder 3.
+Smooth Streaming Exporter for Carbon Coder.
+Commandline
+
+Encoding Smooth Streaming with FFmpeg.
+Do it yourself
+
+If you like to DIY then you probably want to read the previous FFmpeg article. The remaining of this article was written when FFmpeg didn't yet support the no-mbtree flag for X264.
+
+The ins & outs
+
+Our demo video is Blender's  Big Buck Bunny. Using the original 1080p HD source file (big_buck_bunny_1080p_h264.mov) we need to create the following list of files for Smooth Streaming:
+
+Filename	Description
+bbb.ism	The server manifest file
+bbb.ismc	The client manifest file
+bbb_4500.ismv	The video/audio track in fragmented MP4 format
+bbb_2008.ismv	The video track in fragmented MP4 format
+bbb_896.ismv	The video track in fragmented MP4 format
+bbb_400.ismv	The video track in fragmented MP4 format
+To achieve this we will be using the following tools:
+
+Program	Download link
+X264	 http://x264.nl/
+AVISynth	 http://sourceforge.net/projects/avisynth2/files/
+mencoder	 http://www.mplayerhq.hu/design7/dload.html
+MP4Creator	 http://mp4creator.sourceforge.net/
+mp4split	 http://smoothstreaming.code-shop.com
+Encoding multi bit rate H264 video with X264
+
+The important part when generating multiple bit rate video files is that the chunks need to be aligned on exactly the same (key-)frames. The  X264 encoder provides a two-pass encoding option. The output of the first pass is used for all the second pass encodings, this way we make sure that the keyframes are aligned.
+
+A good balance between efficiency and switching latency is to insert keyframes every 2 seconds (--min-keyint) with a maximum of 4 seconds (--keyint).
+
+The original movie is 1920 x 1080 (1080p / full HD) and using the  Smooth Streaming Multi-Bitrate Calculator gives us the following table:
+
+Bit rate (Kbps)	Resolution
+4500	1920 x 1080
+2008	1096 x 616
+896	624 x 352
+400	356 x 200
+The example below generates 4 encodings in 4500, 2008, 896 and 400 Kbps.
+
+set X264_OPTIONS=--threads auto --min-keyint 50 --keyint 100 --bframes 3 --ref 3 --no-mbtree
+x264 %X264_OPTIONS -o bbb_4500.mp4 --pass 1 --bitrate 4500 bbb0.avs
+x264 %X264_OPTIONS -o bbb_4500.mp4 --pass 2 --bitrate 4500 bbb0.avs
+x264 %X264_OPTIONS -o bbb_2008.mp4 --pass 2 --bitrate 2008 bbb1.avs
+x264 %X264_OPTIONS -o bbb_896.mp4 --pass 2 --bitrate 896 bbb2.avs
+x264 %X264_OPTIONS -o bbb_400.mp4 --pass 2 --bitrate 400 bbb3.avs
+The input files are  AVISynth scripts. The first bbb0.avs script loads the video, the second bbb.avs script rescales the video to a lower resolution, the third bbb.avs rescales the video even further, etc...
+
+bbb1.avs
+
+QTInput("big_buck_bunny_1080p_h264.mov", audio=false)
+BicubicResize(1096, 616)
+ConvertToYV12()
+Thanks to Dark Shikari for the  two pass idea.
+
+Encoding AAC audio
+
+mencoder "big_buck_bunny_1080p_h264.mov" -ovc frameno -oac faac -faacopts br=192:mpeg=4:object=2 -channels 2 -srate 48000 -of lavf -o bbb.aac
+Mux the AAC audio with one of the video streams
+
+MP4Creator -create=bbb.aac bbb_4500.mp4
+MP4Creator -optimize bbb_4500.mp4
+Pre-fragmenting the MP4 file
+
+The transcoded MP4 files need to be pre-processed to Fragmented MPEG4 to allow for fast random access to the fragments.
+
+mp4split -o "bbb_4500.ismv" "bbb_4500.mp4"
+mp4split -o "bbb_2008.ismv" "bbb_2008.mp4"
+mp4split -o "bbb_896.ismv" "bbb_896.mp4" 
+mp4split -o "bbb_400.ismv" "bbb_400.mp4"
+Generating the server and client manifest
+
+mp4split -o "bbb.ism" "bbb_4500.ismv" "bbb_2008.ismv" "bbb_896.ismv" "bbb_400.ismv"
+mp4split -o "bbb.ismc" "bbb_4500.ismv" "bbb_2008.ismv" "bbb_896.ismv" "bbb_400.ismv"
+Publishing / Deploying
+
+DEPLOY_DIR=$(DOCUMENT_DIR)/bbb.ssm
+mkdir $(DEPLOY_DIR)
+cp bbb_*.ismv $(DEPLOY_DIR)
+cp bbb.ism $(DEPLOY_DIR)
+cp bbb.ismc $(DEPLOY_DIR)
+Download in other formats:
+Plain Text
+Powered by Trac 0.12
+By Edgewall Software.Visit CodeShop at http://www.code-shop.com/

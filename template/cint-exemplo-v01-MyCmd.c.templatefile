@@ -1,0 +1,11 @@
+/* MyCmd.c */
+#include <stdio.h>
+void MyCallBack(char *args)
+{
+	printf("MyCommand callback with argument %s\n", args);
+	/* source file must be parsed here */
+}
+void MyCommandInit()
+{
+	G__addpragma("MyCommand", MyCallBack);
+}

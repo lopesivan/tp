@@ -1,0 +1,17 @@
+include user_config.mk
+
+all: create insert select
+
+create:
+	cat $@.$(table).sql | mysql -u $(user) -p$(pass) $(database)
+
+insert:
+	cat $@.$(table).sql | mysql -u $(user) -p$(pass) $(database)
+
+drop  :
+	cat $@.$(table).sql | mysql -u $(user) -p$(pass) $(database)
+
+select:
+	cat $@.$(table).sql | mysql -u $(user) -p$(pass) $(database)
+
+clean : drop

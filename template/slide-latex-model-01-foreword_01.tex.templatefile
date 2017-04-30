@@ -1,0 +1,28 @@
+%%% --------------------------------------------------------------------------
+\section*{Foreword}
+%-----------------------------------------------------------------------------
+
+%%% --------------------------------------------------------------------------
+\begin{frame}
+%-----------------------------------------------------------------------------
+
+%%% --------------------------------------------------------------------------
+\frametitle{Foreword (1/2)}
+%-----------------------------------------------------------------------------
+
+This presentation targets developers familiar with Unix development tools
+(shell, make, compiler) that want to learn lbout tricks and others tools.
+
+\bigskip
+
+The latest version of this document can be retrieved from {\small
+\url{http://lopesivan.blogspot.com}}
+
+\bigskip
+
+Please mail me corrections and suggestions \textbf{about this document} at
+\url{lopesivan@poli.ufrj.br}.
+
+%%% --------------------------------------------------------------------------
+\end{frame}
+% ----------------------------------------------------------------------------

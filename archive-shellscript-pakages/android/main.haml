@@ -1,0 +1,18 @@
+!!! XML
+/
+  ** Main **
+  Document   : main.haml
+  Created on : #{Time.new}
+  Author     : ivan
+  Description: .
+
+- configuration = LayoutMain.new()
+
+%LinearLayout{configuration.header(),
+              configuration.vertical(),
+              configuration.layout_wh("ff") }
+
+  %TextView{configuration.tv(),
+            configuration.layout_wh("ff"),
+            configuration.text("Hello World!") }/
+/ end-of-file

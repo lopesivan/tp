@@ -1,0 +1,44 @@
+main      = main.py
+scripts   = MyFrame.py MyApp.py
+
+bitecode  = $(scripts:.py=.pyc)
+
+d              =\
+$$PWD
+
+ctags_init     =\
+	ctags -R --python-kinds --fields=+iaS --extra=+q \
+	`find $d -name '*.py'`
+
+# -------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
+PYTHON    = python
+
+##############################################################################
+
+# -------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
+
+checkfile=.pipeline_up_to_date
+
+$(checkfile): $(scripts)
+	@pindent  -c -t 4 *.py
+	@touch $(checkfile)
+	$(PYTHON) $(scripts)
+
+default     : $(checkfile)
+tags        : ctags
+
+main        :
+	$(PYTHON) $@.py
+
+ctags       :
+	@echo "Update file tags"
+	$(shell $(ctags_init) )
+
+clean:
+	rm -rf $(bitecode)
+	@rm -rf $(checkfile)
+	@/bin/rm -rf tags *~

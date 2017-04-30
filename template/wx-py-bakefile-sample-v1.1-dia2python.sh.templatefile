@@ -1,0 +1,4 @@
+#! /bin/bash
+
+dia2code -nc -t python -d py Diagram1.dia
+rm wx.py

@@ -1,0 +1,91 @@
+#!/bin/bash
+#
+# ./agenda-input.sh agenda.data.txt
+
+IFS=:
+
+# converte data de aaaa-mm-dd para dia/mes/ano
+data_mysql-to-brasil()
+{
+	echo "$*" | sed 's,\([0-9]\{4\}\)-\([0-9][0-9]\)-\([0-9][0-9]\),\3/\2/\1,'
+}
+
+# converte data de dia/mes/ano para aaaa-mm-dd
+data-brasil-to-mysql()
+{
+	echo "$*" |  sed 's,\([0-9][0-9]\)/\([0-9][0-9]\)/\([0-9]\{4\}\),\3/\2/\1,'
+
+# echo "28/04/1982" | sed 's,\([0-9][0-9]\)/\([0-9][0-9]\)/\([0-9]\{4\}\),\3/\2/\1,'
+# 1982/04/28
+
+}
+
+arr=(
+id
+cpf
+nome
+aniver
+endereco
+bairro
+cep
+cidade
+uf
+tel_fixo
+tel_cel
+email
+instituicao
+dia_inscricao
+hora_inscricao
+)
+
+echo insert into agenda values > insert.agenda.sql
+while read ${arr[*]};
+do
+
+	echo
+	echo "ID                          : "  $id
+	echo "CPF                         : "  $cpf
+	echo "Nome                        : "  $nome
+	echo "Nascimento (dia/mes/ano)    : "  $aniver " -> " $( data-brasil-to-mysql $aniver )
+	echo "Endereco                    : "  $endereco
+	echo "Bairro                      : "  $bairro
+	echo "CEP                         : "  $cep
+	echo "Cidade                      : "  $cidade
+	echo "UF                          : "  $uf
+	echo "Tel. Fixo                   : "  $tel_fixo
+	echo "Tel. Cel.                   : "  $tel_cel
+	echo "Email                       : "  $email
+	echo "Instituicao                 : "  $instituicao
+	echo "Dia Inscricao               : "  $dia_inscricao " -> " ${dia_inscricao//-//}
+	echo "Hora Inscricao              : "  $hora_inscricao
+
+	#echo insert into agenda values
+	cat >> insert.agenda.sql << EOF
+(
+	null,
+   '$cpf',
+   '${nome//\'/[-=apostrofo omitido=-]}',
+   '$( data-brasil-to-mysql $aniver )',
+   '$endereco',
+   '$bairro',
+   '$cep',
+   '$cidade',
+   '$uf',
+   '$tel_fixo',
+   '$tel_cel',
+   '$email',
+   '$instituicao',
+   '${dia_inscricao//-//}',
+   '$hora_inscricao'
+),
+EOF
+
+# >> insert.agenda.sql
+
+	[ "$?" = "0" ] && echo "Operation OK" || { echo "Operation: ERROR"; exit 1; }
+
+done < agenda.data
+
+sed '$s/.*/)/' -i insert.agenda.sql
+#-----------------------------------------------------------------------------
+exit 0

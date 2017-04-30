@@ -1,0 +1,35 @@
+#!/bin/sh
+
+convert -size 270x17 xc:white -stroke gray  -linewidth 3 -fill gray -linewidth 2 -draw  "rectangle 1,2 270,2" imagemembranco.png
+convert -resize 90 Google-Apps.jpeg logo_sign.png
+convert -append  logo_sign.png imagemembranco.png   model.png
+
+# Define o site de sua empresa
+SIT="www.unite.com.br"
+
+# Define uma frase, missao ou propaganda da
+# empresa resumida em 46 caracteres
+FRA='" Não sei. Só sei que foi assim!!!"'
+
+# Tratamento de variaveis de entrada do script
+N1=`echo \'$1\'`
+N2=`echo \'$2\'`
+N3=`echo \'$3\'`
+N4=`echo $4`
+
+# Assinatura e criada com o nome do email
+NAM=`echo $N4 | cut -d"@" -f1`
+
+# Cria assinatura para um determinado email
+convert model.png -draw 'text 82,10 '"$N1"''  new2.png
+convert new2.png  -draw 'text 82,22 '"$N2"''  new3.png
+convert new3.png  -draw 'text 82,34 '"$N3"''  new4.png
+convert new4.png  -draw 'text 82,46 '"$N4"''  new5.png
+convert new5.png  -draw 'text 82,58 '"$SIT"'' new6.png
+convert new6.png  -draw 'text 1,81  '"$FRA"'' new7.png
+
+# Ajusta imagem para determinado tamanho
+convert -resize 270x102 new7.png $NAM.png
+
+#Remove arquivos utilizados para gerar assinatura
+rm new[2-7].png

@@ -1,0 +1,163 @@
+/*
+ * UNIVERSIDADE FEDERAL DO RIO DE JANEIRO
+ * Ivan Carlos da Silva Lopes
+ * echo lopesivan-SPAN-poli.ufrj.br| sed 's/-SPAN-/@/'
+ */
+
+define print_matrix (matrix[], rows, columns) {
+
+    auto i, factor
+
+    factor = 0
+
+    for (i = 0; i < (rows * columns); i++) {
+
+	print "[", matrix[i], "]"
+
+	if (i == (columns - 1) + factor) {
+
+	    factor += columns
+
+	    print "\n"
+	}
+    }
+}
+
+define print_array(array[], size) {
+
+	auto i
+
+	for (i = 0; i < size; i++) {
+		print array[i], "\n"
+	}
+}
+
+define add(a[], b[], size) {
+
+	auto i
+
+	for (i = 0; i < size; i++) {
+	/*
+	 * C[i] = A[i] + B[i];
+	 *
+	 */
+		ans[i] = a[i] + b[i]
+	}
+}
+
+define sub(a[], b[], size) {
+
+	auto i
+
+	for (i = 0; i < size; i++) {
+	/*
+	 * C[i] = A[i] - B[i];
+	 *
+	 */
+		ans[i] = a[i] - b[i]
+	}
+}
+
+define mul(a[], b[], size) {
+
+	auto i
+
+	for (i = 0; i < size; i++) {
+	/*
+	 * C[i] = A[i] * B[i];
+	 *
+	 */
+		ans[i] = a[i] * b[i]
+	}
+}
+
+define div(a[], b[], size) {
+
+	auto i
+
+	for (i = 0; i < size; i++) {
+	/*
+	 * C[i] = A[i] / B[i];
+	 *
+	 */
+		ans[i] = a[i] / b[i]
+	}
+}
+
+define matrix_mul ( a[], rows_a, columns_a, \
+		    b[], rows_b, columns_b  \
+		  ) {
+
+	auto i, j, k
+
+	if (columns_a != rows_b) {
+
+         	print "Multiply a row with a column of the same length!", "\n"
+
+         	return 1
+    	}
+
+	rows_ans = rows_a; columns_ans = columns_b
+
+	/*
+	 * A     *   B     =   C
+	 *  MxN       NxP       MxP
+	 */
+
+	for (i = 0; i < rows_a; i++) {
+		for (j = 0; j < columns_b; j++) {
+
+	    		ans[i * columns_b + j] = 0
+
+	    		for (k = 0; k < columns_a; k++) {
+
+			/* Canonical Matrix Multiplication */
+
+				ans[i * columns_b + j] += \
+					(a[i * columns_a + k]) * (b[k * columns_b + j])
+			}
+		}
+	}
+
+}
+
+define main() {
+
+	/* Matrix a: */
+
+	a[0]=5; a[1]=6; a[2]=2;
+	a[3]=5; a[4]=3; a[5]=4;
+	a[6]=1; a[7]=2; a[8]=1
+
+	rows_a = 3; columns_a = 3
+
+	/* Matrix b: */
+
+	b[0]=1; b[1]=2; b[2]=1;
+	b[3]=4; b[4]=3; b[5]=4;
+	b[6]=1; b[7]=1; b[8]=1
+
+	rows_b = 3; columns_b = 3
+
+	/* ans = a*b */
+	silent = matrix_mul(a[], rows_a, columns_a, \
+		            b[], rows_b, columns_b  \
+	           	   )
+
+	/* print matrix */
+	silent = print_matrix(ans[], rows_ans, columns_ans)
+
+	print "-----", "\n"
+
+	size = 4
+
+	silent = add(a[], b[], size)
+	silent = print_array(ans[], size)
+
+	print "-----", "\n"
+
+	silent = mul(ans[], ans[], size)
+	silent = print_array(ans[], size)
+}
+
+silent = main()

@@ -1,0 +1,67 @@
+I have already post on Linux/UNIX seq command, using which we can generate
+sequence of numbers. Seq is very useful to generate loop arguments in UNIX
+bash scripting.
+
+One of very useful seq command line option is -f
+
+-f, --format=FORMAT
+use printf style floating-point FORMAT
+
+Lets see some simple examples on the same.
+
+
+$ seq -f "%04g" 3
+Output:
+0001
+0002
+0003
+
+
+$ seq -f "logfile%02g.txt" 10
+Output:
+logfile01.txt
+logfile02.txt
+logfile03.txt
+logfile04.txt
+logfile05.txt
+logfile06.txt
+logfile07.txt
+logfile08.txt
+logfile09.txt
+logfile10.txt
+
+Now, to create 10 files with names logfile01.txt, logfile02.txt ,.....,
+logfile10.txt
+
+$ touch $(seq -f "logfile%02g.txt" 10)
+
+$ ls -1
+logfile01.txt
+logfile02.txt
+logfile03.txt
+logfile04.txt
+logfile05.txt
+logfile06.txt
+logfile07.txt
+logfile08.txt
+logfile09.txt
+logfile10.txt
+
+FIRST INCREMENT LAST
+Sequence numbers between 1.0003 and 1.0012 with an increment of .00002
+
+$ seq -f "1.%04g" 3 2 12
+1.0003
+1.0005
+1.0007
+1.0009
+1.0011
+
+-s is to specify separator between sequence numbers.
+
+$ seq -s "+" -f "1.%04g" 3 2 12
+1.0003+1.0005+1.0007+1.0009+1.0011
+
+$ seq -s "+" -f "1.%04g" 3 2 12 | bc
+5.0035
+

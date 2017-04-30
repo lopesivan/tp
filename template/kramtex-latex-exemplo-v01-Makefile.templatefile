@@ -1,0 +1,26 @@
+all: article.pdf text.pdf todo.pdf
+
+article.pdf: article.md
+	kramtex -t article $^
+
+text.pdf: text.md
+	kramtex -t lp $^
+
+todo.pdf: todo.md
+	kramtex -t lp-todo $^
+
+# ----------------------------------------------------------------------------
+show:
+	for pdf in *.pdf; do \
+		${DOCVIEWER} $$pdf; \
+	done
+# ----------------------------------------------------------------------------
+
+clean:
+	-rm *.png \
+	article.pdf text.pdf todo.pdf \
+	article.tex text.tex todo.tex \
+	article.out text.out todo.out \
+	article.png text.png todo.png \
+	article.log text.log todo.log \
+	article.aux text.aux todo.aux missfont.log

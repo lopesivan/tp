@@ -1,0 +1,23 @@
+#ifndef TERM_H
+#define TERM_H
+
+/**
+An Abstract class for the terms of  a little language describing arithmetic
+operations.
+
+@Ivan carlos Da Silva Lopes
+*/
+
+class Term {
+public:
+	virtual float getValue() = 0;
+
+	Term *getParent() { return parent; }
+
+	Term(Term *new_parent) { parent = new_parent; }
+
+protected:
+	Term *parent;
+};
+
+#endif

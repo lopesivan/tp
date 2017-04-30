@@ -1,0 +1,9 @@
+** Bipolar junction transistor **
+Vpower (vcc 0)   dc vcc
+Vin    ( in 0)   generator
+Q1     (  c b e) small
+Rc     (vcc c)   rc
+Re     (  e 0)   re
+Rb1    (vcc b)   rb1
+Rb2    (  b 0)   rb2
+.model small npn (bf=beta)

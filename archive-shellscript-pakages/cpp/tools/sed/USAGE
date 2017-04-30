@@ -1,0 +1,9 @@
+cria modelo de projeto:
+
+echo about any copy | wx/wx-etable.sed
+echo exit help open | wx/wx-etable.sed
+echo paste print save saveas stop | wx/wx-etable.sed
+
+--
+
+

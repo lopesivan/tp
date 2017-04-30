@@ -1,0 +1,22 @@
+e About Removing Files With find(1)Aaron Toponce
+I’ve seen on the internet, and elsewhere, that when there are too many arguments for rm(1) to handle, that the following command will suffice:
+
+% find /path -exec rm -rf {} \;
+While certainly functional, it’s not optimal. If there are thousands of files (as is often the case at my job), this command is slow, slow, slow. The reason being are all the excessive fork() and exec() calls for each pass with rm(1). Instead, you could optimize find(1) by using “-delete”:
+
+% find /path -delete
+This is much more optimal, but it has one VERY nasty side effect. If you place “-delete” in the wrong spot in your find(1) command, you could delete all the files listed under “/path” before processing the necessary logic. From the find(1) manual:
+
+Warnings: Don’t forget that the find command line is evaluated as an expression, so putting -delete first will make find try to delete everything below the starting points you specified. When testing a find line that you later intend to use with -delete, you should explicitly specify -depth in order to avoid later surprises. Because -delete implies -depth, you cannot usefully use -prune and -delete together.
+
+One nice benefit of “-delete”, however, is the proper handling of NUL characters in your filename, such as spaces, tabs or the newline character. Thankfully, there is another option, which is not only supported in GNU/Linux, but also in FreeBSD (and perhaps others):
+
+% find /path -print0 | xargs -0 rm -rf
+This avoids the excessive fork() and exec() system calls from our first command, and doesn’t have the nasty side effects of “-delete”. Further, because of “-print0″ as a find(1) argument, and “-0″ with xargs(1), we can handle files with NUL characters. Time the three commands above, and you’ll see that the last is most optimal.
+
+We can squeeze some extra juice out of the command, though. All we need to do is cd(1) to the directory we wish to operate our find(1) command on:
+
+% cd /path; find . -print0 | xargs -0 rm -rf
+Working with removing millions of files (yes, I do actually remove that many, often), I have found this latest find(1) command to be the most optimized in terms of sheer speed. It moves. You may find the same results as I.
+
+FYI.

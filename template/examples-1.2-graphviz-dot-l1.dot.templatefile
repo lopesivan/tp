@@ -1,0 +1,87 @@
+digraph structs {
+	node    [shape=record];
+
+	struct1 [shape=record, label="<p0> |<p1> address"];
+	struct2 [shape=record, label="<p0> a|<p1> b"     ];
+
+	teble   [
+		shape=plaintext
+		label=<
+		<table
+			border="0"
+			cellborder="1"
+			cellspacing="1"
+		>
+			<tr>
+				<td port="left">left</td>
+				<td port="middle">middle</td>
+				<td port="right">right</td>
+			</tr>
+		</table>
+	>
+	];
+
+	ground  [
+		shape=plaintext
+		label=<
+		<table border="0">
+    			<tr>
+				<td port="img">
+					<img src="img/ground_67x67.png"/>
+				</td>
+			</tr>
+        		<tr>
+				<td port="null">NULL</td>
+			</tr>
+	    	</table>
+		>
+	];
+
+	struct4 [
+		shape=plaintext
+		label=<
+		<table border="0">
+    			<tr>
+				<td>
+					<img src="img/ground_117x126.png"/>
+				</td>
+			</tr>
+        		<tr>
+				<td>NULL</td>
+			</tr>
+	    	</table>
+		>
+	];
+
+	struct5 [
+		shape=plaintext
+		label=<
+		<table border="4">
+    			<tr>
+				<td> 1 </td>
+				<td> 2 </td>
+				<td> 3 </td>
+				<td> 4 </td>
+			</tr>
+    			<tr>
+				<td colspan="4"> 1 </td>
+			</tr>
+	    	</table>
+		>
+	];
+
+// ---------------------------------------------------------------------------
+	struct1:p0 -> teble:left [color="#00ff00"]
+	struct1:p1 -> teble:middle
+	struct2:p1 -> ground:null
+	struct2:p1 -> ground:img
+
+	{ edge [color="#00ffff:#000000"]
+		struct2:p0 -> teble:left
+		struct2:p0 -> teble:middle
+	}
+
+	{ edge [color="#00ff00:#ffff00:#ff0000:#0000ff"]
+		struct2:p0 -> teble:right
+	}
+}

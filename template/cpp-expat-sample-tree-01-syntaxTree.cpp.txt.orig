@@ -1,0 +1,89 @@
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+#include <stdio.h>
+#include <expat.h>
+// #include "xmlparse.h"
+#include "LittleMathLanguage.h"
+#include "syntaxTree.h"
+
+typedef struct
+{
+	// We will use in in other examples for extra error info.
+	XML_Parser parser;
+	Term       *currentTerm;
+} nodeAndParser;
+
+int main(int argc, char* argv[])
+{
+	char buf[BUFSIZ];
+	XML_Parser parser = XML_ParserCreate(NULL);
+	int done;
+
+	Add *root = new Add(NULL);
+
+	// Just a way to set up an inofensive root
+	root->setLeft(new Value(root,0));
+
+	nodeAndParser *np = new nodeAndParser();
+	np->parser        = parser;
+	np->currentTerm   = root;
+
+	XML_SetUserData(parser, np);
+	XML_SetElementHandler(parser, startElement, endElement);
+	do {
+		size_t len = fread(buf, 1, sizeof(buf), stdin);
+		done = len < sizeof(buf);
+		if (!XML_Parse(parser, buf, len, done)) {
+			fprintf(stderr,
+				"%s at line %d\n",
+				XML_ErrorString(XML_GetErrorCode(parser)),
+				XML_GetCurrentLineNumber(parser));
+			return 1;
+		}
+	} while (!done);
+	printf("The result of evaluating the tree is %.2f\n",root->getValue());
+	delete(root);
+	XML_ParserFree(parser);
+	return 0;
+}
+
+void
+startElement(void *data, const char *el, const char **attr) {
+	Term *child = NULL;
+	if(strcmp(el,"calculation") == 0)
+		return; // ignore the root, for it doe
+	// We are certain that whenever start is called,
+	// the parent is a MathOperator
+
+	MathOperator *parent = (MathOperator *)((nodeAndParser *)data)->currentTerm;
+	if(strcmp(el,"add") == 0)
+		child = new Add(parent);
+	if(strcmp(el,"sub") == 0)
+		child = new Sub(parent);
+	if(strcmp(el,"mul") == 0)
+		child = new Mul(parent);
+	if(strcmp(el,"div") == 0)
+		child = new Div(parent);
+	if(strcmp(el,"value") == 0)
+	 {
+
+		//attr[0] == "number" attr[1] == the value
+		double value = atof(attr[1]);
+		child = new Value(parent,(float)value);
+	 }
+
+	if(parent->getLeft() == NULL)
+		parent->setLeft(child);
+	else
+		parent->setRight(child);
+	((nodeAndParser *)data)->currentTerm = child;
+}
+
+void endElement(void *data, const char *name)
+{
+	Term *current = ((nodeAndParser *)data)->currentTerm;
+	((nodeAndParser *)data)->currentTerm = current->getParent();
+}
+

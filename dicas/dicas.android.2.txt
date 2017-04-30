@@ -1,0 +1,26 @@
+1. Setup ndk project with android.mk and native sources
+
+Android.mk file should include BUILD_EXECUTABLE, sample android.mk is below.
+
+
+LOCAL_PATH := $(call my-dir)
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := Modulename
+LOCAL_SRC_FILES := file1.c\
+file2.c
+
+LOCAL_MODULE_TAGS := optional
+include $(BUILD_EXECUTABLE)
+
+2. Building executable.
+
+$ ndk-buld
+
+3. Run executable
+
+copy to device say /sdcard/data/Modulename
+xxxx@xx:$> adb shell
+$./sdcard/data/Modulename
+
+Note:Make sure you place Android.mk file along with source(c/c++) in same folder and name it as jni. as libs and obj folders are created next to jni folder.

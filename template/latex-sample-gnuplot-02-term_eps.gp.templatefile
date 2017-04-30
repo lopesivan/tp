@@ -1,0 +1,7 @@
+set terminal postscript eps color "Times-Roman" 16
+set output 'sombrero.eps'
+load 'sombrero.gp'
+set output
+# Appel extérieur à epstopdf pour transformer le fichier eps en pdf.
+!epstopdf --outfile=sombrero_eps.pdf sombrero.eps 
+quit

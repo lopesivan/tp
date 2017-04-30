@@ -1,0 +1,1 @@
+vmware-cmd -s unregister  `pwd`/WinXP_sp2_apr2006.vmx

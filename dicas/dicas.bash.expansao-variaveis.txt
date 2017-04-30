@@ -1,0 +1,22 @@
+Expansão de variáveis
+Sintaxe 	Expansão Condicional
+${var:-texto} 	Se var não está definida, retorna 'texto'
+${var:=texto} 	Se var não está definida, defina-a com 'texto'
+${var:?texto} 	Se var não está definida, retorna o erro 'texto'
+${var:+texto} 	Se var está definida, retorna 'texto', senão retorna o vazio
+Sintaxe 	Expansão de Strings
+${var} 	É o mesmo que $var, porém não ambíguo
+${#var} 	Retorna o tamanho da string
+${!var} 	Executa o conteúdo de $var (igual 'eval \$$var')
+${!texto*} 	Retorna os nomes de variáveis começadas por 'texto'
+${var:N} 	Retorna o texto a partir da posição 'N'
+${var:N:tam} 	Retorna 'tam' caracteres a partir da posição 'N'
+${var#texto} 	Corta 'texto' do início da string
+${var##texto} 	Corta 'texto' do início da string (* guloso)
+${var%texto} 	Corta 'texto' do final da string
+${var%%texto} 	Corta 'texto' do final da string (* guloso)
+${var/texto/novo} 	Substitui 'texto' por 'novo', uma vez
+${var//texto/novo} 	Substitui 'texto' por 'novo', sempre
+${var/#texto/novo} 	Se a string começar com 'texto', substitui 'texto' por 'novo'
+${var/%texto/novo} 	Se a string terminar com 'texto', substitui 'texto' por 'novo'
+

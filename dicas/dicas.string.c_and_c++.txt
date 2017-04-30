@@ -1,0 +1,68 @@
+C-strings  (#include <cstring>)         C++ strings  (#include <string>)
+===============================         ================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Declaring a C-string variable           Declaring a C++ string object
+-----------------------------           -----------------------------
+char str[10];                           string str;
+
+Initializing a C-string variable        Initializing a C++ string object
+--------------------------------        --------------------------------
+char str1[11] = "Call home!";           string str1("Call home!");
+char str2[] = "Send money!";            string str2 = "Send money!";
+char str3[] = {'O', 'K', '\0'};         string str3("OK");
+Last line above has same effect as:
+char str3[] = "OK";
+                                        string str4(10, 'x');
+                                        
+Assigning to a C-string variable        Assigning to a C++ string object
+--------------------------------        --------------------------------
+Can't do it, i.e., can't do this:       string str;
+char str[10];                           str = "Hello";
+str = "Hello!";                         str = otherString;
+
+Concatenating two C-strings             Concatenating two C++ string objects
+---------------------------             ------------------------------------
+strcat(str1, str2);                     str1 += str2;
+strcpy(str, strcat(str1, str2));        str = str1 + str2;
+
+Copying a C-string variable             Copying a C++ string object
+---------------------------             ---------------------------
+char str[20];                           string str;
+strcpy(str, "Hello!");                  str = "Hello";
+strcpy(str, otherString);               str = otherString;
+
+Accessing a single character            Accessing a single character
+----------------------------            ----------------------------
+str[index]                              str[index]
+                                        str.at(index)
+                                        str(index, count)
+                                        
+Comparing two C-strings                 Comparing two C++ string objects
+-----------------------                 --------------------------------
+if (strcmp(str1, str2) < 0)             if (str1 < str2)
+    cout << "str1 comes 1st.";              cout << "str1 comes 1st.";
+if (strcmp(str1, str2) == 0)            if (str1 == str2)
+    cout << "Equal strings.";               cout << "Equal strings.";
+if (strcmp(str1, str2) > 0)             if (str1 > str2)
+    cout << "str2 comes 1st.";              cout << "str2 comes 1st.";
+    
+Finding the length of a C-string        Finding the length of a C++ string object
+--------------------------------        -----------------------------------------
+strlen(str)                             str.length()
+
+Output of a C-string variable           Output of a C++ string object
+-----------------------------           -----------------------------
+cout << str;                            cout << str;
+cout << setw(width) << str;             cout << setw(width) << str;
+
+Input of a C-style string variable         Input of a C++ string object
+----------------------------------         ----------------------------
+cin >> s;                                  cin >> s;
+cin.get(s, numCh+1);
+cin.get(s, numCh+1,'\n');
+cin.get(s, numCh+1,'x');
+cin.getline(s, numCh+1);                   getline(cin, s);
+cin.getline(s, numCh+1, '\n');
+cin.getline(s, numCh+1, 'x');              getline(cin, s, 'x');
+

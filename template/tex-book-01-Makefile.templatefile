@@ -1,0 +1,37 @@
+SRC           = $(shell ls *.tex )
+
+LATEX         = latex
+DVIPS         = dvips
+PS2PDF        = ps2pdf
+
+CONVERTE      = convert
+CONVERTEFLAGS = -density 90x90
+
+PDF           = $(SRC:.tex=.pdf)
+PS            = $(SRC:.tex=.ps)
+DVI           = $(SRC:.tex=.dvi)
+PNG           = $(SRC:.tex=.png)
+
+TARGETS       = $(DVI) $(PS) $(PDF)
+
+all: $(TARGETS)
+
+# tex -> dvi
+%.dvi:  %.tex
+	$(LATEX) $(@:.dvi=)
+
+# dvi -> ps
+%.ps:   %.dvi
+	$(DVIPS) $(@:.ps=)
+
+# ps -> pdf
+%.pdf:  %.ps
+	$(PS2PDF) $^
+
+# ps -> png
+%.png:  %.ps
+	$(CONVERTE) $(CONVERTEFLAGS) $^ $@
+
+clean:
+	/bin/rm -rf *.log *.aux *.toc *.idx $(PS) $(DVI) $(PNG) $(PDF)
+# END OF FILE

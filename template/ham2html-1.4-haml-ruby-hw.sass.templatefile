@@ -1,0 +1,27 @@
+body
+  :background-color #2E2922
+#content
+  :font-family 'Lucida Grande'
+  :font-size 11px
+  :margin 25px
+#header
+  :color #B39E81
+#main
+  :float left
+  :width 600px
+  :margin 0
+  :margin-bottom 10px
+  :background-color #807A73
+  :border 5px solid #333
+  :padding 25px
+#right-column
+  :float left
+  :width 300px
+  :margin 0
+  :margin-bottom 10px
+  :margin-left 10px
+  :background-color #B39E81
+  :border 5px solid #333
+  :padding 25px
+#footer
+  :clear both

@@ -1,0 +1,20 @@
+MK_APP_HPP     ()
+{
+cat << __EOF__ | sed 's/[ \t]*$//; /./,/^$/!d' > ${application_name}/${HEADER_DIR}/${ID_F_HEADER_APP}
+$(comment.cpp.box $ID_F_HEADER_APP)
+
+#ifndef $(echo $ID_F_HEADER_APP   | tr '[a-z.]' '[A-Z_]')
+#define $(echo $ID_F_HEADER_APP   | tr '[a-z.]' '[A-Z_]')
+
+#include "wx/wx.h"
+#include "sample.xpm"
+
+#include "$ID_F_HEADER_MYFRAME"
+#include "$ID_F_HEADER_MYAPP"
+
+#endif				// $(echo $ID_F_HEADER_APP   | tr '[a-z.]' '[A-Z_]')
+__EOF__
+
+}
+
+MK_APP_HPP

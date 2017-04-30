@@ -1,0 +1,4 @@
+#! /bin/bash
+TARGET=/workspace/shell-script-tool-kit/archive-shellscript-pakages/cansi/tools/bash
+source ${TARGET}/util
+table $1 $2 $3

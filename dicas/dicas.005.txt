@@ -1,0 +1,63 @@
+Adicionando swap a uma máquina com Linux sem alterar as partições já existentes
+@=@=@005
+@
+@
+Há 9 meses mais ou menos, postei a última “dica genérica” … ninguém me
+cobrou mais e acabei esquecendo de mandar outras :)
+Esta semana alguém (que sinceramente não sei se está nesta lista) me
+perguntou se existe um meio para criar um novo swap no Linux sem ter que
+reparticionar.
+
+Mas pra que isto ? Alguns exemplos:
+
+1) preciso momentaneamente de muita memória, como para rodar um projeto
+… por que gastar $$$ ou reparticionar se é momentaneo ?
+2) quando instalei o Linux, coloquei pouco swap e não quero
+reparticionar … sei lá, trauma em mexer com tabelas de partições (eu
+tenho trauma de mexer com tabela de partições, e daí ?? :)
+3) tenho pouco espaço para uma partição Linux no HD e como o Windows usa
+muito swap, vou usar o swap Linux junto ao do Windows (essa é mais
+complicada, quem quiser, pode ler o HOWTO sobre isso
+http://www.tldp.org/HOWTO/Swap-Space.html)
+
+Para os dois primeiros casos, o passo a passo é simples (faça tudo como
+root):
+
+#cd /
+#dd if=/dev/zero of=novoswap bs=1024 count=102400
+#mkswap novoswap
+
+edite o arquivo /etc/fstab e adicione
+
+/novoswap swap swap defaults 0 0
+
+e finalmente, para ativar este swap:
+
+#swapon /novoswap
+
+Observe como agora tem muito mais swap para o sistema (neste exemplo,
+substitua o “muito mais” por 100 Mbytes).
+
+#free
+
+Prontinho :)
+
+E explicando tudo:
+
+“cd /” … vai pra raiz (falei que iria explicar tudo
+
+“dd if=/dev/zero of=novoswap bs=1024 count=102400″ … pega como arquivo
+de entrada (input file, ou if) o /dev/zero (que é um dispositivo do
+linux que só serve pra encher de zeros) e cria um arquivo de saída
+(output file, of) com o nome de “novoswap” (aqui pode ser qualquer nome,
+mas coloquei este pra ajudar a entender). Este arquivo terá blocos de
+1024 bytes (block size, bs) e um total de 102400 blocos (count).
+Neste exemplo, criamos um arquivo com 100 MB de zeros cujo nome ficou
+sendo “novoswap” … pode ser qualquer nome e qualquer tamanho, desde
+que tenha espaço em disco para isso
+
+“mkswap novoswap” simplesmente prepara o arquivo para se tornar swap
+
+A linha “/novoswap swap swap defaults 0 0″ dentro de
+“/etc/fstab” informa para o Linux que ali é um swap. Este arquivo é lido
+em toda inicialização do sistema.

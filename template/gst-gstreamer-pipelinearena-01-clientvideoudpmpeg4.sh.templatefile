@@ -1,0 +1,9 @@
+# RTP
+#
+# OK but had to set the config string in the caps
+
+gst-launch -v --gst-debug-level=2 \
+	udpsrc caps="video/mpeg, width=(int)352, height=(int)288, framerate=(fraction)10/1, mpegversion=(int)4, systemstream=(boolean)false" port=5000 \
+	! queue ! rtpmp4vdepay \
+	! queue ! ffdec_mpeg4 ! autovideosink 
+

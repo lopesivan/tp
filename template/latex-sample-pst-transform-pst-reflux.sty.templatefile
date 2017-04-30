@@ -1,0 +1,10 @@
+\RequirePackage{pstricks}
+\RequirePackage{fp}
+\FPmessagesfalse
+\RequirePackage{multido}
+\ProvidesPackage{pst-reflux}[2007/09/01 package wrapper for
+  pst-reflux.tex (ML)]
+\input{pst-reflux.tex}
+\ProvidesFile{pst-reflux.tex}
+  [\filedate\space v\fileversion\space `PST-reflux' (ML)]
+\endinput

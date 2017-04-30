@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+
+# This is a comment
+# comments can span one line only
+
+print 'Hello world!'
+print "Hello world!"

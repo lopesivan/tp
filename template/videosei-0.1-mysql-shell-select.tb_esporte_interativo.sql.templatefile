@@ -1,0 +1,3 @@
+-- SELECT * FROM tb_esporte_interativo
+SELECT * FROM tb_esporte_interativo ORDER BY grp,id;
+

@@ -1,0 +1,61 @@
+** Bipolar junction transistor
+
+** UNIVERSIDADE FEDERAL DO RIO DE JANEIRO
+** Ivan Carlos da Silva Lopes
+** echo lopesivan-SPAN-poli.ufrj.br| sed 's/-SPAN-/@/'
+** Last Change: Mon 08 Oct 2007 09:11:48 PM BRT
+
+**
+** power
+**
+
+Vpower (vcc 0)   dc vcc
+*Vin   ( in 0)   generator
+
+**
+** transistors
+**
+
+** transistor - npn
+*
+*       | c
+*     |/
+*   --|b
+*     |\
+*       | e
+*
+Q1  (c1 b1 e1) small_npn
+
+** transistor - pnp
+*
+*       | e
+*     |/
+*   --|b
+*     |\
+*       | c
+*
+Q2  (c2 c1 e2) small_pnp
+
+**
+** circuit
+**
+
+Rc1 (vcc c1) rc
+Re1 ( e1  0) re
+Rb1 (vcc b1) rb1
+Rb2 ( b1  0) rb2
+
+Re2 (vcc e2) re2
+Rc2 ( c2  0) rc2
+
+**
+** commands
+**
+
+.model small_npn npn (bf=beta)
+.model small_pnp pnp (bf=beta)
+.param vcc=15 beta=100 rc=5k re=3k rb1=100k rb2=50k re2=2k rc2=2.7k
+.print op v(nodes)
+.op
+.print dc IC(Q1) IB(Q1) IC(Q1) IC(Q2) IB(Q2) IC(Q2)
+.dc

@@ -1,0 +1,45 @@
+TROFF_SRC     = $(shell ls *.gtroff )
+EQN_SRC       = $(shell ls *.geqn   )
+TBL_SRC       = $(shell ls *.gtbl   )
+PIC_SRC       = $(shell ls *.gpic   )
+
+GROFF         = groff
+PS2PDF        = ps2pdf
+CONVERTE      = convert
+PNGFLAGS      = -density 90x90
+
+PS            = $(TROFF_SRC:.gtroff=.ps)  $(EQN_SRC:.geqn=.ps)  $(TBL_SRC:.gtbl=.ps)   $(PIC_SRC:.gpic=.ps)
+PDF           = $(TROFF_SRC:.gtroff=.pdf) $(EQN_SRC:.geqn=.pdf) $(TBL_SRC:.gtbl=.pdf)  $(PIC_SRC:.gpic=.pdf)
+PNG           = $(TROFF_SRC:.gtroff=.png) $(EQN_SRC:.geqn=.png) $(TBL_SRC:.gtbl=.png)  $(PIC_SRC:.gpic=.png)
+
+TARGETS       = $(PS) $(PDF) $(PNG)
+
+all: $(TARGETS)
+
+# gtroff -> ps
+%.ps:   %.gtroff
+	$(GROFF) -ms $^ > $@
+
+# ps -> pdf
+%.pdf:  %.ps
+	$(PS2PDF) $^
+
+# ps -> png
+%.png:  %.ps
+	$(CONVERTE) $(PNGFLAGS) $^ $@
+
+# geqn -> ps
+%.ps:   %.geqn
+	$(GROFF) -e -ms $^ > $@
+
+# geqn -> ps
+%.ps:   %.tbl
+	$(GROFF) -t -e -ms $^ > $@
+
+# gpic -> ps
+%.ps:   %.gpic
+	$(GROFF) -e -p -ms $^ > $@
+
+clean:
+	/bin/rm -rf $(TARGETS)
+# END OF FILE

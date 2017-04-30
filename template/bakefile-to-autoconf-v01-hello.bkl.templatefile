@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<makefile>
+
+  <include file="presets/simple.bkl"/>
+  
+  <exe id="hello" template="simple">
+    <sources>hello.c</sources>
+  </exe>
+
+</makefile>

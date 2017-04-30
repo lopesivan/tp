@@ -1,0 +1,8 @@
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+int main()
+{
+	srand(time(NULL));      // Initialize RNG seed.
+	printf("%i\n", rand()); // Make one draw.
+}

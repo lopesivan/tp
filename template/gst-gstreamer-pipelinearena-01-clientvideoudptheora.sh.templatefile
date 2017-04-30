@@ -1,0 +1,10 @@
+# UDP
+# Work
+
+PORTCLIENT=5000
+
+gst-launch -v --gst-debug-level=2 \
+	udpsrc port=$PORTCLIENT caps="video/x-theora" \
+	! queue ! theoradec \
+	! autovideosink 
+

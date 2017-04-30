@@ -1,0 +1,302 @@
+%%% --------------------------------------------------------------------------
+\begin{frame}[fragile]
+%-----------------------------------------------------------------------------
+
+%%% --------------------------------------------------------------------------
+\frametitle{Exemplo de aplicação utilizando uma condição de parada}
+%-----------------------------------------------------------------------------
+
+\appendix
+
+\label{ap:codigo}
+
+\begin{lstlisting}[frame=trBL]
+#include <cossif.hh>
+
+class Pessoas : public ForgettingAgent
+{
+  public:
+    virtual void update();
+};
+
+void Pessoas::update()
+{
+  vector<Agent*> neighbours = this->getVision().neighbours();
+  for (int i = 0; i < neighbours.size(); i++)
+    if ((neighbours[i]->state() == "doente") && (rand()/RAND_MAX < 0.1))
+      this->defState("doente");
+}
+
+class Produto : public Report
+{
+  public:
+    Produto(string nomeArquivo)
+    {
+      arquivo.open(nomeArquivo.c_str(),ios::out);
+    }
+    virtual void updated(Simulation* modelo)
+    {
+      unsigned int contador = 0;
+      vector<Agent*> ag = modelo->getAgents();
+      for(vector<Agent*>::iterator it = ag.begin(); it != ag.end(); it++)
+        if((*it)->state() == "doente") contador++;
+      arquivo << modelo->iterations() << " " << contador << endl;
+    };
+  private:
+    fstream arquivo;
+};
+
+class Parada : public SimulationStopCondition
+{
+  public:
+    virtual bool stop(Simulation modelo)
+    {
+      unsigned int contador = 0;
+      vector<Agent*> ag = modelo->getAgents();
+      for(vector<Agent*>::iterator it = ag.begin(); it != ag.end(); it++)
+        if((*it)->state() == "doente") contador++;
+      if(contador == modelo.countAgents()) return true;
+      return false;
+    };
+};
+
+int main()
+{
+  AgentFactory<Pessoas> fabrica;
+  SimpleNetAgents rede("rede.net", "modelo.config", &fabrica);
+  Produto totalDoentes("Arquivo_total_doentes.data");
+  Parada condicao;
+
+  Simulation modelo;
+  modelo.addReport(&totalDoentes);
+  modelo.run(&rede, &condicao);
+  return 0;
+}
+\end{lstlisting}
+
+
+Neste apêndice serão apresentados e esplicados os métodos presentes no framework.
+
+\lstset{
+language=C++,
+basicstyle=\footnotesize,
+showstringspaces=false,
+numbers=none,
+}
+
+\section{O controlador}
+
+\subsection{Classe \texttt{Simulation}}
+
+\begin{lstlisting}[frame=lines]
+void run(Net*,unsigned int);
+void run(Net*, SimulationStopCondition*);
+\end{lstlisting}
+
+O método \textit{run} é responsável por executar as itreções do modelo.
+Ele pode sempre recebe uma referência para um objeto do tipo \texttt{Net}.
+O segundo parametro pode ser um numero inteiro que representa a quantidade de itarações que serão executadas
+ou uma referência a um objeto do tipo \texttt{SimulationStopCondition}.
+
+\begin{lstlisting}[frame=lines]
+int countAgents();
+\end{lstlisting}
+
+O método \textit{countAgents} retorna o número de agentes existentes no modelo.
+
+\begin{lstlisting}[frame=lines]
+vector<Agent*> getAgents();
+\end{lstlisting}
+
+O método \textit{getAgents} retorna um vetor de referências para objetos do tipo \texttt{Agent}.
+Esse objeto contém um conjunto de referências para todos os agentes presentes no modelo.
+
+\begin{lstlisting}[frame=lines]
+void addReport(Report*);
+\end{lstlisting}
+
+O método \textit{addReport} adiciona uma referência de um objeto do tipo \texttt{Report} ao modelo.
+
+\begin{lstlisting}[frame=lines]
+int iterations();
+\end{lstlisting}
+
+O método \textit{iterations} retorna o número de iterações já executadas até o momento.
+
+\section{Classes Abstratas}
+
+Esta seção apresenta as classe abstratas e os métodos virtuais que devem ser implementados para especialização.
+
+\subsection{Classe \texttt{Net}}
+
+\begin{lstlisting}[frame=lines]
+virtual Vision visionForAgent(Agent*) = 0;
+\end{lstlisting}
+
+O método \textit{visionForAgent} é utilizada pelo modelo para obter a "visão" de um agente especifico.
+Ele possui como parametro a referência do agente que se deseja obter a "visão".
+Ele retorna um objeto do tipo \texttt{Vision}.
+
+\begin{lstlisting}[frame=lines]
+virtual bool readNet(string) = 0;
+\end{lstlisting}
+
+O método \textit{readNet} é responsável pela leitura do arquivo que contém.
+Ele é responsável também pela criação dos agentes e seus relacionamentos.
+O método retorna um valor boleano (\textit{true} ou \textit{false}).
+
+\begin{lstlisting}[frame=lines]
+virtual bool readInitConfig(string) = 0;
+\end{lstlisting}
+
+O método \textit{readInitConfig} é responsável por inicializar os elementos que compõe o modelo.
+Ele possui como parametro o nome do arquivo que contém os valores de inicialização.
+
+\begin{lstlisting}[frame=lines]
+virtual vector<Agent*> getAgents() = 0;
+\end{lstlisting}
+
+O método \textit{getAgents} retorna um vetor de referências para objetos do tipo \texttt{Agent}.
+
+\begin{lstlisting}[frame=lines]
+virtual int countAgents() = 0;
+\end{lstlisting}
+
+O método \textit{countAgents} retorna um número correspondente a quantidade de agentes presentes na rede.
+
+\subsection{Classe \texttt{Agent}}
+
+\begin{lstlisting}[frame=lines]
+virtual void update() = 0;
+\end{lstlisting}
+
+O método \textit{update} é executada a cada iteração.
+
+\begin{lstlisting}[frame=lines]
+virtual int place() = 0;
+\end{lstlisting}
+
+O método \textit{place} retorna o identificador (um número inteiro) do lugar ocupado pelo agente.
+
+\begin{lstlisting}[frame=lines]
+virtual string state() = 0;
+\end{lstlisting}
+
+O método \textit{state} retorna uma string como valor do estado atual do agente.
+
+\begin{lstlisting}[frame=lines]
+virtual void look(Vision) = 0;
+\end{lstlisting}
+
+O método \textit{look} recebe como parametro um objeto do tipo \texttt{Vision}, que representa a "visão" do agente.
+
+\begin{lstlisting}[frame=lines]
+virtual void defState(string) = 0;
+\end{lstlisting}
+
+O método \textit{defState} é responsável por indicar o futuro estado do agente.
+Recebe como parametro um objeto do tipo \texttt{string} correspondente ao estado futuro.
+
+\begin{lstlisting}[frame=lines]
+virtual void updateState() = 0;
+\end{lstlisting}
+
+O método \textit{updateState} atualiza o estado futuro do agente para estado atual.
+
+%\begin{lstlisting}[frame=lines]
+%virtual int getId() = 0;
+%\end{lstlisting}
+%
+%\begin{lstlisting}[frame=lines]
+%int id();
+%\end{lstlisting}
+%
+%\begin{lstlisting}[frame=lines]
+%void defId(int id);
+%\end{lstlisting}
+
+\subsection{Classe \texttt{Report}}
+
+\begin{lstlisting}[frame=lines]
+virtual void updated(Simulation*) = 0;
+\end{lstlisting}
+
+O método \textit{updated} é executado em toda iteração.
+Ele recebe como parametro uma referência ao modelo.
+
+\subsection{Classe \texttt{SimulationStopCondition}}
+
+\begin{lstlisting}[frame=lines]
+virtual bool stop(Simulation*) = 0;
+\end{lstlisting}
+
+O método \textit{stop} retorna um valor boleano como reposta se o modelo deve ser encerrado ou não.
+Ele recebe como parametro uma referência ao modelo.
+
+\section{Os Componentes}
+
+\subsection{Classe \texttt{AgentFactory}}
+
+\begin{lstlisting}[frame=lines]
+template <class T>
+Agent* AgentFactory<T>::create()
+\end{lstlisting}
+
+O componente \texttt{AgentFactory} possui o método \textit{create} que cria um obejto do tipo passado na construção da fábrica.
+O método \textit{creat} retorna uma referência para o objeto criado.
+
+\subsection{Classe \texttt{ForgettingAgent}}
+
+\begin{lstlisting}[frame=lines]
+Vision getVision();
+\end{lstlisting}
+
+O método \textit{getVision} retorna um objeto do tipo \texttt{Vision} que representa a "vision" do agente.
+
+\subsection{Classe \texttt{SimpleNetAgents}}
+
+\begin{lstlisting}[frame=lines]
+SimpleNetAgents(string, string, AbstractAgentFactory*);
+\end{lstlisting}
+
+Construtor da classe \texttt{SimpleNetAgents}.
+Recebe como parametros o nome do arquivos contendo uma rede simples no formato pajek,
+um arquivo de inicialização e uma referência para uma fábrica de agentes.
+
+\begin{lstlisting}[frame=lines]
+~SimpleNetAgents();
+\end{lstlisting}
+
+O destrutor da classe \texttt{SimpleNetAgents} destroi todos os objetos criados pela fábrica de agentes.
+
+\begin{lstlisting}[frame=lines]
+void addAgent(int);
+\end{lstlisting}
+
+O método \textit{addAgent} adiciona um agente na rede. Recebe como parametro um número inteiro
+correspondente ao identificador do novo agente.
+
+\subsection{Classe \texttt{Vision}}
+
+\begin{lstlisting}[frame=lines]
+void addAgent(Agent*);
+\end{lstlisting}
+
+O método \textit{addAgent} adiciona um agente na visão de outro agente.
+Recebe como parametro uma referência do agente que será adicionado.
+
+\begin{lstlisting}[frame=lines]
+int countAgents();
+\end{lstlisting}
+
+O método \textit{countAgents} retorna o número de agentes presentes na "visão".
+
+\begin{lstlisting}[frame=lines]
+vector<Agent*> neighbours();
+\end{lstlisting}
+
+O método \textit{neighbours} retorna um conjunto de referência dos agentes presentes na "visão".
+
+%%% --------------------------------------------------------------------------
+\end{frame}
+%-----------------------------------------------------------------------------

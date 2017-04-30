@@ -1,0 +1,33 @@
+: ${ID_C_O_FRAME=:=frame}
+: ${ID_C_MYFRAME=:=MyFrame}
+: ${ID_C_MYAPP=:=MyApp}
+: ${ID_F_HEADER_APP:=app.hpp}
+: ${ID_F_SOURCE_APP:=app.cpp}
+: ${ID_M_ONQUIT=:=OnQuit}
+: ${ID_M_ONABOUT:=OnAbout}
+: ${SOURCE_DIR=:=src}
+
+MK_APP_CPP()
+{
+cat << __EOF__ | sed 's/[ \t]*$//; /./,/^$/!d' > ${application_name}/${SOURCE_DIR}/${ID_F_SOURCE_APP}
+$(comment.cpp.box $ID_F_HEADER_APP)
+
+#include "$ID_F_HEADER_APP"
+
+// Implements MyApp& GetApp()
+DECLARE_APP(${ID_C_MYAPP})
+
+// Give wxWidgets the means to create a MyApp object
+IMPLEMENT_APP(${ID_C_MYAPP})
+
+// Event table for MyFrame
+BEGIN_EVENT_TABLE(${ID_C_MYFRAME}, wxFrame)
+
+	EVT_MENU(wxID_ABOUT, ${ID_C_MYFRAME}::${ID_M_ONABOUT})
+	EVT_MENU(wxID_EXIT,  ${ID_C_MYFRAME}::${ID_M_ONQUIT} )
+
+END_EVENT_TABLE()
+__EOF__
+}
+
+MK_APP_CPP

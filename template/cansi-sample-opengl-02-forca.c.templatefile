@@ -1,0 +1,229 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <math.h>
+#include <GL/glut.h>
+
+int erros = 0;
+
+char *palavras[] = { "AMSTERDAM", "PARIS", "ROMA", "BRASILIA", "QUITO",
+                     "BUDAPESTE", "TOQUIO", "MOSCOU", "WASHINGTON", "MADRID", "LISBOA",
+                     "LONDRES", "BUENOS AIRES", "SAO PAULO"
+                   };
+
+int sorteada = 0;
+
+char tentativas[40];
+
+void
+boneco ()
+{
+    int i;
+    glColor3f (1.0, 1.0, 0.0);
+    glLineWidth (3.0f);
+
+    switch (erros)
+    {
+
+    case 6:
+        glBegin (GL_LINES);
+        glVertex2i (150, 150);
+        glVertex2i (180, 180);
+        glEnd ();
+
+    case 5:
+        glBegin (GL_LINES);
+        glVertex2i (150, 150);
+        glVertex2i (120, 180);
+        glEnd ();
+
+    case 4:
+        glBegin (GL_LINES);
+        glVertex2i (150, 120);
+        glVertex2i (180, 140);
+        glEnd ();
+
+    case 3:
+        glBegin (GL_LINES);
+        glVertex2i (150, 120);
+        glVertex2i (120, 140);
+        glEnd ();
+
+    case 2:
+        glBegin (GL_LINES);
+        glVertex2i (150, 100);
+        glVertex2i (150, 150);
+        glEnd ();
+
+    case 1:
+        glBegin (GL_POLYGON);
+
+        for (i = 0; i < 20; i++)
+            glVertex2f (140.0 + 15.0 * cos (6.28 * i / 20.0),
+                        95.0 + 15.0 * sin (6.28 * i / 20.0));
+
+        glEnd ();
+
+    }
+
+    glLineWidth (1.0f);
+
+    glColor3f (1.0, 1.0, 1.0);
+}
+
+int
+falta ()
+{
+    int i, c = 0;
+    char *p;
+
+    p = palavras[sorteada];
+
+    for (i = 0; i < strlen (p); i++)
+        if (p[i] != ' ' && strchr (tentativas, p[i]) == NULL)
+            c++;
+
+    return c;
+}
+
+
+void
+display ()
+{
+    int i, faltam;
+    char *p;
+    char msg[120];
+
+    glMatrixMode (GL_MODELVIEW);
+    glLoadIdentity ();
+
+    glClear (GL_COLOR_BUFFER_BIT);
+
+
+    glColor3f (1.0f, 1.0f, 1.0f);
+
+    glBegin (GL_LINE_STRIP);
+    glVertex2f (20, 220);
+    glVertex2f (20, 50);
+    glVertex2f (150, 50);
+    glVertex2f (150, 80);
+    glEnd ();
+
+    glBegin (GL_LINES);
+    glVertex2f (10, 220);
+    glVertex2f (30, 220);
+    glVertex2f (20, 80);
+    glVertex2f (50, 50);
+    glEnd ();
+
+    boneco ();
+
+    p = palavras[sorteada];
+
+    for (i = 0; i < strlen (p); i++)
+    {
+        if (p[i] != ' ')
+        {
+            glBegin (GL_LINES);
+            glVertex2i (10 + i * 20, 300);
+            glVertex2i (10 + i * 20 + 15, 300);
+            glEnd ();
+        }
+
+        if (strchr (tentativas, p[i]) != NULL)
+        {
+            glRasterPos2i (10 + i * 20, 295);
+            glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, (int) (p[i]));
+        }
+    }
+
+    faltam = falta ();
+
+    if (faltam != 0)
+        sprintf (msg, "Tentativas: [%s] Erros: %d Faltam: %d", tentativas, erros,
+                 faltam);
+    else
+        sprintf (msg, "Tentativas: [%s] Erros: %d PARABENS!!!", tentativas, erros,
+                 faltam);
+
+    if (erros == 6)
+    {
+        sprintf (msg,
+                 "Tentativas: [%s] Erros: %d Voce perdeu, a palavra era %s!!!",
+                 tentativas, erros, palavras[sorteada]);
+
+    }
+
+    glRasterPos2i (10, 350);
+
+    for (p = msg; *p != 0; p++)
+        glutBitmapCharacter (GLUT_BITMAP_HELVETICA_12, (int) (*p));
+
+    glutSwapBuffers ();
+}
+
+
+void
+reshape (int w, int h)
+{
+    glViewport (0, 0, w, h);
+    glMatrixMode (GL_PROJECTION);
+    glLoadIdentity ();
+    glOrtho (0.0, w, h, 0, -10, 10);
+    //glOrtho(0.0,500.0,500.0,0,-10,10);
+}
+
+void
+teclado (unsigned char c, int x, int y)
+{
+    char tmp[2];
+
+    if (erros >= 6 || falta () == 0)
+        return;
+
+    c = toupper (c);
+
+    if (strchr (tentativas, c) != NULL)
+        return;
+
+    tmp[0] = c;
+
+    tmp[1] = 0;
+
+    strcat (tentativas, tmp);
+
+    if (strchr (palavras[sorteada], c) == NULL)
+        erros++;
+
+    glutPostRedisplay ();
+}
+
+
+int
+main (int argc, char **argv)
+{
+
+    srand (time (NULL));
+    tentativas[0] = 0;
+    sorteada = rand () % 14;
+
+    printf ("a sorteada foi %s\n", palavras[sorteada]);
+
+    glutInit (&argc, argv);
+    glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE);
+    glutInitWindowSize (400, 400);
+    glutCreateWindow ("Forca 102");
+
+    glClearColor (0.3, 0.5, 0.3, 0.0);
+    glShadeModel (GL_SMOOTH);
+    reshape (400, 400);
+
+    glutReshapeFunc (&reshape);
+    glutDisplayFunc (&display);
+    glutKeyboardFunc (&teclado);
+
+    glutMainLoop ();
+
+    return 0;
+}

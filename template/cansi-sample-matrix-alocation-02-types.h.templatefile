@@ -1,0 +1,18 @@
+#ifndef __TYPES_H__
+#define __TYPES_H__
+
+typedef float  data_t;
+
+# define SCANF_REAL    "%6.3f"
+# define PRINTF_REAL   " %8.3f"
+
+/*****************************************************************************
+ *                                                                           *
+ *  --------------------------- Public Interface --------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+# define PRINTF_SCALAR PRINTF_REAL
+# define SCANF_SCALAR  SCANF_REAL
+
+#endif				/* types.h */

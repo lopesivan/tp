@@ -1,0 +1,9 @@
+\begin{frame}{Movies}
+\begin{itemize}
+\item \href{run:./viewf6d2a_e}{f6d2a est -- UNIX}
+\item \href{run:f6d2a_e.gif}{f6d2a est -- Windoze}
+\end{itemize}
+\note<1>[item]{Note the use of the package {\tt hyperref} which allows for running external programs.  Note also that
+{\tt hyperref} is loaded by beamer anyway, so there is no need to explicitly load it.}
+\note<1>[item]{{\tt beamer} has other ways of dealing with this which may be better.}
+\end{frame}

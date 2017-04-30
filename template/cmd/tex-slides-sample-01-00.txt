@@ -1,0 +1,20 @@
+###############
+# get source. #
+###############
+cmd='--tex-slides-sample-01'
+n=$(expr "$(tp-cmd list ${cmd}| nl| tail -2| head -1)" : '[[:blank:]]*\([0-9]*\)')
+
+arr=( empty empty `tp-cmd list ${cmd} | sed -n "2,${n}s/.*-//p"` ) && seq -f"tp-cmd %g " 2 $n | sed 's/tp-cmd \([0-9]\+\)/& >${arr[\1]}/' > prj
+cat << EOF >> prj
+tar xvzf img.tgz
+make
+EOF
+
+# run
+. prj
+
+# clean
+history | tail -1 | sed 's/.*\./rm prj  /'| sh
+
+# restore
+tp-cmd list ${cmd}-00| sed '1iRestore build template mode:\nUsage: tp-cmd 1 > a; . a'

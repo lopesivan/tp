@@ -1,0 +1,81 @@
+Otimizando o uso do swap e da memória ram
+@=@=@004
+@
+@
+Pessoal,
+
+faz algum tempo que não envio nada para a lista … tempos corridos :/
+Bem, estou preparando uns textos sobre como melhorar o desempenho
+geral de um sistema Linux e com isso, vou publicar a primeira parte aqui:
+
+Otimizando o uso do swap e da memória ram
+
+Nas últimas versões do kernel 2.6.x (se não me engano da 2.6.6 em
+diante), se tornou possível configurar manualmente como o Linux vai
+decidir o quanto de memória vai ou não para swap.
+Você pode visualizar a configuração atual desta maneira:
+
+# cat /proc/sys/vm/swappiness
+60
+
+Ou, de uma maneira “mais elegante”:
+# sysctl -a|grep swappiness
+vm.swappiness = 60
+
+Os valores podem variar entre 0 e 100, sendo que 0 significa que
+o kernel vai tentar manter toda a memória alocada na ram e 100
+significa que o kernel vai tentar mover toda a memória alocada
+mas não usada no momento para o swap.
+
+- Como isso pode afetar o desempenho da máquina ?
+Com valores muito altos para swappiness, o Linux quase sempre
+terá memória ram livre, permitindo que aplicativos sejam carregados
+mais rapidamente e que os softwares em uso no momento, caso precisem
+alocar mais memória, tenham a memória alocada mais rapidamente, pois
+o sistema terá memória ram livre (e não memória no swap livre).
+
+Com valores muito baixos para swappiness, o Linux tentará manter toda
+a memória alocada na ram. A vantagem é que provavelmente a memória
+alocada por um software estará na ram (mais rápida que o swap), caso
+você fique muito tempo sem usar um software que esteja aberto
+(minimizando ele, por exemplo), ele provavelmente retornará para uso
+em um tempo mais rápido.
+
+- Então, qual o melhor valor para swappiness ?
+Isto depende de quais softwares você utiliza mais, depende de quanto
+de memória ram você tem instalada no sistema, dentre outras coisas.
+Se você tiver pouca memória ram, provavelmente um valor mais alto
+para swappiness vai melhorar o desempenho do sistema, deixando ram
+livre. Se você tiver muita memória ram, provavelmente um valor mais
+baixo para swappiness vai melhorar o desempenho, porque se você tiver
+ram suficiente para rodar seus softwares, por que alocar a memória
+para eles no swap ?
+
+Sendo assim, fica como sugestão realizar vários testes com valores
+diferentes para swappiness e, depois de realizados, deixar setado
+com o valor que melhor se adequou ao seu sistema. Ah sim, aumente
+em incrementos grandes, algo como de 10 em 10 ou 20 em 20… de um
+em um você não irá perceber a diferença e ainda fica bem demorado
+pra terminar de testar :)
+Na minha estação (um notebook Toshiba com 196 Mbytes de ram, onde
+sempre tenho o Mozilla, o OpenOffice, o Gaim e o Gnome executando
+num Fedora Core 2), o valor que melhor se adaptou foi o de “80″.
+
+- Como alterar o valor para swappiness em tempo de execução ?
+#sysctl -w vm.swappiness=XX
+Ou
+#echo XX > /proc/sys/vm/swappiness
+(onde XX é o valor que você quer setar, lembrando que o intervalo
+é entre 0 e 100)
+
+- Como fixar este valor de swappiness para que não volte para
+o default no próximo boot ?
+Edite /etc/sysctl.conf e adicione a seguinte linha (ou altere,
+caso não existir no arquivo):
+
+vm.swappiness = XX
+
+Salve o arquivo e pronto.
+
+Qualquer comentário, dúvida ou sugestão, envie um email para
+a lista.

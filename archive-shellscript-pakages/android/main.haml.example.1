@@ -1,0 +1,22 @@
+!!! XML
+/
+  ** Main **
+  Document   : main.haml
+  Created on : #{Time.new}
+  Author     : ivan
+  Description: .
+
+- configuration = LayoutMain.new()
+
+%LinearLayout{configuration.header(),
+              configuration.vertical(),
+              configuration.layout_wh("ff") }
+
+  %ImageView{configuration.iv()}/
+  %ImageView{configuration.iv()}/
+  %ImageView{configuration.iv()}/
+
+  %ImageView{configuration.iv(),
+             configuration.img("grid")}/
+
+/ end-of-file

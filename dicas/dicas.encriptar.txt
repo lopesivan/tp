@@ -1,0 +1,35 @@
+GnuGP
+
+Encryption:
+
+$ gpg -c --cipher-algo AES256 filename
+
+Results in a file called filename.gpg
+
+Decryption:
+
+$ gpg filename.gpg
+
+Mcrypt
+
+In this example I am also using compression.
+
+Encryption with compression:
+
+$ mcrypt -z -a rijndael-256 filename
+
+Decryptation with compression:
+
+$ mcrypt -z -d filename
+
+Se man mcrypt for more information and mcrypt --list for at list of the different supported alghorithems.
+OpenSSL
+
+Encryption:
+
+$ openssl aes-256-cbc -e -in filename -out encrypted_filename
+
+Decryption:
+
+$ openssl aes-256-cbc -d -in encrypted_filename -out filename
+

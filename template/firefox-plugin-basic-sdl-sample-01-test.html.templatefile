@@ -1,0 +1,51 @@
+<HTML>
+	<HEAD>
+		<TITLE>Scriptable Plug-in Test</TITLE>
+	</HEAD>
+	<BODY id="bodyId">
+
+		<center>
+			<h1>Sample SDL Plug-in </h1>
+		</center>
+		Just a simple SDL plugin. Click on it to see a red box. All rendering done via OpenGL commands.
+
+		<br><br>
+
+		<center>
+
+			<script>
+				function bar(arg)
+				{
+					document.getElementById("result").innerHTML += "<p>" + "function bar(" + arg + ") called!" + "</p>";
+
+					return 4;
+				}
+			</script>
+
+			<div id="result">
+				<p>results go here:</p>
+			</div>
+
+			<embed id="embed1" type="application/x-openanimator" width=600 height=300><br>
+
+			<!--<embed type="application/x-java-mozilla-npruntime-scriptable-plugin" style="display: block; width: 50%; height: 100px;"><br>-->
+
+			<script>
+				var embed1 = document.getElementById('embed1');
+			</script>
+			<br>
+			<form name="formname">
+				<input type=button value="Call pluginobj.foo()" onclick='alert(pluginobj.foo())'>
+				<input type=button value="alert(pluginobj.bar)" onclick='alert(pluginobj.bar)'>
+				<input type=button value="alert(pluginobj('foo'))" onclick='alert(pluginobj("foo"))'>
+				<br>
+				<input type=button value="alert(embed1.bar)" onclick='alert(embed1.bar)'>
+				<input type=button value="alert(embed1.foo())" onclick='alert(embed1.foo())'>
+				<input type=button value="alert(embed1())" onclick='alert(embed1())'>
+				<input type=button value="embed1.bar='foo'" onclick='embed1.bar="foo";'>
+			</form>
+
+		</center>
+
+	</BODY>
+</HTML>

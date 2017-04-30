@@ -1,0 +1,76 @@
+Como usar bpython com Django
+O bpython é um espetacular console interativo Python com auto-completar visual
+e help. Funciona no Linux, Mac OSX e Unixes em geral, mas não no Windows
+porque depende do módulo curses.
+
+Os screenshots não fazem justiça ao programa, porque nele tudo é dinâmico,
+então você precisa mesmo experimentar para sacar. Além disso ele é mais bonito
+no Linux que no Mac OSX porque as linhas verticais aparecem contínuas.
+
+Para quem usa Windows, o IPython também é legal, e vale muito a pena usá-lo
+com o Django.
+
+Mas para quem pode usar o bpython eis como fazer.
+
+
+Método 1: ler manualmente os settings do django
+
+1) Inicie a sessão do bpython a partir do diretório principal do seu projeto
+Django (onde fica o arquivo settings.py).
+
+2) Digite no prompt >>>
+
+from django.core.management import setup_environ
+import settings
+setup_environ(settings)
+
+
+
+A partir desse ponto, você pode interagir normalmente com os modelos e outros
+objetos da sua aplicação Django.
+
+
+Metodo 2: rodar um script que lê os settings, e entrar em modo interativo
+
+
+1) crie um arquivo (digamos, .dbpython.py) com o conteúdo:
+
+from django.core.management import setup_environ
+import settings
+setup_environ(settings)
+from minha_app.models import * # opcional
+
+
+
+Note que a quarta linha é opcional, e você precisa alterar o nome da app, e
+repetir essa linha para cada app que quiser acessar com mais comodidade.
+
+2) execute o script usando o bpython com a opção -i (que faz entrar em modo
+interativo, como no python normal):
+
+$ bpython -i dbpython.py
+
+
+
+3) Bônus: para não ter que digitar o comando acima toda vez, crie um script de
+shell:
+
+#!/bin/sh
+# este eh o arquivo dbp.sh
+bpython -i dbpython.py
+
+
+
+Depois torne este script executável:
+
+$ chmod +x dbp.sh
+
+
+
+Agora basta digitar:
+
+$ ./dbp.sh
+
+
+
+E pronto, as maravilhas do bpython!

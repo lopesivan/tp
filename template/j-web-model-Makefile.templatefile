@@ -1,0 +1,76 @@
+hamls    = $(wildcard *.haml     )
+jsps     = $(shell ls jsp/ )
+EXT      = .xml
+
+.SUFFIXES:              # Delete the default suffixes
+.SUFFIXES: .haml $(EXT) # Define our suffix list
+
+# -------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
+HAML     = haml
+HAMLFLAGS= --double-quote-attributes
+
+# -------------------------------------------------------------------------- #
+# shell macro
+# -------------------------------------------------------------------------- #
+
+targets_haml=\
+	for d in $(hamls); \
+	do \
+		for e in .xml; do \
+			echo $${d%.*}$$e; \
+		done; \
+	done
+
+targets_jsps=\
+	for d in $(jsps); \
+	do \
+		for e in .jsp; do \
+			echo web/$${d%.*}$$e; \
+		done; \
+	done
+
+
+##############################################################################
+
+%.xml : %.haml
+	$(HAML) $(HAMLFLAGS) $< $@
+
+web/%.jsp :jsp/%.haml
+	$(HAML) $(HAMLFLAGS) $< $@
+
+# -------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
+
+prebuilding  = $(shell $(targets_haml)) $(shell $(targets_jsps))
+
+all: compile
+
+run: $(prebuilding)
+	@ant $@
+
+indent: $(prebuilding)
+	@ant $@
+
+#	compile Java source
+compile: $(prebuilding)
+	@ant $@
+
+#	show user the -projecthelp option
+help: $(prebuilding)
+	@ant -projecthelp
+
+
+#
+# ============================================================================
+#
+
+clean :
+	-ant clean
+	-rm -rf $(addprefix *, $(EXT))
+	@(find src/ -type f -name \*.orig -exec rm {} \; )
+
+# END OF FILE
+

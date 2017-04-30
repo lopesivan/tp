@@ -1,0 +1,115 @@
+GStreamer
+
+
+
+Take a screenshot: 
+
+gst-launch-0.10 ximagesrc num-buffers=1 ! ffmpegcolorspace ! pngenc ! filesink location=screenshot.png
+
+
+Transcoding from firewire camera 
+
+dvgrab -buffers 320 -f raw -noavc - | gst-launch fdsrc fd=0 ! dvdemux name=demux \ 
+  demux. ! queue ! ffdec_dvvideo lowres=0 skip-frame=0 ! xvimagesink max-lateness=10000000 handle-events=false sync=false \ 
+  demux. ! queue ! audio/x-raw-int ! audiorate ! alsasink max-lateness=10000000 provide-clock=false latency-time=10000 buffer-time=200000 sync=false 
+
+
+Ultralarge video/audio decoding: 
+
+$ gst-launch-0.10 -v filesrc location=B-MP2PS_P-2.mpg ! flupsdemux name=demux ! queue ! flumpeg2vdec ! queue ! xvimagesink demux. ! queue ! dvdlpcmdec ! queue ! audioconvert ! alsasink 
+
+
+Transcoding only audio: 
+
+$ gst-launch-0.10 filesrc location=./ac3test.avi ! avidemux ! fluac3dec ! audioconvert ! wavenc ! filesink location=foo.wav 
+
+
+Some random examples 
+
+# emerge gst-plugins-base gst-plugins-ugly gst-plugins-good gst-plugins-bad gst-plugins-xvideo gst-plugins-ximagesrc gst-plugins-alsa
+
+
+Dumps in hexa the contents of each decoded frame and syncs the sink video consumer. This oneliner is useful to test decoders without video output. 
+
+$ gst-launch -v filesrc location=/path/to/media/file ! fluasfdemux ! fluwmvdec ! fakesink sync=true dump=true
+
+
+Callgrinding: 
+$ valgrind --dump-instr=yes --trace-jump=yes --tool=callgrind gst-launch-0.10 filesrc location=$PWD/pinball.wmv ! fluasfdemux ! fluwmvdec ! fakesink
+
+
+Simple media player: 
+
+$ gst-launch playbin uri=file:///path/to/media/file
+
+
+Showing an image: 
+
+$ gst-launch-0.10 filesrc location=/path/to.gif ! decodebin ! ffmpegcolorspace ! freeze ! xvimagesink
+
+
+Playing avi/mpeg4/mp3: 
+
+filesrc location=${FILE} ! avidemux name=foo foo. ! flumpeg4vdec ! queue ! xvimagesink foo. ! flump3dec ! autoaudiosink
+
+
+Bypassing XVI output conversion (when you don't have hardware colorspace adaptors). Videoscale element makes software video scaling which is also done by XVI. 
+
+$ gst-launch videotestsrc ! ffmpegcolorspace ! videoscale ! ximagesink
+
+
+Reference to elements to parse audio and video streams: 
+
+﻿gst-launch filesrc location=somefile-h264.mp4 ! decodebin name=foo \ 
+  foo. ! ffmpegcolorspace ! aasink \ 
+  foo. ! audioconvert ! autoaudiosink 
+
+
+Vala hello world 
+
+using GLib; 
+using Gst; 
+
+public class GstExamples.SquareBeep { 
+  public static void main(string[] args) { 
+  MainLoop loop = new MainLoop (null, false); 
+  Gst.init (ref args); 
+
+  // Creating pipeline and elements 
+  Pipeline pipeline = new Pipeline ("test"); 
+  Element src = ElementFactory.make ("playbin", "my_src"); 
+  Element sink = ElementFactory.make ("fakesink", "my_sink"); 
+
+  ((Bin) pipeline).add(src); 
+
+  src.set ("uri", "file:///path/to/media/file")); 
+  src.set ("audio-sink", sink); 
+
+  pipeline.set_state (State.PLAYING); 
+  loop.run (); 
+  } 
+} 
+
+
+Python hello world 
+
+import pygst 
+pygst.require("0.10") 
+import gst 
+
+pipeline = gst.Pipeline () 
+playbin = gst.element_factory_make ("playbin", None) 
+fakesink = gst.element_factory_make ("fakesink", None) 
+
+playbin.set_property ("uri", "/home/a/Desktop/Media/test_wmv_v2.wmv") 
+playbin.set_property ("audio-sink", fakesink) 
+
+pipeline.add (playbin) 
+
+import time 
+pipeline.set_state (gst.STATE_PLAYING) 
+time.sleep (200) 
+
+
+
+http://snipplr.com/view/4661/gstreamer-hello-world/ 

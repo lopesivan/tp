@@ -1,0 +1,17 @@
+#SDCC_DIR = /workspace/cir/sdcc
+#CC      = $(SDCC_DIR)/bin/sdcc
+#LCFLAGS = --debug -mpic14 -p16f627 -I$(SDCC_DIR)/share/sdcc/non-free/include
+
+CC      = sdcc
+LCFLAGS = --debug -mpic14 -p16f627
+
+all: toggle_led.cod
+
+toggle_led.cod: toggle_led.c
+	$(CC) $(LCFLAGS) $^
+
+sim: toggle_led.cod   
+	gpsim -pp16f627 -s toggle_led.cod toggle_led.asm
+
+clean:
+	rm -rf toggle_led.adb toggle_led.asm toggle_led.cod toggle_led.hex toggle_led.lst toggle_led.o toggle_led.p

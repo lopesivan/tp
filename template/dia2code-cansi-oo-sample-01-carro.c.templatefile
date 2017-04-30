@@ -1,0 +1,16 @@
+#include <stdio.h>
+
+#include "carro.h"
+
+void Carro_dirigir ( Carro *this ){
+
+	printf (" -- Method --\n"\
+"Modelo : %s\n"\
+"Placa  : %d\n"\
+"Ano    : %d\n",
+			this->modelo,
+			this->placa,
+			this->ano
+	);
+}
+

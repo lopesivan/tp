@@ -1,0 +1,29 @@
+/* vi:set nu nowrap:
+ * $Id:$
+ * Federal University of Rio de Janeiro
+ *      Author: Ivan carlos da Silva Lopes
+ *        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+ *     License: <+LICENSE+>
+ *    Language: C ansi
+ *        File: incurse.h
+ *        Date: Wed 04 Nov 2009 06:00:52 PM BRST
+ * Description:
+ */
+
+#ifndef INCURSE_H
+#define INCURSE_H
+
+#include <curses.h>
+
+/*****************************************************************************
+ *                                                                           *
+ *  --------------------------- Public Interface --------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+void screen_init(WINDOW *, WINDOW *);
+void update_display(WINDOW *);
+void screen_end(void);
+void getlocaltime(struct tm *);
+
+#endif				/* incurse.h */

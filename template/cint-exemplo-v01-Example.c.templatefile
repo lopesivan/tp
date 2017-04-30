@@ -1,0 +1,13 @@
+// Example.C
+main()
+{
+	// C/C++ statements here
+	// This part is given as callback function argument
+	//                    |
+	//                -----------
+#pragma MyCommand abc def efg
+	This part is parsed by MyCallBack function.
+#pragma endMyCommand must be detected by the callback function.
+#pragma endMyCommand
+	// Back to C/C++ statement
+}

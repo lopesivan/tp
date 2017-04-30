@@ -1,0 +1,9 @@
+###############
+# get source. #
+###############
+cmd='--opengl-basic-sample-02'
+n=$(expr "$(tp list ${cmd}| nl| tail -2| head -1)" : '[[:blank:]]*\([0-9]*\)')
+
+arr=( empty empty `tp list ${cmd} | sed -n "2,${n}s/.*-//p"` ) && seq -f"tp %g " 2 $n | sed 's/tp \([0-9]\+\)/& > ${arr[\1]}/' > prj
+. prj
+history | tail -1 | sed 's/.*\./rm prj  /'| sh

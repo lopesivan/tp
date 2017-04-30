@@ -1,0 +1,21 @@
+// string::push_back
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+int main ()
+{
+    string str;
+    ifstream file ("test.txt",ios::in);
+
+    while (!file.eof())
+    {
+        str.push_back(file.get());
+    }
+
+    cout << str;
+
+    return 0;
+}

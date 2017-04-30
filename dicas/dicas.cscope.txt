@@ -1,0 +1,12 @@
+ find /my/project/dir -name '*.c' -o -name '*.h' > /foo/cscope.files
+
+cd /foo
+cscope -b
+CSCOPE_DB=/foo/cscope.out; export CSCOPE_DB
+
+#Exemlo:
+$ find `pwd`/ -name '*.c' -o -name '*.h' > /tmp/foo/cscope.files
+cd /tmp/foo
+
+cscope -b
+CSCOPE_DB=/tmp/foo/cscope.out; export CSCOPE_DB

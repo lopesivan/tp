@@ -1,0 +1,25 @@
+#!/bin/bash
+# vi:set nu nowrap:
+# using.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: using.sh
+#        Date: Ter 12 Out 2010 06:44:12 BRT
+# Description:
+#
+#
+
+# ----------------------------------------------------------------------------
+test -e ${HOME}/tmp || mkdir -p ${HOME}/tmp
+make BUILDMODE=DEBUG
+#make BUILDMODE=NODEBUG
+./test_debug
+
+cat ${HOME}/tmp/*
+# ----------------------------------------------------------------------------
+exit 0

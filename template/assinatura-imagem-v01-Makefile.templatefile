@@ -1,0 +1,10 @@
+all: lopesivan.png
+
+lopesivan.png:
+	@./signature.sh  "Ivan Lopes" "Engenheiro Eletricista" "+55 11 xxxx-xxxx" "lopesivan@unite.com"
+
+clean:
+	rm lopesivan.png imagemembranco.png  logo_sign.png  model.png
+
+show:
+	eog lopesivan.png

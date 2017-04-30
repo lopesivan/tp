@@ -1,0 +1,2 @@
+popip -T -f 1.5 -b 10 helice.pdf
+png2swf -r 9 helice/image*.png -o helice.swf

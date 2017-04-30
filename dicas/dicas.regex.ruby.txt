@@ -1,0 +1,488 @@
+irb(main):006:0> regex1 = %r{([0-9]+).([0-9]+).([0-9]+).([0-9]+)}
+=> /([0-9]+).([0-9]+).([0-9]+).([0-9]+)/
+irb(main):007:0> "192.168.1.103".scan(regex1) { |m| puts m } 
+192
+168
+1
+103
+=> "192.168.1.103"
+
+#!/usr/local/bin/ruby -w
+
+# some input examples
+str = 'foo "bar baz" qux'
+str = 'foo "bar baz " "bar baz" " bar baz" "bar "klr mre" " " \' "abc" \' baz " qux'
+str = '" \' \'    " \n "   " \' \' "" foo \'ttt sss\' "bar "qqq zzz" baz" "added term" qux  " \' \'    "  yyy xxx'
+str = '"""frickin \'#{bar}\'"""'
+str = '""    "frickin chicken "    #{bar}""""'
+str = '"""frickin "#{bar}""""'
+str = '"a "b c" "d "e" f g" """h""""'       # cf. http://snippets.dzone.com/posts/show/4852
+
+# escaped quotes
+str = '\"'
+str = "\\\""
+str = '\\\''
+str = "\\'"
+
+# special cases
+str = '"G","H I"'
+str = '"G","H I""G","H I"'
+
+str = '"abc""def"'
+str = '"""a""b"'
+str = '"abc""def""abc""def""abc""def"'
+str = '"a"\'\'"b"'
+
+str = "\"abc'vv'tt\"'klt'"
+
+str = "abc,def,\"efg,hij\",klm,nop,\"qrstuv\",wxyz"
+str = "abc,def,\"efg,hij\",klm, 'nop, \"qrstuv\",wxyz,mmm '"
+str = "abc,def,\"efg,hij\",klm, \"nop, 'qrstuv',wxyz,mmm \""
+
+
+puts
+puts "input string:  #{str}" 
+puts "str.inspect :  #{str.inspect}" 
+puts
+
+num_of_chars1 = str.count('a-zA-Z_0-9', "^\000ds")
+
+error_code = 0      # in case of a parsing error Shellwords will be used instead of regex1 & regex2
+str2 = str.clone
+
+# encode escaped quotes
+str = str.gsub(/\\"|\\'/) { |m| m =~ /^\\"$/ ? "\000d\000" : "\000s\000" }
+
+dq_count = str.count('"')
+sq_count = str.count("'")
+
+if dq_count % 2 != 0 && sq_count % 2 != 0
+   raise ArgumentError, "\e[1modd number of single & double quotes\e[m in: #{str}\nsq_count: #{sq_count}\ndq_count: #{dq_count}\n"
+elsif dq_count % 2 != 0
+   raise ArgumentError, "\e[1modd number of double quotes\e[m in: #{str}\ndq_count: #{dq_count}\n"
+elsif sq_count % 2 != 0
+   raise ArgumentError, "\e[1modd number of single quotes\e[m in: #{str}\nsq_count: #{sq_count}\n"
+end
+
+# regex1 separates substrings that contain quotes from substrings that do not contain quotes
+regex1 = %r{[^"']+|["'].*?["'](?!.*["'])}m  
+
+# example
+#"abc 'quote1' pjk 'quote2' xyz".scan(regex1) { |m| puts m } 
+
+
+regex2 = %r{
+# experimental: special cases
+\s*["'][^"']+["'][[:punct:]]["'][^"']+["']|  # special case:  xxx "ab c","def g" yyy
+\s*["'][^"']+["']{2,}[^"']+["']|             # special case:  xxx "abc""def" yyy
+\s"[^"]+"|                                   # special case: xxx "abc 'def' ghi"
+\s'[^']+'|                                   # special case: xxx 'abc "def" ghi'
+\s*["']\S+["']|                              # special case: "abc'vv'tt"'klt'
+
+\s'\s|                       # xxx ' yyy
+\s"\s|                       # xxx " yyy
+\s''\s|                      # xxx '' yyy
+\s""\s|                      # xxx "" yyy
+\s'\s+'\s|                   # xxx '   ' yyy
+\s"\s+"\s|                   # xxx "   " yyy
+\s"\s[^"]+\s"\s|             # xxx " abc " yyy
+\s'\s[^']+\s'\s|             # xxx ' abc ' yyy
+\s["']["']+(?=[^"'\s])|      # :qoblock:  xxx "'""'abc yyy
+[^"'\s]["']["']+(?=\s)|      # :qcblock:  xxx abc"'""' yyy
+\s""+|                       # :dqoblock:  xxx """abc yyy
+\s''+|                       # :sqoblock:  xxx '''abc yyy
+[^"]""+|                     # :dqcblock:  xxx abc"" yyy
+[^']''+|                     # :sqcblock:  xxx abc'' yyy
+\s["'](?=[^"'\s])|           # :dqo or :sqo:  xxx "abc yyy  or  xxx 'abc yyy
+[^"'\s]["'](?=\s)|           # :dqc or :sqc:  xxx abc" yyy  or  xxx abc' yyy
+[^"']+[^"'\s](?=\s)          # no quotes at all
+}mx
+
+
+=begin
+
+There are different kinds of quotes matched by regex2 below. They include:
+
+- :sqo (single quote open)
+- :sqc (single quote close)
+- :sqoblock (single quote open block)
+- :sqcblock (single quote close block)
+
+- :dqo (double quote open)
+- :dqc (double quote close)
+- :dqoblock (double quote open block)
+- :dqcblock (double quote close block)
+
+- :qoblock (quote open block)
+- :qcblock (quote close block)
+
+=end
+
+
+ret = []
+
+str.scan(regex1) do |s| 
+
+   if s !~ /\A["']/
+
+      #puts "s1: #{s}"
+      #puts "s1.inspect: #{s.inspect}"
+
+      s.split(/\s+/m).each { |t| ret << t unless t.empty? }
+
+   else
+
+      #puts "s2: #{s}"
+      #puts "s2.inspect: #{s.inspect}"
+
+      open_quotes = 0
+      close_quotes = 0
+      ar = []
+
+      # add spaces to simplify regex2 matching
+      s = "\x20" << s << "\x20"    
+      s.gsub!(/\x20/, "\x20\x20")  
+
+
+      s.scan(regex2) do |m|
+
+         # get the index of the quote
+         # + 1 for leading space or non-space
+         # $` is the prematch string
+
+         index = $`.length + 1 
+
+         post_match = $'  
+
+         #puts
+         #puts "index: #{index}"
+         #puts "m: #{m.inspect}"
+         #puts "m.length: #{m.length}"
+         #puts "open_quotes:  #{open_quotes}\nclose_quotes: #{close_quotes}"
+         #puts "ret: #{ret.inspect}"
+         #puts "ar: #{ar.inspect}"
+         #puts
+
+
+         if m =~ /\A\s''\s\z/
+
+            next unless open_quotes == 0 && close_quotes == 0
+            ret << ''
+            next
+
+         elsif m =~ /\A\s""\s\z/
+
+            next unless open_quotes == 0 && close_quotes == 0
+            ret << ""
+            next
+
+         # example: xxx "ab c","def g" yyy
+         elsif open_quotes.zero? && close_quotes.zero? && m =~ /\A\s*["'][^"']+["'][[:punct:]]["'][^"']+["']\z/ && m.count('"') % 2 == 0 && m.count("'") % 2 == 0           
+
+            m = m.gsub(/\x20\x20/, "\x20")
+            # cf. http://henrik.nyh.se/2008/03/flickr-style-tag-splitting-in-ruby
+            m = m.split(/"(.+?)"|\s+/).reject {|sm| sm.empty? }
+            #m = m.split(/"(.+?)"|'(.+?)'|\s+/).reject {|sm| sm.empty? }
+            #m = m.split(/"(.+?)"|'(.+?)'|([[:punct:]])|\s+/).reject {|sm| sm.empty? }
+            ret.concat(m)
+            next
+
+         # example: xxx "abc""def" yyy
+         elsif open_quotes.zero? && close_quotes.zero? && m =~ /\A\s*["'][^"']+["']{2,}[^"']+["']\z/ && m.count('"') % 2 == 0 && m.count("'") % 2 == 0           
+            
+            m = m.gsub(/\x20\x20/, "\x20")
+            m = m.split(/"(.+?)"|\s+/).reject {|sm| sm.empty? }
+            #m = m.split(/"(.+?)"|'(.+?)'|\s+/).reject {|sm| sm.empty? }
+            ret.concat(m)
+            next
+
+
+         elsif open_quotes.zero? && close_quotes.zero? && m =~ /\A\s"[^"]+"\z/ && m.count('"') % 2 == 0 && m.count("'") % 2 == 0
+            ret.concat(m.split(/"(.+?)"|\s+/).reject {|sm| sm.empty? })
+            next
+
+         elsif open_quotes.zero? && close_quotes.zero? && m =~ /\A\s'[^']+'\z/ && m.count('"') % 2 == 0 && m.count("'") % 2 == 0
+            ret.concat(m.split(/'(.+?)'|\s+/).reject {|sm| sm.empty? })
+            next
+
+         elsif open_quotes.zero? && close_quotes.zero? && m =~ /\A\s*["']\S+["']\z/ && m.count('"') % 2 == 0 && m.count("'") % 2 == 0
+            ret.concat(m.split(/"(.+?)"|\s+/).reject {|sm| sm.empty? })
+            next
+
+
+         elsif m =~ /\A\s"\s[^"]+\s"\s\z/
+
+            next unless open_quotes == 0 && close_quotes == 0
+            ret << m.gsub(/\x20\x20/, "\x20").strip[1..-2]
+            next
+
+         elsif m =~ /\A\s'\s[^']+\s"\s\z/
+
+            next unless open_quotes == 0 && close_quotes == 0
+            ret << m.gsub(/\x20\x20/, "\x20").strip[1..-2]
+            next
+
+         elsif m =~ /\A\s'\s+'\s\z/
+
+            next unless open_quotes == 0 && close_quotes == 0
+            ret << m.gsub(/\x20\x20/, "\x20").strip[1..-2]
+            next
+
+         elsif m =~ /\A\s"\s+"\s\z/
+
+           next unless open_quotes == 0 && close_quotes == 0
+           ret << m.gsub(/\x20\x20/, "\x20").strip[1..-2]
+           next
+
+
+         elsif m =~ /\A\s""+\z/
+
+            l = m.strip.length
+            ar << [:dqoblock, index, l]
+            old_open_quotes = open_quotes
+            open_quotes += l
+
+            if close_quotes == 0 && old_open_quotes == 0 && open_quotes % 2 == 0 && post_match !~ /"/
+               ret << m[2..-2] 
+               open_quotes = 0
+               ar.pop
+               next
+            end
+
+
+         elsif m =~ /\A\s''+\z/
+
+            l = m.strip.length
+            ar << [:sqoblock, index, l]
+            old_open_quotes = open_quotes
+            open_quotes += l
+
+            if close_quotes == 0 && old_open_quotes == 0 && open_quotes % 2 == 0 && post_match !~ /'/
+               ret << m[2..-2] 
+               open_quotes = 0
+               ar.pop
+               next
+            end
+
+
+         elsif m =~ /\A[^"]""+\z/
+
+            l = m[1..-1].strip.length
+            ar << [:dqcblock, index+l-1, l]      #  index+l-1 is the index of the last closing quote: ''"'[']
+            old_close_quotes = close_quotes
+            close_quotes += l
+
+            if open_quotes == 0 && old_close_quotes == 0 && close_quotes % 2 == 0 && post_match !~ /"/
+               ret << m[2..-2] 
+               close_quotes = 0
+               ar.pop
+               next
+            end
+
+         elsif m =~ /\A[^']''+\z/
+
+            l = m[1..-1].strip.length
+            ar << [:sqcblock, index+l-1, l]
+            old_close_quotes = close_quotes
+            close_quotes += l
+
+            if open_quotes == 0 && old_close_quotes == 0 && close_quotes % 2 == 0 && post_match !~ /'/
+               ret << m[2..-2] 
+               close_quotes = 0
+               ar.pop
+               next
+            end
+
+
+         elsif m =~ /\A\s'\z/
+
+            ar << [:sqo, index, 1]
+            open_quotes += 1
+
+         elsif m =~ /\A\S'\z/
+
+            ar << [:sqc, index, 1]
+            close_quotes += 1
+
+         elsif m =~ /\A\s"\z/
+
+            ar << [:dqo, index, 1]
+            open_quotes += 1
+
+         elsif m =~ /\A\S"\z/
+
+            ar << [:dqc, index, 1]
+            close_quotes += 1
+
+
+         else
+
+
+            if m =~ /\A\s"\s\z/              # " surrounded by whitespace
+
+               if open_quotes > close_quotes
+
+                  ar << [:dqc, index, 1]
+                  close_quotes += 1
+
+                  # avoid :sqo followed by :dqc or :sqc followed by :dqc
+                  if post_match =~ /"/ && open_quotes == close_quotes && (ar.at(-2).first == :sqo || ar.at(-2).first == :sqc)
+                     ar.pop
+                     ar << [:dqo, index, 1]
+                     close_quotes -= 1
+                     open_quotes += 1
+                  end
+
+               else 
+
+                  ar << [:dqo, index, 1]
+                  open_quotes += 1
+
+               end
+
+
+            elsif m =~ /\A\s'\s\z/          # ' surrounded by whitespace
+
+               if open_quotes > close_quotes
+
+                  ar << [:sqc, index, 1]
+                  close_quotes += 1
+
+                  # avoid :dqo followed by :sqc or :dqc followed by :sqc
+                  if post_match =~ /'/ && open_quotes == close_quotes && (ar.at(-2).first == :dqo || ar.at(-2).first == :dqc)
+                     ar.pop
+                     ar << [:sqo, index, 1]
+                     close_quotes -= 1
+                     open_quotes += 1
+                  end
+
+               else 
+
+                  ar << [:sqo, index, 1]
+                  open_quotes += 1
+
+               end
+
+
+            elsif m =~ /\A\s["']["']+\z/              # :qoblock: xxx "'""'abc yyy
+
+               l = m[1..-1].strip.length
+               ar << [:qoblock, index, l]
+               old_open_quotes = open_quotes
+               open_quotes += l
+
+               if close_quotes == 0 && old_open_quotes == 0 && open_quotes % 2 == 0 && post_match !~ /["']/
+                  ret << m[2..-2] 
+                  open_quotes = 0
+                  ar.pop
+                  next
+               end
+
+
+            elsif m =~ /\A[^"'\s]["']["']+\z/          # :qcblock: xxx abc"'""' yyy
+
+               l = m[1..-1].strip.length
+               ar << [:qcblock, index+l-1, l]
+               old_close_quotes = close_quotes
+               close_quotes += l
+
+               if open_quotes == 0 && old_close_quotes == 0 && close_quotes % 2 == 0 && post_match !~ /["']/
+                  ret << m[2..-2] 
+                  close_quotes = 0
+                  ar.pop
+                  next
+               end
+
+
+            elsif m =~ /\A\s*["'].*?["']\s*\z/       # last try  (experimental)
+
+               ret.concat(m.split(/"(.+?)"|\s+/).reject {|sm| sm.empty? })
+               next
+
+
+            elsif m =~ /\A[^"']+[^"'\s]\z/          # part of quoted substring contains neither " nor '
+               next unless open_quotes == 0 && close_quotes == 0
+               next if m.strip.empty?
+               ret << m.gsub(/\x20\x20/, "\x20").strip; next
+            end
+
+         end
+
+         puts
+         puts "open_quotes:  #{open_quotes}\nclose_quotes: #{close_quotes}\n"
+         #puts "ar: #{ar.inspect}"
+
+         if open_quotes == close_quotes
+
+            #puts "open_quotes & close_quotes: #{close_quotes}"
+            puts "ar: #{ar.inspect}"
+
+            ret << s[ar.first[1]..ar.last[1]].gsub(/\x20\x20/, "\x20")[1..-2] unless ar.empty?
+
+            ar.clear
+            open_quotes = 0
+            close_quotes = 0
+
+         end
+
+      end   # scan 2
+
+      unless open_quotes.zero? && close_quotes.zero?
+        error_code = 1
+        puts "\e[1mparsing error\e[m for the quoted string: #{str.strip.squeeze[0..20]}"
+        #raise "\e[1mparsing error\e[m for the quoted string: #{str.strip.squeeze[0..20]}"
+      end
+
+   end   # if
+
+end   # scan 1
+
+
+
+num_of_chars2 = ret.join.count('a-zA-Z_0-9', "^\000ds")
+
+unless num_of_chars1 == num_of_chars2
+   error_code = 1
+   puts "\n\e[1mparsing error due to wrong number of characters a-zA-Z_0-9\e[m: \n#{num_of_chars2} instead of #{num_of_chars1}\n"
+   #raise "\e[1mparsing error due to wrong number of characters a-zA-Z_0-9\e[m: \n#{num_of_chars2} instead of #{num_of_chars1}\n in #{str.strip.squeeze[0..20]}"
+end
+
+
+# use Shellwords in case the quote matching above failed
+if error_code == 1       
+#if error_code == 1 || ret.join =~ /\A["']+\z/        
+   require 'shellwords'
+   ret.clear
+   ret.concat(Shellwords::shellwords(str))
+   #str =~ /\A\S+\z/ ? ret.concat(str.split(/"(.+?)"|\s+/).reject {|sm| sm.empty? }) : ret.concat(Shellwords::shellwords(str))
+end 
+
+
+
+puts "\n\e[1mResult\e[m:\n\n"
+ret.each_with_index do |t,i| 
+   # decode encoded escaped quotes 
+   t = t.gsub(/\000d\000|\000s\000/) { |m| m =~ /^\000d\000$/ ? '\"' : "\\'" }
+   puts "#{i+1}:  #{t.inspect}" 
+end
+
+puts "\n\e[1mShellwords\e[m:\n\n"
+require 'shellwords'
+Shellwords::shellwords(str2).each_with_index { |t,i| puts "#{i+1}:  #{t.inspect}" }
+
+
+#----------------------
+
+
+# matching quoted strings using backreferences
+# See: Regexes in Depth: Advanced Quoted String Matching,
+# http://blog.stevenlevithan.com/archives/match-quoted-string
+
+str = '"abc"'
+
+regex = %r{(["'])([^"']*)(\1)}
+regex = %r{(["'])([^\1]*)(\1)}
+p regex
+
+str.scan(regex) { |m| p m; p $1 << $2 << $3 }
+

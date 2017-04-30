@@ -1,0 +1,91 @@
+\h
+\q
+create database mysql_bash;
+\q
+create database mysql_bash;
+\q
+SET PASSWORD FOR 'root'@'localhost' = PASSWORD('senha');
+\h
+\s
+show databases;
+CREATE DATABASE test
+;
+show databases;
+\q
+show databases;
+SET PASSWORD FOR 'root'@'localhost' = PASSWORD('senha');
+\q
+show databases;
+SET PASSWORD FOR 'root'@'localhost' = PASSWORD('mozzart');
+\q
+create database mysql_bash;
+GRANT usage ON *.* TO ivan@localhost IDENTIFIED BY 'carlos';
+
+GRANT CREATE, DROP, SELECT, INSERT, UPDATE, DELETE ON mysql_bash.* TO ivan@localhost;
+GRANT CREATE, DROP, SELECT, INSERT, UPDATE, DELETE ON mysql_bash.* TO ivan@'%';
+ flush privileges;
+\q
+show databases;
+show tables
+;
+show tables mysql_bash;
+q
+;
+\q
+show tables;
+\q
+show tables;
+show databases;
+\q
+show databases;
+show tables;
+q
+;
+\q
+uses mysql_bash
+;
+\h
+show database
+;
+show database;
+show databases;
+use mysql_bash
+show databases;
+show tables;
+show databases;
+use mysql_bash
+show tables;
+drop agenda;
+desc agenda
+;
+DROP agenda;
+drop table agenda;
+show tables;
+\q
+show datagases
+;
+show tables;
+desc agenda
+;
+q
+;
+\q
+show databases
+;
+show tables
+;
+status gecom
+;
+desc gecom
+;
+\q
+show tables
+;
+show tables;
+use mysql_bash
+show tables;
+\q
+show databases
+;
+show tables mysql_bash;
+\q

@@ -1,0 +1,17 @@
+\section{Using the {\tt beamer} Package}
+
+\begin{frame}[fragile=singleslide]{Framed!}
+One should generally use one frame per slide.
+\begin{block}{A frame}
+\small
+\begin{verbatim}
+\begin{frame}{frame title}
+...  blah ...
+\end{frame}
+\end{verbatim}
+\end{block}
+\note<1>[item]{Note the use of a boxed environment.}
+\note<1>[item]{Note the use of ''fragile'' in the frame declaration.  This allows use of verbatim
+environment.}
+\note<1>[item]{Note the change in text size via ''small'' command.  To get really small, use ''tiny'' command.}
+\end{frame}

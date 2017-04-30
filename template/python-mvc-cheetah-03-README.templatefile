@@ -1,0 +1,10 @@
+.
+./README
+./view
+./view/application_ini.py
+./view/view.py
+./view/application_ini.pyc
+./model
+./model/application_ini.tmpl
+./controller
+./controller/controller.sh

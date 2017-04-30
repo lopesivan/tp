@@ -1,0 +1,164 @@
+#!/bin/bash
+# ----------------------------------------------------------------------------
+__debug__=0; __help__=0
+__usage__=0
+__clean__=0
+# ----------------------------------------------------------------------------
+[ "$1" = '-h'      ] && { __help__=1; shift;  }
+[ "$1" = '--help'  ] && { __help__=1; shift;  }
+[ "$1" = '-d'      ] && { __debug__=1; ECHO=echo;shift; }
+[ "$1" = '--debug' ] && { __debug__=1; ECHO=echo;shift; }
+[ "$1" = '--usage' ] && { __usage__=1; shift; }
+[ "$1" = '--clean' ] && { __clean__=1; shift; }
+# ----------------------------------------------------------------------------
+
+user=ivan
+pass=12345
+db=ilogdb
+tbl=statslog
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+# vi:set nu nowrap:
+# ilog.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: ilog.sh
+#        Date: Qui 18 Nov 2010 03:42:02 BRST
+# Description:
+#
+#
+
+gen__insert_statslog_sql() {
+
+ip=$1
+accesstime=$2
+themethod=$3
+thetype=$4
+thecode=$5
+thebytes=$6
+theref=$7
+browser=$8
+
+	query=$(
+	printf \
+	"%s ('%s','%s','%s','%s','%s','%s','%s','%s','%s')" \
+		"insert into statslog values" \
+		"null" $ip  \
+		      "$accesstime"  \
+			   $themethod  \
+			   $thetype  \
+			   $thecode  \
+			   $thebytes  \
+			   $theref  \
+			   $browser
+	)
+
+	echo mysql -u $user -p$pass $db -e \"$query\" >> insert.in
+
+}
+
+# ----------------------------------------------------------------------------
+
+main() {
+
+	echo >> insert.in
+	while read line; do
+
+		# if line empty
+		[ "$line" ] || continue
+
+		log_line=$( echo $line |
+				sed -r 's#(.*)\s-\s-\s(\[.*\])\s"([^ ]+)\s(.*)\sHTTP/(.*)"\s([0-9]+)\s([0-9]+)\s"-"\s"(.*)"#\1|\2|\3|\4|\5|\6|\7|\8#'
+		)
+
+		local         _ip=$(echo $log_line | cut -d'|' -f1)
+		local _accesstime=$(echo $log_line | cut -d'|' -f2| sed 's/\(\[\|\]\)//g')
+		local  _themethod=$(echo $log_line | cut -d'|' -f3)
+		local    _thetype=$(echo $log_line | cut -d'|' -f5)
+		local    _thecode=$(echo $log_line | cut -d'|' -f6)
+		local     _theref=$(echo $log_line | cut -d'|' -f4)
+		local   _thebytes=$(echo $log_line | cut -d'|' -f7)
+		local    _browser=$(echo $log_line | cut -d'|' -f8)
+
+		local       _date=$(
+			date +%Y-%m-%d -d "$(echo $_accesstime |
+				cut -d':' -f1 |
+					sed 's=/=-=g'
+			)"
+		)
+
+		local       _time=$(
+			echo $_accesstime |
+				cut -d':' -f2-|
+					sed 's/ -.*$//'
+		)
+
+		local _accesstime="$_date $_time"
+
+		echo
+		echo "-- ip         = $_ip"
+		echo "-- accesstime = $_accesstime"
+		echo "-- date       = $_date"
+		echo "-- time       = $_time"
+		echo "-- themethod  = $_themethod"
+		echo "-- thetype    = $_thetype"
+		echo "-- thecode    = $_thecode"
+		echo "-- thebytes   = $_thebytes"
+		echo "-- theref     = $_theref"
+		echo "-- browser    = $_browser"
+
+		#gen__insert_statslog_sql $_ip $_accesstime $_themethod $_thetype $_thecode $_thebytes $_theref $_browser
+
+		query=$(
+			printf \
+				"%s ('%s','%s','%s','%s','%s','%s','%s','%s','%s')" \
+				"insert into $tbl values" \
+				"null"  \
+				'$_ip'  \
+				'$_accesstime' \
+				'$_themethod'  \
+				'$_thetype'    \
+				'$_thecode'    \
+				'$_thebytes'   \
+				'$_theref'     \
+				'$_browser'
+	)
+
+	echo mysql -u $user -p$pass $db -e \"$query\"
+
+		query=$(
+			printf \
+				"%s ('%s','%s','%s','%s','%s','%s','%s','%s','%s')" \
+				"insert into $tbl values" \
+				"null"  \
+				"$_ip"  \
+				"$_accesstime" \
+				"$_themethod"  \
+				"$_thetype"    \
+				"$_thecode"    \
+				"$_thebytes"   \
+				"$_theref"     \
+				"$_browser"
+	)
+	echo mysql -u $user -p$pass $db -e \"$query\"
+
+	mysql -u $user -p$pass $db -e "$query"
+
+	echo mysql -u $user -p$pass $db -e \"$query\" >> insert.in
+
+	done < <( tail -30 apache.log )
+
+}
+
+# ============================================================================
+main
+# ----------------------------------------------------------------------------
+exit 0

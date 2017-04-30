@@ -1,0 +1,44 @@
+sudo update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby1.8 1 
+sudo update-alternatives --install /usr/bin/ri ri /usr/bin/ri1.8 1 
+sudo update-alternatives --install /usr/bin/rdoc rdoc /usr/bin/rdoc1.8 1 
+sudo update-alternatives --install /usr/bin/irb irb /usr/bin/irb1.8 1
+
+update-alternatives --install "/usr/bin/java" "java" "/usr/lib/jvm/jre-1.6.0-sun/bin/java" 1
+Para "cadastrar" o Java 6 como uma JRE no sistema
+update-alternatives --config java
+
+
+update-alternatives --config java
+update-alternatives --config javac
+
+
+
+list=(
+	eview
+	evim
+	ex
+	gview
+	gvim
+	gvimdiff
+	gvimtutor
+	rgview
+	rgvim
+	rview
+	rvim
+	view
+	vim
+	vi
+	vimdiff
+	vimtutor
+	xxd
+)
+
+test -e vi  &&  rm vi
+ln -s `pwd`/vim vi
+
+for cmd in ${list[*]}; do
+	sudo update-alternatives --install /etc/alternatives/${cmd}.ivan $cmd `pwd`/$cmd 80
+	test -e /usr/bin/$cmd  && sudo rm /usr/bin/$cmd
+	test -e /usr/local/bin/$cmd  && sudo rm /usr/local/bin/$cmd
+	sudo ln -s /etc/alternatives/${cmd}.ivan /usr/local/bin/$cmd
+done

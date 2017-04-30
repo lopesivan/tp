@@ -1,0 +1,5 @@
+GRANT usage ON *.* TO selectos_wmvs@localhost IDENTIFIED BY 'wmvs';
+GRANT usage ON *.* TO selectos_wmvs@'%' IDENTIFIED BY 'wmvs';
+GRANT CREATE, DROP, SELECT, INSERT, UPDATE, DELETE ON selectos_wmvs.* TO selectos_wmvs@localhost;
+GRANT CREATE, DROP, SELECT, INSERT, UPDATE, DELETE ON selectos_wmvs.* TO selectos_wmvs@'%';
+flush privileges;

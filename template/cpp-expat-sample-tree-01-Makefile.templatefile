@@ -1,0 +1,54 @@
+EXPAT_PATH     = $(ICSL_DEPS)/compiled/expat-2.0.1
+syntaxTree_src:= syntaxTree.cpp
+
+##############################################################################
+
+LIBRARY_DIR   = $(EXPAT_PATH)/lib
+VERSION       = 1.5.2
+
+PROGRAM       = $(syntaxTree_src:.cpp=)
+TARGETS       = $(syntaxTree_src:.cpp=)
+##############################################################################
+
+syntaxTree_obj= $(syntaxTree_src:.cpp=.o)
+
+sources       = $(syntaxTree_src)
+
+INCLUDE       = -I$(EXPAT_PATH)/include
+
+objects       = $(sources:.cpp=.o)
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+#DEBUG=@echo
+
+CC            = $(DEBUG) g++
+LD            = $(CC)
+
+WARNINGS      = -Wall
+GDBFLAGS      = -g
+
+DEFINEFLAGS   = -DHAVE_EXPAT_CONFIG_H
+
+LIBS          =  $(LIBRARY_DIR)/libexpat.so
+
+LDFLAGS       = -O2               \
+                $(LIBS)           \
+                -fexceptions      \
+                -Wl,--rpath       \
+                -Wl,$(LIBRARY_DIR)\
+                $(WARNINGS) $(GDBFLAGS) $(INCLUDE) $(DEFINEFLAGS)
+
+CPPFLAGS      = -O2 -fexceptions \
+                  $(WARNINGS) $(GDBFLAGS) $(INCLUDE) $(DEFINEFLAGS)
+
+all        : $(TARGETS)
+
+$(PROGRAM) : $(syntaxTree_obj)
+
+tags       :
+	@ctags -R --c++-kinds=+p --fields=+iaS --extra=+q $(sources) $(headers)
+clean      :
+	/bin/rm -rf $(TARGETS) $(objects) tags *.orig

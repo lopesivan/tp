@@ -1,0 +1,1 @@
+sdcc -mmcs51 serialtest.c -o serialtest.ihx

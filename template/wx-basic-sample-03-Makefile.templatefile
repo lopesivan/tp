@@ -1,0 +1,27 @@
+main           = main.cpp
+prerequisite   = main.cpp simple.cpp
+
+program        = $(main:.cpp=)
+sources        = $(wildcard *.cpp)
+objects        = $(sources:.cpp=.o)
+
+dependences    = $(prerequisite:.cpp=.o)
+
+##############################################################################
+##############################################################################
+##############################################################################
+
+CXX         = g++
+WARNINGS    = -Wall
+GDBFLAGS    = -g
+LDLIBS      = `wx-config --libs`
+
+CPPFLAGS    = `wx-config --cppflags` $(WARNINGS) $(GDBFLAGS)
+#$(INCLUDE) $(DEFINEFLAGS)
+
+all:          $(program)
+
+$(program):   $(dependences)
+
+clean:
+	/bin/rm -rf $(program) $(objects) tags *.orig

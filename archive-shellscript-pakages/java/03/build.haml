@@ -1,0 +1,188 @@
+!!! XML
+/ Ant build file for a simple JUnit test
+%project{:basedir => "./",
+         :default => "run-test-text",
+         :name => "__MyProject__"}
+
+  %property{:file => "build.properties" }/
+  %property{:file => "local.properties" }/
+
+  %property{ :name     => "build.classes.dir",
+             :location => "${build.dir}/classes"}/
+
+  %property{ :name     => "target.jar",
+             :location => "${dist.dir}/lib/${ant.project.name}.jar" }/
+
+  %property{ :name     => "test.dir",
+             :location => "${build.dir}/test" }/
+
+  %property{ :name     => "test.classes.dir",
+             :location => "${test.dir}/classes" }/
+
+  %property{ :name     => "test.data.dir",
+             :location => "${test.dir}/data" }/
+
+  %property{ :name     => "test.reports.dir",
+             :location => "${test.dir}/reports" }/
+
+  /
+    Target: init
+    @@@@@@@@@@@@
+
+  %target{:description => "Display build information",
+          :name        => "init"}
+    %mkdir{ :dir => "${build.dir}" }/
+    %mkdir{ :dir => "${build.classes.dir}" }/
+    %mkdir{ :dir => "${dist.dir}" }/
+    %mkdir{ :dir => "${dist.dir}/lib" }/
+    %tstamp
+      %format{:pattern  => "dd-MM-yyyy hh:mm",
+              :property => "today"}/
+    %echo Build ${DSTAMP} (${today})
+
+  /
+    HELP
+  %target{:description => "show user the -projecthelp option",
+          :name => "help"}
+    %echo try 'ant -projecthelp'
+
+  /
+    Target: clean
+    @@@@@@@@@@@@@
+
+  %target{ :name        => "clean",
+           :description => "remove all class files" }
+    %delete{ :dir => "${build.dir}" }/
+    %delete{ :dir => "${dist.dir}"  }/
+
+  /
+    Target: test-Init
+    @@@@@@@@@@@@@@@@@
+
+  %target{ :name        => "test-init",
+           :description => "Create directories" }
+    %mkdir{ :dir => "${test.classes.dir}" }/
+    %delete{ :dir => "${test.data.dir}" }/
+    %delete{ :dir => "${test.reports.dir}" }/
+    %mkdir{ :dir => "${test.data.dir}" }/
+    %mkdir{ :dir => "${test.reports.dir}" }/
+
+  /
+    Target: test-compile
+    @@@@@@@@@@@@@@@@@@@@
+
+  %target{:depends     => "test-init",
+          :description => "compile Java source",
+          :name        => "test-compile"}
+    %javac{:classpath   => "${build.classes.dir}:${junit.jar}:${log4j.jar}",
+           :destdir     => "${test.classes.dir}",
+           :deprecation => "on",
+           :srcdir      => "test"}/
+
+  /
+    Target: compile
+    @@@@@@@@@@@@@@@
+
+  %target{:depends     => "init",
+          :description => "compile Java source",
+          :name        => "compile"}
+    %javac{:classpath         => "${lib.dir}",
+           :includeantruntime => "false",
+           :destdir           => "${build.classes.dir}",
+           :deprecation       => "on",
+           :srcdir            => "${src.dir}"}/
+
+
+  /
+    Target: run-test-text
+    @@@@@@@@@@@@@@@@@@@@@
+
+  %target{:depends     => "compile, test-compile",
+          :description => "run JUnit test against the text TestRunner",
+          :name        => "run-test-text"}
+    /
+      log4j.properties file in the same place the the ant build file
+    %copy{ :file  => "log4j.properties",
+           :todir => "${test.classes.dir}"}/
+
+    %java{:classname => "junit.textui.TestRunner",
+          :classpath => "${test.classes.dir}:${build.classes.dir}:${junit.jar}:${log4j.jar}"}
+      %arg{:value => "ExemploTest"}/
+
+  /
+    Target: run
+    @@@@@@@@@@@@@@@@@@@@@
+
+  %target{:depends     => "compile",
+          :description => "Run application",
+          :name        => "run"}
+
+    %java{:classname => "${main}",
+          :classpath => "${build.classes.dir}:${lib.dir}"}
+      %arg{:value => "Nada por enquanto..."}/
+
+  /
+    Target: jar
+    @@@@@@@@@@@
+
+  %target{ :name        => "jar",
+           :description => "generate the distribution",
+           :depends     => "compile" }
+
+    %jar{ :destfile => "${target.jar}",
+          :basedir  => "${build.classes.dir}",
+          :includes => "**/*.class"}/
+
+  /
+    Remove end spaces
+  %target{ :name => "remove-trailing-spaces" }
+    %echo
+      Remove Trailing Spaces.
+    %apply{ :executable  => "sed",
+            :failonerror => "true" }
+      %arg{ :value => "s/[ ]*$//" }/
+      %arg{ :value => "-i" }/
+      %fileset{ :dir => "${src.dir}" }
+        %include{ :name => "**/*.java" }/
+  /
+    Squeeze with SED.
+  %target{ :name    => "squeeze-blank",
+           :depends => "remove-trailing-spaces" }
+    %echo
+      Suppress repeated empty output lines.
+    %apply{ :executable  => "sed",
+            :failonerror => "true" }
+      %arg{ :value => "/^$/N;/\\n$/D" }/
+      %arg{ :value => "-i" }/
+      %fileset{ :dir => "${src.dir}" }
+        %include{ :name => "**/*.java" }/
+  /
+    Artistic Style 1.24
+    Maintained by: Jim Pattee
+    Original Author: Tal Davidson
+  %target{ :name        => "indent",
+           :description => "indent source code",
+           :depends     => "squeeze-blank" }
+    %echo
+      Indenting source code.
+    %apply{ :executable  => "astyle",
+            :failonerror => "true" }
+      %arg{ :value => "-A4" }/
+      %arg{ :value => "-s4" }/
+      %arg{ :value => "--indent=spaces=4" }/
+      %arg{ :value => "-t4" }/
+      %arg{ :value => "-b"  }/
+      %arg{ :value => "-S"  }/
+      %arg{ :value => "-N"  }/
+      %arg{ :value => "-L"  }/
+      %arg{ :value => "-w"  }/
+      %arg{ :value => "-U"  }/
+      %arg{ :value => "-F"  }/
+      %arg{ :value => "-p"  }/
+      %arg{ :value => "-H"  }/
+      %arg{ :value => "-j"  }/
+      %arg{ :value => "-y"  }/
+      %arg{ :value => "-k3" }/
+      %arg{ :value => "-z2" }/
+      %fileset{ :dir => "${src.dir}" }
+        %include{ :name => "**/*.java" }/

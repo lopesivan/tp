@@ -1,0 +1,3 @@
+#! /bin/bash
+
+make CFLAGS+="-Wall" LDFLAGS+="-lssl" fatorial_big

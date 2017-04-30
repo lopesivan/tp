@@ -1,0 +1,184 @@
+#!/bin/bash
+[ "$1" = '-d' ] && { ECHO=echo; shift; }
+VERSION="0.1"
+
+source ubuntu_10.04.1_lts_env.sh
+
+##############################################################################
+# pre Install
+
+_deps_remove() {
+	$ECHO sudo apt-get remove ffmpeg x264 libx264-dev
+	$ECHO sudo dpkg -r lame-ffmpeg
+}
+
+_deps_update() {
+	$ECHO sudo apt-get update
+}
+
+_deps_install() {
+	$ECHO sudo apt-get install nasm build-essential subversion git-core checkinstall yasm texi2html libfaac-dev libfaad-dev                libopencore-amrnb-dev libopencore-amrwb-dev libsdl1.2-dev libtheora-dev libx11-dev libxfixes-dev libxvidcore-dev zlib1g-dev
+#	$ECHO sudo apt-get install nasm build-essential subversion git-core checkinstall yasm texi2html libfaac-dev libfaad-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libsdl1.2-dev libtheora-dev libx11-dev libxfixes-dev libxvidcore-dev zlib1g-dev
+}
+
+preInstall() {
+	for action in _deps_{remove,update,install}; do
+		$action
+	done
+}
+
+##############################################################################
+# initialize
+
+initialize() {
+
+	test -e $srcDir || $ECHO mkdir $srcDir
+
+	$ECHO cd $srcDir
+}
+
+##############################################################################
+# x264
+
+_x264_godir() {
+	$ECHO cd $srcDir
+}
+
+_x264_getsrc() {
+	$ECHO git clone git://git.videolan.org/x264.git
+}
+
+_x264_configure() {
+	$ECHO cd x264
+	$ECHO ./configure
+}
+
+_x264_make() {
+	$ECHO make
+}
+
+_x264_checkinstall() {
+	sudo checkinstall --pkgname=x264 --pkgversion "2:0.`grep X264_BUILD x264.h -m1 | cut -d' ' -f3`.`git rev-list HEAD | wc -l`+git`git rev-list HEAD -n 1 | head -c 7`" --backup=no --default
+}
+
+x264Install(){
+	_x264_godir
+	_x264_getsrc
+	_x264_configure
+	_x264_make
+	$ECHO _x264_checkinstall
+}
+
+##############################################################################
+# lame
+
+_lame_cp() {
+	$ECHO cp lame-3.98.4.tar.gz $srcDir
+}
+
+_lame_godir() {
+	$ECHO cd $srcDir
+}
+
+_lame_extract() {
+	$ECHO tar xvzf lame-3.98.4.tar.gz
+}
+
+_lame_getsrc() {
+	$ECHO git clone git://git.videolan.org/x264.git
+}
+
+_lame_configure() {
+	$ECHO cd lame-3.98.4
+	$ECHO sudo apt-get remove libmp3lame-dev
+	$ECHO ./configure --enable-nasm --disable-shared
+
+}
+
+_lame_make() {
+	$ECHO make
+}
+
+_lame_checkinstall() {
+	sudo checkinstall --pkgname=lame-ffmpeg --pkgversion="98.4" --backup=no --default --deldoc=yes
+}
+
+lameInstall(){
+	_lame_cp
+	_lame_extract
+	_lame_godir
+#	_lame_getsrc
+	_lame_configure
+	_lame_make
+	$ECHO _lame_checkinstall
+}
+
+##############################################################################
+# ffmpeg
+
+_ffmpeg_godir() {
+	$ECHO cd $srcDir
+}
+
+_ffmpeg_getsrc() {
+	$ECHO svn checkout svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
+}
+
+_ffmpeg_configure() {
+	$ECHO cd ffmpeg
+#	./configure --enable-gpl --enable-version3 --enable-nonfree --enable-postproc --enable-pthreads --enable-libfaac --enable-libfaad --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab
+	$ECHO ./configure --enable-gpl --enable-version3 --enable-nonfree --enable-postproc --enable-pthreads --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab
+}
+
+_ffmpeg_make() {
+	$ECHO make
+}
+
+_ffmpeg_checkinstall() {
+	sudo checkinstall --pkgname=ffmpeg --pkgversion "4:SVN-r`svn info | grep vision | awk '{ print $NF }'`" --backup=no --default
+}
+
+ffmpegInstall(){
+	_ffmpeg_godir
+	_ffmpeg_getsrc
+	_ffmpeg_configure
+	_ffmpeg_make
+	$ECHO _ffmpeg_checkinstall
+}
+
+# ================================== main ====================================
+f1() {
+
+	preInstall
+	initialize
+	x264Install
+#	lameInstall
+#	ffmpegInstall
+#	$ECHO hash x264 ffmpeg
+}
+
+f2() {
+
+#	preInstall
+#	initialize
+#	x264Install
+	lameInstall
+#	ffmpegInstall
+#	$ECHO hash x264 ffmpeg
+}
+
+f3() {
+
+#	preInstall
+#	initialize
+#	x264Install
+#	lameInstall
+	ffmpegInstall
+	$ECHO hash x264 ffmpeg
+}
+
+f1
+#f2
+#f3
+#-----------------------------------------------------------------------------
+exit 0

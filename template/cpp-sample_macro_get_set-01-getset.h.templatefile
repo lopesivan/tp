@@ -1,0 +1,35 @@
+/* vi:set nu nowrap:
+ * $Id:$
+ * Federal University of Rio de Janeiro
+ *      Author: Ivan carlos da Silva Lopes
+ *        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+ *     License: <+LICENSE+>
+ *    Language: C ansi
+ *        File: getset.h
+ *        Date: Sun 25 Oct 2009 05:41:22 PM BRST
+ * Description:
+ */
+
+#ifndef __GETSET_H__
+#define __GETSET_H__
+
+/*****************************************************************************
+ *                                                                           *
+ *  --------------------------- Public Interface --------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+#define GETSET(type, name)               \
+public:                                  \
+	void set##name (const type& var) \
+	{                                \
+		_##name = var;           \
+	}                                \
+	type get##name ()                \
+	{                                \
+		return _##name;          \
+	}                                \
+	private:                         \
+		type _##name;
+
+#endif /* getset.h */

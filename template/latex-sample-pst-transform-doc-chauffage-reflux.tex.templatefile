@@ -1,0 +1,302 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage[a4paper]{geometry}
+\usepackage{pst-reflux}
+\usepackage{frenchle}
+\usepackage{multicol}
+\usepackage{array,booktabs}
+\usepackage{url}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Manuel Luque 1 août 2007
+% révision 1 le 2 août 2007
+% révision 2 le 9 août 2007
+% révision 3 le 1 septembre 2007
+% révision 4 le 5 septembre 2007
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Application des transformations simples dans le plan\\
+avec des commandes de \textsf{PStricks} :\\
+montage de chauffage à reflux(version 1.0)}
+\date{5 septembre 2007}
+\author{Manuel Luque\\
+ \texttt{\footnotesize manuel.luque27@gmail.com}}
+\begin{document}
+\maketitle
+%
+\begin{center}
+\psframebox[fillstyle=solid,fillcolor=cyan!10]{
+\begin{minipage}{0.35\linewidth}
+\psset{unit=0.4}
+\begin{pspicture}(-8,-2)(4,14)
+\ChauffageReflux[ebullition=false,tuyaux=false,fin]{15}
+\rput(0,-1.2){\sf\shortstack{Début\\ du montage}}
+\end{pspicture}
+\end{minipage}}
+\hspace{1cm}
+\psframebox[fillstyle=solid,fillcolor=cyan!10]{
+\begin{minipage}{0.35\linewidth}
+\psset{unit=0.4}
+\begin{pspicture}(-8,-2)(4,14)
+%\psgrid(-8,-2)(5,14)
+\ChauffageReflux[ebullition=false]{30}
+\rput(0,-1.2){\sf\shortstack{Début du \\chauffage}}
+\end{pspicture}
+\end{minipage}}
+
+\psframebox[fillstyle=solid,fillcolor=cyan!10]{
+\begin{minipage}{0.35\linewidth}
+\psset{unit=0.4}
+\begin{pspicture}(-8,-2)(4,14)
+\ChauffageReflux{30}
+\rput(0,-1){\sf Ébullition}
+\end{pspicture}
+\end{minipage}}
+\hspace{1cm}
+\psframebox[fillstyle=solid,fillcolor=cyan!10]{
+\begin{minipage}{0.35\linewidth}
+\psset{unit=0.4}
+\begin{pspicture}(-8,-2)(4,14)
+\ChauffageReflux[ebullition=false,fin]{15}
+\rput(0,-1.2){\sf\shortstack{Fin de \\l'expérience}}
+\end{pspicture}
+\end{minipage}}
+\end{center}
+\newpage
+\section{Ébullition}
+\begin{pspicture}(-8,-2)(5,14)
+\ChauffageReflux{30}
+\end{pspicture}
+\begin{verbatim}
+\begin{pspicture}(-8,-2)(5,14)
+\psgrid(-8,-2)(5,14)
+\ChauffageReflux{30}
+\end{pspicture}
+\end{verbatim}
+
+\section{Début du chauffage}
+\begin{pspicture}(-8,-2)(5,14)
+\ChauffageReflux[ebullition=false]{30}
+\end{pspicture}
+\begin{verbatim}
+\begin{pspicture}(-8,-2)(5,14)
+30 = élévation par rotation des tiges d'un angle de 30 degrés.
+\ChauffageReflux[ebullition=false]{30}
+\end{pspicture}
+\end{verbatim}
+
+\section{Fin du chauffage à reflux}
+\begin{pspicture}(-8,-2)(5,14)
+\ChauffageReflux[ebullition=false,fin]{12}
+\end{pspicture}
+\begin{verbatim}
+\begin{pspicture}(-8,-2)(5,14)
+\ChauffageReflux[ebullition=false,fin]{12}
+\end{pspicture}
+\end{verbatim}
+
+\section{Les paramètres}
+\subsection{L'angle d'élévation}
+\verb+\ChauffageReflux{angle}+, cet angle, en degrés, fixe la hauteur du support. La valeur de l'angle est limitée :
+\[
+    15<\alpha<50
+\]
+\begin{verbatim}
+\pst@cntg=#2\relax \ifnum\pst@cntg>50 \typeout{Niveau must be 50 and not
+`\the\pst@cntg'. Value 50 forced.} \pst@cntg=50
+    \else
+   \ifnum\pst@cntg<15 \typeout{Niveau must be 15 and not
+`\the\pst@cntg'. Value 15 forced.} \pst@cntg=15
+  \fi
+\fi
+\end{verbatim}
+\subsection{Paramètres du montage}
+\newcommand*\titretab[1]{\multicolumn{1}{c}{\bfseries#1}}
+\begin{center}
+\begin{tabular}{>{\bfseries\sffamily\color{blue}}lccm{6.5cm}}
+  \toprule
+  \titretab{Option} & \titretab{Type} & \titretab{Défaut}
+& \titretab{Description}
+\\\toprule
+  tuyaux      &booléen   &true& dessine les tuyaux d'arrivée et sortie de l'eau\\
+  ebullition   &booléen    &true & mélange en ébullition\\
+  fin   &booléen  &false& expérience terminée\\
+  bicol &booléen  &true& ballon bicol avec ampoule de coulée\\
+\\\bottomrule
+\end{tabular}
+\end{center}
+\subsection{Paramètres de style}
+\begin{center}
+\begin{tabular}{>{\bfseries\sffamily\color{blue}}lcm{6.5cm}}
+  \toprule
+  \titretab{style} & \titretab{Défaut}
+& \titretab{Description}
+\\\toprule
+  styleBallon      & solutionballon  & style de la solution du ballon au début\\
+  styleEbullition      & ballonebullition  & style de la solution en ébullition\\
+  styleWater      & Eau  & style de l'eau dans la colonne\\
+  styleColor      & bleupale  & couleur de l'eau des tuyaux\\
+  styleMetal      & metal  & couleur du support-boy\\
+  styleBoulon     & boulon  & style des boulons du support\\
+  styleChauffage     & chauffage   & couleur de l'appareil de chauffage\\
+  styleRefrigerant    & refrigerant    & couleur de l'intérieur de la colonne à boules du réfrigérant\\
+\\\bottomrule
+\end{tabular}
+\end{center}
+\begin{verbatim}
+\newpsstyle{metal}{fillstyle=solid,fillcolor=cyan!10!gray!90}
+\newpsstyle{boulon}{fillstyle=ccslope,slopebegin=cyan!20!gray!90,
+                    slopeend=white}
+\newpsstyle{chauffage}{fillstyle=solid,fillcolor={[HTML]{B6A589}}}
+\newpsstyle{solutionballon}{fillstyle=solid,fillcolor=green!50,linecolor=green}
+\newpsstyle{ballonebullition}{fillstyle=gradient,gradbegin=green,gradend=white,%
+            gradmidpoint=0,linecolor=green}
+\newpsstyle{solutionampoule}{fillstyle=solid,fillcolor=magenta}
+\newpsstyle{Eau}{fillstyle=solid,fillcolor=\psk@styleColor}
+\newpsstyle{refrigerant}{fillstyle=solid}
+\end{verbatim}
+\newpage
+\subsection{Modification de l'angle d'élévation}
+Augmenter l'angle d'élévation revient, bien sûr, à modifier la hauteur du montage. En principe, en se contenant dans des limites acceptables,
+le montage s'adapte automatiquement.
+
+{\psset{unit=0.7}
+\begin{pspicture}(-8,-2)(5,17)
+\ChauffageReflux{45}
+\end{pspicture}}
+\begin{verbatim}
+\begin{pspicture}(-8,-2)(5,17)
+\ChauffageReflux{45}
+\end{pspicture}
+\end{verbatim}
+\section{Le montage classique sans ampoule de coulée : option \texttt{bicol=false}}
+\begin{center}
+\psset{bicol=false}
+\psframebox[fillstyle=solid,fillcolor=cyan!10]{
+\begin{minipage}{0.40\linewidth}
+\psset{unit=0.5}
+\begin{pspicture}(-8,-2)(4,14)
+\ChauffageReflux[ebullition=false,tuyaux=false,fin]{15}
+\rput(0,-1.2){\sf\shortstack{Début\\ du montage}}
+\end{pspicture}
+\end{minipage}}
+\hfill
+\psframebox[fillstyle=solid,fillcolor=cyan!10]{
+\begin{minipage}{0.40\linewidth}
+\psset{unit=0.5}
+\begin{pspicture}(-8,-2)(4,14)
+%\psgrid(-8,-2)(5,14)
+\ChauffageReflux[ebullition=false]{30}
+\rput(0,-1.2){\sf\shortstack{Début du \\chauffage}}
+\end{pspicture}
+\end{minipage}}
+
+\psframebox[fillstyle=solid,fillcolor=cyan!10]{
+\begin{minipage}{0.40\linewidth}
+\psset{unit=0.5}
+\begin{pspicture}(-8,-2)(4,14)
+\ChauffageReflux{30}
+\rput(0,-1){\sf Ébullition}
+\end{pspicture}
+\end{minipage}}
+\hfill
+\psframebox[fillstyle=solid,fillcolor=cyan!10]{
+\begin{minipage}{0.40\linewidth}
+\psset{unit=0.5}
+\begin{pspicture}(-8,-2)(4,14)
+\ChauffageReflux[ebullition=false,fin]{15}
+\rput(0,-1.2){\sf\shortstack{Fin de \\l'expérience}}
+\end{pspicture}
+\end{minipage}}
+\end{center}
+\clearpage
+\section{Variations sur les paramètres de style}
+\subsection{Couleurs automnales}
+\newpsstyle{EBULLITION}{fillstyle=gradient,gradbegin={[HTML]{B6A589}},gradend=white,gradmidpoint=0}
+\newpsstyle{AMPOULE}{fillstyle=solid,fillcolor={[HTML]{947F62}}}
+\newpsstyle{METAL}{fillstyle=solid,fillcolor={[HTML]{A29181}}}
+\newpsstyle{REFRIGERANT}{fillstyle=solid,fillcolor={[HTML]{E9E1CE}}}
+\newpsstyle{BOULON}{fillstyle=ccslope,slopebegin={[HTML]{716044}},slopeend=white}
+\definecolor{EAU}{cmyk}{0.2,0,0,0}
+%
+\begin{center}
+\psscalebox{0.75}{%
+\psframebox[fillstyle=solid,fillcolor={[HTML]{E9E1CE}},linestyle=none]{%
+\begin{pspicture}(-8,-2)(4,14.2)
+\psset{linecolor={[HTML]{716044}},hatchcolor={[HTML]{716044}}}
+\ChauffageReflux[styleEbullition=EBULLITION,%
+                 styleAmpoule=AMPOULE,%
+                 styleColor=EAU,%
+                 styleMetal=METAL,%
+                 styleRefrigerant=REFRIGERANT,%
+                 styleBoulon=BOULON,%
+                 linewidth=2\pslinewidth]{30}
+\end{pspicture}}}
+\end{center}
+\small
+\begin{verbatim}
+\newpsstyle{EBULLITION}{fillstyle=gradient,gradbegin={[HTML]{B6A589}},%
+                                           gradend=white,gradmidpoint=0}
+\newpsstyle{AMPOULE}{fillstyle=solid,fillcolor={[HTML]{947F62}}}
+\newpsstyle{METAL}{fillstyle=solid,fillcolor={[HTML]{A29181}}}
+\newpsstyle{REFRIGERANT}{fillstyle=solid,fillcolor={[HTML]{E9E1CE}}}
+\newpsstyle{BOULON}{fillstyle=ccslope,slopebegin={[HTML]{716044}},slopeend=white}
+\definecolor{EAU}{cmyk}{0.2,0,0,0}
+\begin{pspicture}(-8,-2)(4,14.2)
+\psset{linecolor={[HTML]{716044}},hatchcolor={[HTML]{716044}}}
+\ChauffageReflux[styleEbullition=EBULLITION,%
+                 styleAmpoule=AMPOULE,%
+                 styleColor=EAU,%
+                 styleMetal=METAL,%
+                 styleRefrigerant=REFRIGERANT,%
+                 styleBoulon=BOULON,%
+                 linewidth=2\pslinewidth]{30}
+\end{pspicture}
+\end{verbatim}
+\clearpage
+\subsection{Style noir \& blanc}
+\newpsstyle{ebullitionNB}{fillstyle=gradient,gradbegin=gray!80,gradend=white,gradmidpoint=0}
+\newpsstyle{ampouleNB}{fillstyle=solid,fillcolor=gray!70}
+\newpsstyle{metalNB}{fillstyle=solid,fillcolor=gray!50}
+\newpsstyle{refrigerantNB}{fillstyle=solid,fillcolor=white}
+\newpsstyle{boulonNB}{fillstyle=ccslope,slopebegin=gray,slopeend=white}
+\definecolor{eauNB}{rgb}{0.9,0.9,0.9}
+
+\begin{center}
+\psset{bicol=false}
+\psscalebox{0.75}{%
+\psframebox[fillstyle=solid,fillcolor=gray!30,linestyle=none]{%
+\begin{pspicture}(-8,-2)(4,14.2)
+\psset{linecolor=black}
+\ChauffageReflux[styleEbullition=ebullitionNB,%
+                 styleAmpoule=ampouleNB,%
+                 styleColor=eauNB,%
+                 styleMetal=metalNB,%
+                 styleRefrigerant=refrigerantNB,%
+                 styleBoulon=boulonNB,%
+                 linewidth=2\pslinewidth]{30}
+\end{pspicture}}}
+\end{center}
+\small
+\begin{verbatim}
+\newpsstyle{ebullitionNB}{fillstyle=gradient,gradbegin=gray!80,gradend=white,gradmidpoint=0}
+\newpsstyle{ampouleNB}{fillstyle=solid,fillcolor=gray!70}
+\newpsstyle{metalNB}{fillstyle=solid,fillcolor=gray!50}
+\newpsstyle{refrigerantNB}{fillstyle=solid,fillcolor=white}
+\newpsstyle{boulonNB}{fillstyle=ccslope,slopebegin=gray,slopeend=white}
+\definecolor{eauNB}{rgb}{0.9,0.9,0.9}
+\psset{bicol=false}
+\psscalebox{0.75}{%
+\psframebox[fillstyle=solid,fillcolor=gray!20,linestyle=none]{%
+\begin{pspicture}(-8,-2)(4,14.2)
+\psset{linecolor=black}
+\ChauffageReflux[styleEbullition=ebullitionNB,%
+                 styleAmpoule=ampouleNB,%
+                 styleColor=EAU,%
+                 styleMetal=metalNB,%
+                 styleRefrigerant=refrigerantNB,%
+                 styleBoulon=boulonNB,%
+                 linewidth=2\pslinewidth]{30}
+\end{pspicture}}}
+\end{verbatim}
+\end{document}

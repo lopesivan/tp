@@ -1,0 +1,2 @@
+vlc -I rc  /home/ivan/Movie/big_buck_bunny_480p_stereo.ogg --screen-fps=10 :screen-caching=100 --sout='#transcode{vcodec=h264,venc=x264{bframes=0,keyint=40},vb=512}:rtp{mux=ts,dst=127.0.0.1,port=4444}'
+#vlc -I rc  /home/ivan/Movie/big_buck_bunny_480p_stereo.ogg --screen-fps=10 :screen-caching=100 --sout='#transcode{vcodec=h264,venc=x264{bframes=0,keyint=40},vb=512}:rtp{mux=ts,dst=127.0.0.1,port=4444}'

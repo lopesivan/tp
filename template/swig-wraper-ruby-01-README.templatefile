@@ -1,0 +1,12 @@
+$ irb
+irb(main):001:0> require 'example'
+=> true
+irb(main):002:0> fact(4)
+NoMethodError: undefined method `fact' for main:Object
+        from (irb):2
+irb(main):003:0> example.fact(4)
+NameError: undefined local variable or method `example' for main:Object
+        from (irb):3
+irb(main):004:0>  Example.fact(4)
+=> 24
+irb(main):005:0> 

@@ -1,0 +1,46 @@
+#!/bin/sh
+# vi:set nu nowrap:
+# stream-gst.sh: <+ =Short Description= +>.
+
+# $Id:$
+# Federal University of Rio de Janeiro
+#      Author: Ivan carlos da Silva Lopes
+#        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+#     License: gpl
+#    Language: Shell Script
+#        File: stream-gst.sh
+#        Date: Fri 14 May 2010 04:18:21 PM BRT
+# Description:
+#
+#
+
+_basename=${0##*/}
+
+Usage() {
+cat << EOF
+$_basename 1 192.168.1.101
+
+In this example you are transmiting from the /dev/video1 (Front Camera) to the
+computer 192.168.1.101
+or
+You can also steam from the back camera to all the computers on your network
+by:
+
+$_basename 0 192.168.1.255
+EOF
+}
+
+[ "$1" ] || {
+	Usage
+	exit 1
+}
+
+[ "$2" ] || {
+	Usage
+	exit 1
+}
+
+# ----------------------------------------------------------------------------
+gst-launch v4l2src device=/dev/video$1 ! videoscale! video/x-raw-yuv,width=320,height=240,framerate=30/1 ! ffmpegcolorspace ! jpegenc ! tcpserversink host=$2 port=5000
+# ----------------------------------------------------------------------------
+exit 0

@@ -1,0 +1,14 @@
+\title{Titulo da Minha Apresentacao}
+\author[\authorNameShort]{\authorNameLong\\\url{\authorEmail}}
+\date{\today}
+\subject{Assunto da minha apresentacao}
+\keywords{autoconf, automake, build system, tutorial, introduction, presentation}
+
+\newcommand{\mypart}[1]{\part{#1}\frame{\partpage \tableofcontents}}
+\newcommand{\mysection}[1]{\section{#1}\frame{\frametitle{#1}\tableofcontents[sectionstyle=show/shaded,subsectionstyle=show/shaded/shaded]}}
+\newcommand{\mysubsection}[1]{\subsection{#1}\frame{\frametitle{#1}\tableofcontents[sectionstyle=show/shaded,subsectionstyle=show/shaded/shaded]}}
+
+%\def\authorNameShort{Ivan Lopes}
+%\def\authorNameLong{Ivan Carlos D. S. Lopes}
+%\def\authorEmail{lopesivan@poli.ufrj.br}
+%\def\authorWebPage{lopesivan@poli.ufrj.br}

@@ -1,0 +1,81 @@
+stat -c %A" : "%a" : "%n *.jpg
+
+ou
+
+lsperm
+
+Rename files with the command interpreter sh
+sh is the standard command interpreter for the system.
+
+ifi - input + filter + interpreter
+
+Step 1:
+
+$ ls Run*
+Run this to install syntax and clip files for jEdit.ahk
+Run this to install syntax and clip files for PSPad.ahk
+Run this to install syntax and clip library files for TextPad.ahk
+Run this to install syntax and cliptext files for EditPlus.ahk
+Run this to install syntax file for MED.ahk
+Run this to install syntax file for Notepad++.ahk
+Run this to install syntax highlighting for ConTEXT.ahk
+Run this to install syntax highlighting for UltraEdit.ahk
+
+
+
+Step 2:
+
+$ ls Run*| sed -r 's/.* (.*.ahk)/& => \1/'
+Run this to install syntax and clip files for jEdit.ahk => jEdit.ahk
+Run this to install syntax and clip files for PSPad.ahk => PSPad.ahk
+Run this to install syntax and clip library files for TextPad.ahk => TextPad.ahk
+Run this to install syntax and cliptext files for EditPlus.ahk => EditPlus.ahk
+Run this to install syntax file for MED.ahk => MED.ahk
+Run this to install syntax file for Notepad++.ahk => Notepad++.ahk
+Run this to install syntax highlighting for ConTEXT.ahk => ConTEXT.ahk
+Run this to install syntax highlighting for UltraEdit.ahk => UltraEdit.ahk
+
+
+
+Step 3:
+
+$ ls Run*| sed -r 's/.* (.*.ahk)/mv & \1/'
+mv Run this to install syntax and clip files for jEdit.ahk jEdit.ahk
+mv Run this to install syntax and clip files for PSPad.ahk PSPad.ahk
+mv Run this to install syntax and clip library files for TextPad.ahk TextPad.ahk
+mv Run this to install syntax and cliptext files for EditPlus.ahk EditPlus.ahk
+mv Run this to install syntax file for MED.ahk MED.ahk
+mv Run this to install syntax file for Notepad++.ahk Notepad++.ahk
+mv Run this to install syntax highlighting for ConTEXT.ahk ConTEXT.ahk
+mv Run this to install syntax highlighting for UltraEdit.ahk UltraEdit.ahk
+
+
+
+Step 4:
+
+$ ls Run*| sed -r 's/.* (.*.ahk)/mv "&" \1/'
+mv "Run this to install syntax and clip files for jEdit.ahk" jEdit.ahk
+mv "Run this to install syntax and clip files for PSPad.ahk" PSPad.ahk
+mv "Run this to install syntax and clip library files for TextPad.ahk" TextPad.ahk
+mv "Run this to install syntax and cliptext files for EditPlus.ahk" EditPlus.ahk
+mv "Run this to install syntax file for MED.ahk" MED.ahk
+mv "Run this to install syntax file for Notepad++.ahk" Notepad++.ahk
+mv "Run this to install syntax highlighting for ConTEXT.ahk" ConTEXT.ahk
+mv "Run this to install syntax highlighting for UltraEdit.ahk" UltraEdit.ahk
+
+
+
+Step 5:
+
+$ ls Run*| sed -r 's/.* (.*.ahk)/mv "&" \1/'| sh
+
+
+
+Other example: .texi -> .CCCAA
+
+$ ls *.texi| sed 's/.*/ mv & `basename & .texi`.CCCAA/'|sh
+$ find . -name \*jpg -printf "%f %TY-%Tm-%Td_%f\n"| while read img imgdatada; do echo $img $imgdatada; done
+ocr_01.jpg 2009-02-02_ocr_01.jpg
+ocr_03.jpg 2009-02-02_ocr_03.jpg
+ocr_02.jpg 2009-02-02_ocr_02.jpg
+ocr_04.jpg 2009-02-02_ocr_04.jpg

@@ -1,0 +1,77 @@
+############################################################
+# Automatically created makefile for mycint
+############################################################
+
+# Set variables ############################################
+CXX         := g++ 
+CC          := gcc
+LD          := g++ 
+CINT        := $(shell which cint)
+CINTINCDIRU := $(shell cint-config --unix --incdir)
+CINTINCDIRW := $(shell echo  $(CINTINCDIRU) )
+CINTLIB     := $(shell cint-config --unix --libdir)/libCint.so
+IPATH       :=  -I/learning/learning-cpp/cint-5.18.00
+CMACRO      :=  -DG__SHAREDLIB -DG__OSFDLL -DG__ANSI -DG__ERRORCALLBACK -DG__SIGNEDCHAR -DG__NEWSTDHEADER -DG__CINT_VER6 -DG__NATIVELONGLONG -DG__P2FCAST -DG__STD_EXCEPTION -DG__HAVE_CONFIG -DG__NOMAKEINFO 
+CXXMACRO    :=   -DG__SHAREDLIB -DG__OSFDLL -DG__ANSI -DG__ERRORCALLBACK -DG__SIGNEDCHAR -DG__NEWSTDHEADER -DG__CINT_VER6 -DG__NATIVELONGLONG -DG__P2FCAST -DG__STD_EXCEPTION -DG__HAVE_CONFIG -DG__NOMAKEINFO 
+CFLAGS      := -O2 -m64  -fPIC   
+CXXFLAGS    := -O2 -m64  -fPIC   
+CINTIPATH   := -I$(CINTINCDIRW)
+OBJECT      := mycint
+LINKSPEC    := 
+
+# Set File names ###########################################
+CIFC        :=
+CIFH        :=
+CIFO        :=
+CXXIFC      :=
+CXXIFH      :=
+CXXIFO      :=
+
+LIBS        := -L"$(shell cint-config --libdir)" $(subst @imp@,Cint,-l@imp@) -lm -ldl -lreadline  
+
+CINTOPT     := 
+COFILES     := thisfile.o 
+
+CHEADER     := 
+CHEADERCINT := 
+CSTUB       := 
+CSTUBCINT   := 
+
+CXXOFILES   := 
+
+CXXHEADER   := 
+CXXHEADERCINT := 
+
+CXXSTUB     := 
+CXXSTUBCINT := 
+
+MAINDIRU    := $(patsubst %/bin/,%/,$(dir $(CINT)))/cint/main/
+MAINDIRW    := $(shell echo  $(patsubst %/bin/,%/,$(dir $(shell which cint))))/cint/main/
+READLINEA   :=  
+# Link Object #############################################
+$(OBJECT) : $(CINTLIB) $(READLINEA) G__setup.o $(COFILES) $(CXXOFILES) $(CIFO) $(CXXIFO)
+	$(LD) -O2 -m64  $(CCOPT) -o $(OBJECT) $(CIFO) $(CXXIFO) $(COFILES) $(CXXOFILES) G__setup.o $(LIBS) $(READLINEA)
+
+# Compile User source files ##############################
+thisfile.o: thisfile.c $(CHEADER)
+	 $(CC) $(IPATH) $(CMACRO) -O2 -m64  -fPIC  -o thisfile.o -c thisfile.c
+
+# Compile main function  #################################
+G__main.o: $(MAINDIRU)/G__main.c
+	$(CC)  $(CMACRO) $(CFLAGS) $(CCOPT) $(LINKSPEC) $(CINTIPATH) -o $@ -c $<
+
+# Compile dictionary setup routine #######################
+G__setup.o: $(MAINDIRU)/G__setup.c $(CINTINCDIRU)/G__ci.h
+	$(CC) $(LINKSPEC) $(CINTIPATH) $(CMACRO) $(CFLAGS) -o $@ -c $(MAINDIRW)/G__setup.c
+
+
+
+# Clean up #################################################
+
+clean :
+	$(RM) $(OBJECT) core $(CIFO) $(CIFC) $(CIFH) $(CXXIFO) $(CXXIFC) $(CXXIFH) $(RMCOFILES) $(RMCXXOFILES) G__main.o G__setup.o
+
+# re-makecint ##############################################
+makecint :
+	makecint  -mk Makefile -I/learning/learning-cpp/cint-5.18.00 -o mycint -m -C thisfile.c
+

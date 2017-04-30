@@ -1,0 +1,67 @@
+Baixar um branch especifico ou ramo da arvore do github
+=======================================================
+
+Primeiro Método
+===============
+
+$ git clone https://github.com/fdinoff/intellij-neovim.git --branch scratch
+Cloning into 'intellij-neovim'...
+remote: Counting objects: 46, done.
+remote: Total 46 (delta 0), reused 0 (delta 0), pack-reused 46
+Unpacking objects: 100% (46/46), done.
+Checking connectivity... done.
+
+$ cd intellij-neovim/
+
+$ ls
+LICENSE  src/
+
+$ ls src/com/neovim/ideanvim/
+EmbeddedNeovimEditorProvider.java  ModifiedKeyListener.java  Util.java
+GuiPanel.java                      NeovimFileEditor.java
+KeyListener.java                   NeovimPlugin.java
+
+
+Segundo Método
+==============
+
+$ git clone https://github.com/fdinoff/intellij-neovim.git
+Cloning into 'intellij-neovim'...
+remote: Counting objects: 46, done.
+remote: Total 46 (delta 0), reused 0 (delta 0), pack-reused 46
+Unpacking objects: 100% (46/46), done.
+Checking connectivity... done.
+
+$ cd intellij-neovim/
+
+$ ls
+LICENSE
+
+$ git fetch origin scratch
+From https://github.com/fdinoff/intellij-neovim
+ * branch            scratch    -> FETCH_HEAD
+
+$ git pull origin scratch
+From https://github.com/fdinoff/intellij-neovim
+ * branch            scratch    -> FETCH_HEAD
+Updating 8b25d71..af15f15
+Fast-forward
+ src/com/neovim/ideanvim/EmbeddedNeovimEditorProvider.java |  66 +++++
+ src/com/neovim/ideanvim/GuiPanel.java                     | 350 +++++++++++++++++++++++++
+ src/com/neovim/ideanvim/KeyListener.java                  |  44 ++++
+ src/com/neovim/ideanvim/ModifiedKeyListener.java          |  38 +++
+ src/com/neovim/ideanvim/NeovimFileEditor.java             | 258 ++++++++++++++++++
+ src/com/neovim/ideanvim/NeovimPlugin.java                 | 243 +++++++++++++++++
+ src/com/neovim/ideanvim/Util.java                         |  53 ++++
+ 7 files changed, 1052 insertions(+)
+ create mode 100644 src/com/neovim/ideanvim/EmbeddedNeovimEditorProvider.java
+ create mode 100644 src/com/neovim/ideanvim/GuiPanel.java
+ create mode 100644 src/com/neovim/ideanvim/KeyListener.java
+ create mode 100644 src/com/neovim/ideanvim/ModifiedKeyListener.java
+ create mode 100644 src/com/neovim/ideanvim/NeovimFileEditor.java
+ create mode 100644 src/com/neovim/ideanvim/NeovimPlugin.java
+ create mode 100644 src/com/neovim/ideanvim/Util.java
+
+$ ls
+LICENSE  src/
+

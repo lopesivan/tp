@@ -1,0 +1,14 @@
+<!-- A simple DTD to express mathematical calculations -->
+<!-- Instances of this document type will be interpreted by syntaxTree.exe -->
+<!ENTITY  %  operation  "add | sub | mul | div">
+
+<!ELEMENT calculation (%operation;)>
+<!ELEMENT value       EMPTY>
+<!ATTLIST value
+          number      CDATA   #REQUIRED>
+
+<!ELEMENT add         ((%operation;|value),(%operation;|value))>
+<!ELEMENT sub         ((%operation;|value),(%operation;|value))>
+<!ELEMENT mul         ((%operation;|value),(%operation;|value))>
+<!ELEMENT div         ((%operation;|value),(%operation;|value))>
+

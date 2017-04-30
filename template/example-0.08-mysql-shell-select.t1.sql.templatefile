@@ -1,0 +1,9 @@
+-- main table
+select * from t1;
+
+-- The following example shows how you can use the bit group functions to
+-- calculate the number of days per month a user has visited a Web page. 
+
+select year, month, bit_count(bit_or(1<<day)) as days from t1
+       group by year,month;
+

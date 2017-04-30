@@ -1,0 +1,100 @@
+%html
+  /
+    Document   : index.html
+    Created on : #{Time.new}
+    Author     : ivan
+    Description: flowplayer sample.
+
+  %head
+    %title Server links
+
+    %meta{ 'http-equiv' => 'Content-Type' ,
+            :content    => 'text/html'    ,
+            :charset    => 'utf-8'}
+
+    /
+      some minimal styling, can be removed.
+
+    %link{ :rel     => 'stylesheet' ,
+           :type    => 'text/css'   ,
+           :href    => 'style.css'  ,
+           :charset => 'utf-8'}
+
+  %body
+    %div#page
+      %h1
+        Video for ALL
+
+      %p
+        View commented source code to get familiar with Video installation.
+
+      /
+        "Video For Everybody"
+      - video = { :controls => 'controls',
+                  :autoplay => 'autoplay',
+                  :poster   => 'http://sandbox.thewikies.com/vfe-generator/images/big-buck-bunny_poster.jpg',
+                  :width    => '640',
+                  :height   => '360',
+                  :title    => 'Big Buck Bunny',
+                  :source   => { :mp4  => 'http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4',
+                                 :webm => 'http://clips.vorwaerts-gmbh.de/big_buck_bunny.webm',
+                                 :ogv  => 'http://clips.vorwaerts-gmbh.de/big_buck_bunny.ogv'} }
+
+      - flowplayer = { :swf   => 'http://releases.flowplayer.org/swf/flowplayer-3.2.1.swf',
+                       :parameters => [ ["movie", "http://releases.flowplayer.org/swf/flowplayer-3.2.1.swf"],
+                                        ["allowFullScreen", "true"],
+                                        ["wmode", "transparent"],
+                                        ["flashVars", "config={'playlist':['http%3A%2F%2Fsandbox.thewikies.com%2Fvfe-generator%2Fimages%2Fbig-buck-bunny_poster.jpg',{'url':'http%3A%2F%2Fclips.vorwaerts-gmbh.de%2Fbig_buck_bunny.mp4','autoPlay':false}]}" ]]}
+
+      %video{ :controls => video[:controls],
+              :poster   => video[:poster],
+              :width    => video[:width],
+              :height   => video[:height] }
+
+        /
+          "MP4"
+        - type = "video/%s" % video[:source].keys[0]
+        %source{ :src  =>video[:source][:mp4],
+                 :type =>"#{type}" }/
+
+        /
+          "WEBM"
+        - type = "video/%s" % video[:source].keys[1]
+        %source{ :src  =>video[:source][:webm],
+                 :type =>"#{type}" }/
+
+        /
+          "OGV"
+        - type = "video/%s" % video[:source].keys[2]
+        %source{ :src  =>video[:source][:ogv],
+                 :type =>"#{type}" }/
+
+        /
+          "Flv"
+        %object{ :type   => 'application/x-shockwave-flash',
+                 :data   => flowplayer[:swf],
+                 :width  => video[:width],
+                 :height => video[:height] }
+
+          - flowplayer[:parameters].each do |name,value|
+            %param{ :name  => "#{name}",
+                    :value => "#{value}" }/
+
+          %img{ :alt    => video[:title],
+                :src    => video[:poster],
+                :width  => video[:width],
+                :height => video[:height],
+                :title  => "No video playback capabilities, please download the video below" }/
+
+      %p
+        %strong
+          Download video:
+        %a{ :href => "video[:source][:mp4]" }
+          MP4 format
+        |
+        %a{ :href => "video[:source][:ogv]" }
+          Ogg format
+        |
+        %a{ :href => "video[:source][:webm]"}
+          WebM format
+

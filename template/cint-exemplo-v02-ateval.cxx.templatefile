@@ -1,0 +1,14 @@
+// ateval.cxx
+#include <string>
+
+int G__ateval(string &x)
+{
+	cout << x << endl;
+	return(0);
+}
+
+int G__ateval(int x)
+{
+	cout << x << endl;
+	return(1);
+}

@@ -1,0 +1,16 @@
+% define variables:
+
+\def\srcDir{../v1.0/src/}
+\def\logoICE{img/ice_04}
+
+\def\authorNameShort{Ivan Lopes}
+\def\authorNameLong{Ivan Carlos D. S. Lopes}
+\def\authorEmail{lopesivan@poli.ufrj.br}
+\def\authorWebPage{lopesivan@poli.ufrj.br}
+
+
+%\title{Dicas Simples de rede}
+%\author[Ivan Lopes]{Ivan Carlos D. S. Lopes\\\url{lopesivan@poli.ufrj.br}}
+%\date{\today}
+%\subject{Configurando a rede no Linux}
+%\keywords{autoconf, automake, build system, tutorial, introduction, presentation}

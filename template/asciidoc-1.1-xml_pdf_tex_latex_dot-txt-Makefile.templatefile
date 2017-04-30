@@ -1,0 +1,28 @@
+TEXT    =\
+	article.txt \
+	asciidoc_testcases.txt\
+	README.txt \
+	code_c.txt \
+	code_cpp.txt
+
+TARGETS = $(TEXT:.txt=.html)
+
+all: $(TARGETS)
+
+article.html           : article.txt
+	asciidoc -a data-uri -a icons -a toc -a max-width=55em $^
+
+asciidoc_testcases.html: asciidoc_testcases.txt
+	asciidoc -a data-uri -a icons -a toc -a max-width=55em $^
+
+README.html            : README.txt
+	asciidoc -a data-uri -a icons -a toc -a max-width=55em $^
+
+code_c.html            : code_c.txt
+	asciidoc -a data-uri -a icons -a toc -a max-width=55em $^
+
+code_cpp.html          : code_cpp.txt
+	asciidoc -a data-uri -a icons -a toc -a max-width=55em $^
+
+clean:
+	rm -rf $(TARGETS)

@@ -1,0 +1,4 @@
+#! /bin/bash
+
+file=thread1
+test -e $file && rm $file

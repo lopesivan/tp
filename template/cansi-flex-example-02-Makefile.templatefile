@@ -1,0 +1,18 @@
+progname  =  example
+lexsrc    =  fb1_4.l
+
+LDFLAGS  += -lfl
+
+LEX       =  flex
+
+all: $(progname).c $(progname)
+
+$(progname).c: $(lexsrc)
+	$(LEX) -o $@ $^
+
+$(progname): $(progname).o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+clean:
+	/bin/rm -rf $(progname).c $(progname) lex.yy.c *.o
+# END OF FILE

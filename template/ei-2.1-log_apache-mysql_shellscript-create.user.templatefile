@@ -1,0 +1,6 @@
+create database __DATABASE__;
+GRANT usage ON *.* TO __USER__@localhost IDENTIFIED BY '__PASS__';
+GRANT usage ON *.* TO __USER__@'%' IDENTIFIED BY '__PASS__';
+GRANT CREATE, DROP, SELECT, INSERT, UPDATE, DELETE ON __DATABASE__.* TO __USER__@localhost;
+GRANT CREATE, DROP, SELECT, INSERT, UPDATE, DELETE ON __DATABASE__.* TO __USER__@'%';
+flush privileges;

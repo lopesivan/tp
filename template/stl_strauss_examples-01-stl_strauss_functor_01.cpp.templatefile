@@ -1,0 +1,33 @@
+#include <iostream>
+
+class FunctorString
+{
+  std::string m_str;
+public:
+  FunctorString(const std::string& str) : m_str(str)
+  {}
+  bool operator ()(const std::string& str)
+  {
+    return m_str == str;
+  }
+};
+
+
+int main()
+{
+  FunctorString comparaComLaranja("laranja"), comparaComBanana("banana");
+
+  //
+  // todos chamados como função, comparando com
+  // coisas diferentes
+  //
+
+  std::cout << comparaComLaranja("maçã") << std::endl; // não
+  std::cout << comparaComLaranja("banana") << std::endl; // também não
+  std::cout << comparaComLaranja("laranja") << std::endl; // agora sim
+
+  std::cout << comparaComBanana("maçã") << std::endl; // não
+   std::cout << comparaComBanana("pera") << std::endl; // também não
+   std::cout << comparaComBanana("banana") << std::endl; // agora sim
+
+}

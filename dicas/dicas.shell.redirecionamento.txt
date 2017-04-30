@@ -1,0 +1,564 @@
+pretendo responder a pergunta que o grande Julio fez em um post
+anterior ... mas
+preferi responder em tres e-mails, onde todo o topico serah abordado, partindo
+do iniciante ateh o cascudo .. HAHAHHAHAHA
+
+
+- Iniciante -
+
+a) gerando erro no comando 'fmt'.
+
+$ fmt -y
+fmt: invalid option -- y
+Try `fmt --help' for more information.
+
+=====================Atencao======================
+Lembre-se da correspondencia entre os numeros e os
+FD (file descriptores).
+0 - stdin
+1 - stdout
+2 - stderr
+==================================================
+
+b) Ligando a saida padrao 'stdout' com o arquivo
+'a.txt'
+
+$ fmt -y > a.txt
+fmt: invalid option -- y
+Try `fmt --help' for more information.
+
+$ test -e a.txt && echo 'Arquivo existe'
+$ echo $?
+0
+
+ou
+
+$ test -e a.txt && echo 'Arquivo existe' || echo 'Arquivo nao existe'
+Arquivo existe
+
+Legal o arquivo existe ... mas oque tem dentro dele????
+
+$ cat a.txt
+
+Putz!!! ... tah vazio.
+...
+Sim faz sentido, pois vc ligou 'stdout' com um
+arquivo, todavia, seu comando soh cuspiu 'stderr'
+
+facil ...
+
+=================!!!*Atencao*!!!==================
+$ fmt -y > a.txt
+$ fmt -y 1> a.txt
+sao equivalentes, pois o 1 estah subentendido.
+==================================================
+
+c) Ligando o FD 2 com um arquivo.
+
+direciono FD 2 do comando para o arquivo 'b.txt'.
+$ fmt -y 2> b.txt
+
+Podemos verificar que realmente conseguimos
+escrever no arquivo com a saida do FD 2.
+
+$ cat b.txt
+fmt: invalid option -- y
+Try `fmt --help' for more information.
+
+OK??
+tranquilo ...
+
+d) Utilizando a opcao '--version' que eh valida, e
+conduzida por stdout, temos:
+
+$ fmt --version
+fmt (GNU coreutils) 5.97
+Copyright (C) 2006 Free Software Foundation, Inc.
+This is free software. You may redistribute copies of it under the terms of
+the GNU General Public License http://www.gnu.org/licenses/gpl.html>.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Ross Paterson.
+
+e) Ligando o FD 1 com um arquivo.
+
+$ fmt --version > a.txt
+
+$ cat a.txt
+fmt (GNU coreutils) 5.97
+Copyright (C) 2006 Free Software Foundation, Inc.
+This is free software. You may redistribute copies of it under the terms of
+the GNU General Public License http://www.gnu.org/licenses/gpl.html>.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Ross Paterson.
+
+e) Ligando o FD 2 com um arquivo.
+
+$ fmt --version 2> b.txt
+fmt (GNU coreutils) 5.97
+Copyright (C) 2006 Free Software Foundation, Inc.
+This is free software. You may redistribute copies of it under the terms of
+the GNU General Public License http://www.gnu.org/licenses/gpl.html>.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Ross Paterson.
+
+$ cat b.txt
+esse arquivo estah vazio ...
+
+perfeito, muito facil ...
+
+
+vamos complicar um pouco ...
+
+$ ls -d /usr /usa
+ls: /usa: No such file or directory
+/usr/
+
+repare que tivemos dois tipos de saidas, uma
+conduzida pelo stdout, outra pelo stderr
+
+vejamos:
+
+# FD 2 ligado a arquivo
+$ ls -d /usr /usa 2> a.txt
+/usr/
+$ cat a.txt
+ls: /usa: No such file or directory
+
+# FD 1 ligado a arquivo
+$ ls -d /usr /usa 1> a.txt
+ls: /usa: No such file or directory
+$ cat a.txt
+/usr/
+
+vamos fazer copias ... isso mesmo xerocar ... na
+verdade nem uma coisa nem outra, sao copias de atribuicoes
+...
+
+# FD 2 vai funcionar igual ao FD 1
+# FD 2 recebe as atribuicoes de FD 1 ...
+$ ls -d /usr /usa 2>&1 | tee a.txt
+ls: /usa: No such file or directory
+/usr/
+
+# repare que tanto FD 1 quanto FD 2 passaram pelo pipe.
+$ cat a.txt
+ls: /usa: No such file or directory
+/usr/
+
+... veja a diferenca agora ...
+
+$ ls -d /usr /usa | tee a.txt
+ls: /usa: No such file or directory
+/usr/
+# domente FD 1 passou pelo pipe.
+$ cat a.txt
+/usr/
+
+# FD 1 vai funcionar igual ao FD 2
+# FD 1 recebe as atribuicoes de FD 2 ...
+$ ls -d /usr /usa 1>&2 | tee a.txt
+ls: /usa: No such file or directory
+/usr/
+# tanto Fd 1 quanto FD 2 foram barrados ...
+$ cat a.txt
+vazio zzzz
+
+# Agora vou fechar FD1
+$ ls -d /usr /usa >&-
+ls: /usa: No such file or directory
+ls: write error: Bad file descriptor
+
+# Fechando FD1 e FD2
+$ ls -d /usr /usa >&- 2>&-
+repare que o erro encadeado de FD1 foi para FD2.
+
+# Fechando FD2
+$ ls -d /usr /usa 2>&-
+/usr/
+
+# FD2 com as caracteristicas de FD1
+$ ls -d /usa /usr 2>&1
+ls: /usa: No such file or directory
+/usr/
+
+# FD2 com as caracteristicas de FD1 e
+# mostre apenas os erros.
+$ ls -d /usa /usr 2>&1 1>&-
+ls: /usa: No such file or directory
+ls: write error: Bad file descriptor
+
+# FD2 com as caracteristicas de FD1,
+# mostre apenas os erros e troque e por a.
+$ ls -d /usa /usr 2>&1 1>&- | tr e a
+ls: /usa: No such fila or diractory
+ls: writa arror: Bad fila dascriptor
+
+
+==================================
+= Esqueca tudo e decore o Macete =
+= MACETE =
+* O FD 2 nao passa o pipe.
+* '<-' sinal de recebe.
+==================================
+
+a) Ninguem pode atravessar o pipe ...
+
+FD1 <- FD2 # FD1 recebe FD2, isto eh, FD1 nao
+# atravesse o pipe, igual ao FD2.
+
+$ ls -d /usa /usr 1>&2 | sed 's/^/passou-> /'
+ls: /usa: No such file or directory
+/usr/
+
+
+b) Somente o erro pode atravessar o pipe.
+FD3 <- FD2 # FD3 nao atravessa
+FD2 <- FD1 # FD2 atravessa
+FD1 <- FD3 # FD1 nao atravessa, pq FD3 tb nao.
+FD3 trancado.
+
+$ ls -d /usa /usr 3>&2 2>&1 1>&3 3>&- | sed 's/^/passou-> /'
+passou-> ls: /usa: No such file or directory
+/usr/
+
+c) somente o stdout pode atravessar o pipe.
+$ ls -d /usa /usr | sed 's/^/passou-> /'
+ls: /usa: No such file or directory
+passou-> /usr/
+
+
+e) Ninguem pode atravessar o pipe ... ou ser impresso
+FD1 <- FD2
+FD1 trancado
+FD2 trancado
+
+ls -d /usa /usr 1>&2 1>&- 2>&- | sed 's/^/passou-> /'
+
+
+resposta: julio vc tah certo ....
+
+$ true
+$ echo $?
+0
+
+$ false
+$ echo $?
+1
+
+$ true && echo OK || echo NOK
+OK
+
+$ false && echo OK || echo NOK
+NOK
+
+# FD2 trancado
+# FD1 <- FD2, como FD2 trancado, copia de estatus impossivel,
+# comando retorna falso
+$ true 2>&- >&2 && echo OK || echo NOK
+NOK
+
+# que eh a mesma coisa que o bash abaixo, logicamente ...
+$ false && echo OK || echo NOK
+
+# Todavia, temos que a impossibilidade de copia,
+# aborta o comando retornando estatus de falha e nao negando o mesmo
+$ false 2>&- >&2 && echo OK || echo NOK
+NOK
+
+# FD1 trancado
+# FD1 <- FD1, isso nao eh falso, porque o elemento eh o mesmo
+$ true 1>&- >&1 && echo OK || echo NOK
+OK
+
+
+Resposta ao Flavio ...
+
+# FD3 trancado
+# FD1 <- FD3
+# Tah mas quem eh 3?????????????, logo true abortado ....
+$ true 3>&- >&3 && echo ok || echo nok
+-bash: 3: Bad file descriptor
+nok
+
+# FD3 <- FD2
+$ exec 3<&2
+
+# FD3 trancado
+# FD1 <- FD3, vc trancou o FD1 tb, logo true abortado novamente
+$ true 3>&- >&3 && echo ok || echo nok
+-bash: 3: Bad file descriptor
+nok
+
+
+Ivan, boa observação
+
+saca so
+
+$ cat a.sh
+#!/bin/bash
+( seq 90000 >&2 ) 2>/dev/null
+
+$ time ./a.sh
+
+real 0m2.592s
+user 0m2.435s
+sys 0m0.076s
+
+$ cat b.sh
+#!/bin/bash
+( seq 90000 >&2 ) 2>&-
+
+$ time ./b.sh
+
+real 0m0.158s
+user 0m0.045s
+sys 0m0.046s
+
+Ou seja, fechar o descritor de erros é muito mais eficiente do que
+redirecionar pra /dev/null
+
+Agora compara so:
+
+$ cat a.sh
+#!/bin/bash
+( seq 90000 ; seq 90000 >&2 ) 2>/dev/null >/dev/null
+
+$ time ./a.sh
+
+real 0m5.052s # leeeeeeento
+user 0m4.856s
+sys 0m0.090s
+
+$ cat a.sh
+#!/bin/bash
+( seq 90000 ; seq 90000 >&2 ) 2>&- >/dev/null
+
+$ time ./a.sh
+
+real 0m2.794s # o dobro da rapidez, quase
+user 0m2.481s
+sys 0m0.060s
+
+$ cat a.sh
+#!/bin/bash
+( seq 90000 ; seq 90000 >&2 ) 2>&- >&2
+
+$ time ./a.sh
+
+real 0m0.157s # Q foguete!!!
+user 0m0.077s
+sys 0m0.015s
+
+Quase me esqueci,
+o comando para ver informacoes sobre descriptores ...
+
+lsof -a -p $$ -d0,1,2
+
+
+$ ./cmd -d                     # gerando erro no comando `cmd'.
+./cmd.sh: illegal option -- d
+Unknown option!
+
+$ ./cmd -d 2> file.err.txt     # direciono FD 2 do comando para o arquivo
+                                          # `file.err.txt'.
+
+$ ./cat file.err.txt
+./cmd.sh: illegal option -- d
+Unknown option!
+
+$ ./cmd -d 2>&1                   # FD 2 recebe as caracteristicas de
+1.  logo o
+./cmd.sh: illegal option -- d   # erro vai para a tela como se fosse o STDOUT.
+Unknown option!
+
+
+$ ./cmd.sh -a -d
+-a processed.
+./cmd.sh: illegal option -- d
+Unknown option!
+
+$ ./cmd.sh -a -d 2>&1 2> out.txt
+-a processed.
+
+$ ./cmd.sh -a -d 2>&1 1> out.txt
+./cmd.sh: illegal option -- d
+Unknown option!
+
+
+
+
+
+===============================<8=========================================
+
+#!/bin/bash
+
+# 0 - stdin
+# 1 - stdout
+# 2 - stderr
+
+exec 0< music.txt
+
+cat -n
+
+exit 0
+
+===============================<8=========================================
+
+#!/bin/bash
+
+# 0 - stdin
+# 1 - stdout
+# 2 - stderr
+
+exec 7< music.txt
+
+cat -n <&7
+
+exec 7<&-
+
+exit 0
+
+===============================<8=========================================
+
+#!/bin/bash
+
+# 0 - stdin
+# 1 - stdout
+# 2 - stderr
+
+
+exec 3< arquivo.txt # Criando FD 3, e alterando o nome do nodo para
+                               # o nome do arquivo `/caminho/arquivo.txt'.
+
+exec 7<&3           # Criando FD 7, e duplicando FD 3, ou seja, FD 3
+                            # possui as mesmas caracteristicas de FD 3.
+
+cat -n <&7          # FD 7 direcionado para o comando.
+
+exec 7<&-           # FD 7 liberado.
+exec 3<&-           # FD 3 liberado.
+#exec 7<&- 3<&-
+exit 0
+
+===============================<8=========================================
+
+#!/bin/bash
+
+# 0 - stdin
+# 1 - stdout
+# 2 - stderr
+
+echo
+
+exec 4< arquivo1.txt # Criando FD 4, e alterando o nome do nodo para
+                                 # o nome do arquivo `/caminho/arquivo1.txt'.
+
+cat -n <&4           # Direcionando arquivo definido em FD 4 como fluxo
+                            # para o comando.
+
+
+exec 5< arquivo2.txt # Criando FD 5, e alterando o nome do nodo para
+                                 # o nome do arquivo `/caminho/arquivo2.txt'.
+
+cat -n <&5           # Direcionando arquivo definido em FD 5 como fluxo
+                            # para o comando.
+
+
+exec 6< arquivo3.txt
+cat -n <&6
+
+
+exec 4<&- 5<&- 6<&-  # Fechando FD 4, 5 e 6.
+exit 0
+
+===============================<8=========================================
+
+#!/bin/bash
+
+# 0 - stdin
+# 1 - stdout
+# 2 - stderr
+
+exec 4< a.txt
+exec 5< b.txt
+exec 6< c.txt
+
+cat -n <&6
+cat -n <&5
+cat -n <&4
+
+exec 4<&- 5<&- 6<&-
+exit 0
+
+===============================<8=========================================
+
+#!/bin/bash
+
+# 0 - stdin
+# 1 - stdout
+# 2 - stderr
+
+exec 4< a.txt
+exec 5< b.txt
+exec 6< c.txt
+
+cat -n <&6
+cat -n <&5
+cat -n <&4
+
+exec 4<&- 5<&- 6<&-
+exit 0
+
+===============================<8=========================================
+
+#!/bin/bash
+
+# 0 - stdin
+# 1 - stdout
+# 2 - stderr
+
+exec 4< a.txt
+exec 5< b.txt
+exec 6< c.txt
+
+exec 0< arquivo.txt
+exec 1> out.txt
+
+# exec < arquivo.txt
+# exec > out.txt
+
+cat - | tr [a-z] [A-Z]  # cat arquivo.txt | tr [a-z] [A-Z] > out.txt
+cat -n <&6               # cat -n c.txt > out.txt
+cat -n <&5               # cat -n b.txt > out.txt
+cat -n <&4               # cat -n a.txt > out.txt
+
+exec 4<&- 5<&- 6<&-
+exit 0
+
+===============================<8=========================================
+
+#!/bin/bash
+
+# 0 - stdin
+# 1 - stdout
+# 2 - stderr
+
+exec 4>&1             # stdout duplicado ( FD 4 tem as mesmas caracteristicas
+                              # do STDOUT), aponta para o terminal.
+
+exec 1>out.txt        # stdout aponta para `out.txt'
+
+
+echo Estou escrevendo no arquivo.                    # echo "TEXTO" > out.txt
+echo Estou escrevendo no terminal. >&4          # echo "TEXTO"
+echo Estou escrevendo no arquivo novamente. # echo "TEXTO" > out.txt
+
+exec 1>&4             # FD 1 recebe as caracteristicas de FD 4.
+                              # FD 1 ressetado.
+
+exec 4>&-             # FD 4 eh liberado.
+
+exit 0

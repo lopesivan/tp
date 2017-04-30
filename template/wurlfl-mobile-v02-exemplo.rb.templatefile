@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+require 'wurfl-lite'
+
+db = WURFL.new( 'wurfl.xml' ) # This will load a local copy of the database
+
+# This is the User-Agent string normally found in HTTP Request headers
+user_agent = 'Mozilla/5.0 (Linux; U; Android 1.1; en-gb; dream) AppleWebKit/525.10+ (KHTML, like Gecko) Version/3.0.4 Mobile Safari/523.12.2'
+
+# if nil is returned at this point it's probably a browser and not a phone
+phone = db[ user_agent ]
+
+puts phone.brand_name
+# => T-Mobile
+
+puts phone.model_name
+# => G1
+
+puts phone.device_os
+# => Android
+
+puts phone.xhtml_support_level # A good way to group phones by browser capability
+# => 4
+
+puts phone.preferred_markup
+# => html_web_4_0
+
+puts phone.pointing_method
+# => touchscreen
+
+# vim:ft=ruby:

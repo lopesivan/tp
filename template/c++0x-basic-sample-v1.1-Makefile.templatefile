@@ -1,0 +1,9 @@
+# Makefile: A standard Makefile for barrier.cp
+CXX     = /usr/lib/gcc-snapshot/bin/g++
+CXXFLAGS= -Wall -std=c++0x
+LDFLAGS = -lpthread -L /usr/lib/gcc-snapshot/lib/ -static-libgcc -static-libstdc++
+
+all  : barrier
+clean:
+	/bin/rm -rf barrier barrier.o p
+# END OF FILE

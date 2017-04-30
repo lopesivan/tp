@@ -1,0 +1,26 @@
+digraph G {
+
+	// File utilities
+	"File utilities"   -> "chgrp"           [ label=12 ]
+	"File utilities"   -> "chown"           [ label=12 ]
+	"File utilities"   -> "chmod"           [ label=12 ]
+	"File utilities"   -> "cp"              [ label=12 ]
+	"File utilities"   -> "dd"              [ label=12 ]
+	"File utilities"   -> "df"              [ label=12 ]
+	"File utilities"   -> "dir"             [ label=12 ]
+	"File utilities"   -> "dircolors"       [ label=12 ]
+	"File utilities"   -> "du"              [ label=12 ]
+	"File utilities"   -> "install"         [ label=12 ]
+	"File utilities"   -> "ln"              [ label=12 ]
+	"File utilities"   -> "ls"              [ label=12 ]
+	"File utilities"   -> "mkdir"           [ label=12 ]
+	"File utilities"   -> "mkfifo"          [ label=12 ]
+	"File utilities"   -> "mknod"           [ label=12 ]
+	"File utilities"   -> "mv"              [ label=12 ]
+	"File utilities"   -> "rm"              [ label=12 ]
+	"File utilities"   -> "rmdir"           [ label=12 ]
+	"File utilities"   -> "shred"           [ label=12 ]
+	"File utilities"   -> "sync"            [ label=12 ]
+	"File utilities"   -> "touch"           [ label=12 ]
+	"File utilities"   -> "vdir"            [ label=12 ]
+}

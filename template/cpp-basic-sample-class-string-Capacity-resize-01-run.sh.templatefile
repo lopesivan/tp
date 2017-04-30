@@ -1,0 +1,3 @@
+#! /bin/bash
+
+make CFLAGS+="-Wall -g" sample

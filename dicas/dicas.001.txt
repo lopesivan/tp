@@ -1,0 +1,48 @@
+Como saber qual processo está utilizando determinada porta
+@=@=@001
+@
+@
+Pra que saber qual processo está utilizando determinada porta ? Imagine a
+situação: seu servidor está se comportando de maneira estranha, muito tráfego
+na rede por exemplo, e você analisa a rede e descobre que seu servidor está
+com uma ou mais portas abertas e ouvindo conexõs.
+
+Primeiro, como saber quais são as portas que estão abertas no Linux ? Para
+isso, vamos utilizar o comando netstat. De acordo com a página man do netstat
+(que pode ser acessada digitando man netstat), o netstat mostra conexões de
+rede, tabelas de roteamento, estatísticas de interface e conexões, mascaradas.
+
+Neste artigo, precisaremos saber quais portas estão listen ou ouvindo (ou
+seja, aguardando conexões) no protocolo tcp. Para isso, usaremos os parâmetros
+n e a do netstat para não resolver nomes (vai mostrar somente o IP, que deixa
+o comando mais rápido) e mostrar todas as conexões respectivamente. Sem usar o
+a, o netstat só irá mostrar as portas que está conectadas. Alé disso, vamos
+usar o grep para filtrar o que for somente tcp e o que estiver com status
+listen, assim:
+
+netstat -na | grep tcp | grep -i listen
+
+Para saber que processo está utilizando determinada porta, execute o fuser
+seguido da porta/protocolo. Por exemplo, para ver qual processo está
+utilizando a porta 22, usamos o fuser assim:
+
+# fuser 22/tcp
+22/tcp: 1683
+
+O comando fuser informou que a porta 22/tcp está sendo usada pelo processo
+cujo PID é 1683. Então temos que somente usar o ps para descobrir quem é o
+processo 1683:
+
+# ps aux | grep 1683
+root 1683 0.0 0.2 4984 1080 ? Ss 08:46 0:00 /usr/sbin/sshd
+
+Neste caso, descobrirmos que a porta 22/tcp estava sendo usada pelo sshd. Nada
+anormal neste servidor :)
+
+Podemos usar este procedimento para verificar todas as portas que estão
+abertas.
+
+Para melhorar a dica, pode-se elaborar um script para automatizar esta tarefa.
+Este script poderia comparar as portas que estão abertas no momento com uma
+lista predefinida e, caso não estivesse ok, o script poderia enviar um email
+informando isso.

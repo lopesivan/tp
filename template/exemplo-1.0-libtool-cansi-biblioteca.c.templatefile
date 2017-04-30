@@ -1,0 +1,27 @@
+/* vi:set nu nowrap:
+ * Federal University of Rio de Janeiro
+ *      Author: Ivan carlos da Silva Lopes
+ *        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+ *     License: gpl
+ *    Language: C ansi
+ *        File: biblioteca.c
+ *        Date: Ter 14 Dez 2010 01:45:05 BRST
+ * Description:
+ */
+
+#include <stdlib.h>
+#include "biblioteca.h"
+
+/*****************************************************************************
+ *                                                                           *
+ *  --------------------------------- main --------------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+int bar(void) {
+	return 3;
+}
+
+int foo(void) {
+	return bar();
+}

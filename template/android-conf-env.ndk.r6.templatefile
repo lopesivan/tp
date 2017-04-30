@@ -1,0 +1,5 @@
+# android-ndk-r6
+# ==============
+
+export PATH=${PATH}:/home/ivan/workspace/android-ndk-r6
+export ANDROID_NDK_ROOT=/workspace/android-ndk-r6

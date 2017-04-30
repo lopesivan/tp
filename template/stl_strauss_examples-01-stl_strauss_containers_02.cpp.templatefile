@@ -1,0 +1,70 @@
+#include <map>
+#include <string>
+#include <iostream>
+#include <sstream>
+
+struct Pessoa
+{
+  std::string _nome;
+  unsigned int _idade;
+
+  Pessoa(): _idade(0) {}
+
+  Pessoa(std::string nome, unsigned int idade):
+    _nome(nome), _idade(idade)
+  {
+  }
+};
+
+int main()
+{
+  std::map<unsigned int /* ID */, Pessoa> PessoasPorID;
+
+  //
+  // vamos "cadastrar" 100 pessoas
+  //
+  for(int a  = 0 ; a < 100 ; ++a)
+  {
+    std::stringstream nome;
+
+    nome << "Pessoa " << a;
+
+    //
+    // caso não exista item para essa chave, ela é criada
+    //
+    PessoasPorID[a] = Pessoa(nome.str(), a);
+  }
+
+  Pessoa p;
+  //
+  // vamos pegar a pessoa com ID 50
+  //
+  for(int a = 0 ; a < 100 ; ++a)
+  {
+    p = PessoasPorID[a];
+    std::cout << p._nome << " tem " << p._idade << " anos." << std::endl;
+  }
+
+  //
+  // Se você não tem certeza que o item existe,
+  // não pode usar o operador [].
+  // Diferentemente do std::vector, ELE CRIARA O ITEM
+  // 200 AUTOMATICAMENTE.
+  // Maravilhas do C++: na dúvida, veja o fonte do operator[]
+  // do tipo std::map.
+  //
+  p = PessoasPorID[200];
+  std::cout << p._nome << " tem " << p._idade << " anos." << std::endl;
+
+  //
+  // se não tem certeza da existência, faça assim:
+  // (eu sei, não é a forma mais eficiente, mas
+  //  ainda não vimos iterators nessa série, lembra?)
+  //
+  if(PessoasPorID.find(400) != PessoasPorID.end())
+    p = PessoasPorID[400];
+
+  std::cout << p._nome << " tem " << p._idade << " anos." << std::endl;
+  return 0;
+
+}

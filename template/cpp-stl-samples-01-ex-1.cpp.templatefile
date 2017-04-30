@@ -1,0 +1,54 @@
+// $ seq 1000 9900 | gawk ' (int ($1/100) + $1%100) == sqrt ($1){print}'
+// 2025
+// 3025
+// 9801
+//
+
+#include <iostream>				 //cout
+#include <algorithm>			 //transform ()
+#include <cmath>
+#include <list>
+
+using namespace std;
+
+int desafio_pacman (int num)
+{
+    return (
+               ( (num/100)+ (num%100) ) == sqrt (num)
+           ) ? num
+           : 0;
+}
+
+int main ()
+{
+    list<int> lista;
+
+    for (int i = 1000; i < 10000; i++)
+        lista.push_back (i);
+
+    transform (lista.begin (),	 // iterator pro incio do range desejado
+               lista.end   (),			 // iterator para o fim do range
+               lista.begin (),			 // iterator para conteiner o destino
+               desafio_pacman			 // funo a ser aplicada
+              );
+
+    lista.sort ();
+
+    lista.unique ();
+
+    lista.pop_front ();			 // remove 0
+
+    //imprime os valores.
+    list<int>::iterator it;
+
+    for (it  = lista.begin ();
+            it != lista.end   ();
+            it++)
+    {
+        cout << *it << ' ';
+    }
+
+    cout << endl;
+
+    return 0;
+}

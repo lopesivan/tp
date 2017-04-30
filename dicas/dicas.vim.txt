@@ -1,0 +1,6 @@
+
+F6 Tagbar
+
+:ConqueTerm bash
+:ConqueTerm mysql -h localhost -u joe_lunchbox Menu
+:ConqueTerm man top

@@ -1,0 +1,188 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+« Convertendo vários arquivos PDF em um
+Segredos… »
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ssh-keygen
+
+Publicado 16/05/2010 r Tips Deixar um Comentário
+Etiquetas: ssh, ssh-add, ssh-agent, ssh-keygen
+
+O ssh-keygen é utilitário que faz parte do pacote openssh-client e é utilizado
+para gerar, gerenciar e converter chaves de autenticação para conexões ssh.
+
+O ssh-keygen pode criar chaves utilizando o algoritmo RSA para ser usado com a
+versão 1 do protocolo SSH ou criar chaves utilizando os algoritmos RSA ou DSA
+para uso com a versão 2 do protocolo SSH; o tipo de chave a ser gerada, é
+especificada com a opção -t; se não especificar o tipo de chave, o algoritmo
+padrão é o RSA.
+
+Bem… agora o ‘por que’ do post: recentemente, precisei fazer acesso em vários
+servidores e não queria ficar digitando a senha toda vez que ia acessar a
+máquina. A solução encontrada, foi gerar um par de chaves ssh; distribuir a
+chave pública para as máquinas que eu queria fazer o acesso; em seguida,
+carregar minha chave privada e fazer o acesso sem senha.
+
+Tem um material bem completo no site da IBM Developers [1] explicando como
+funciona detalhadamente – vale a pena a leitura – mas aqui, vão os passos de
+forma resumida. Ahn, lembrando que para o procedimento abaixo, não é
+obrigatório ser root; pode gerar as chaves com o usuário normal ;) .
+
+1) Para as chaves ficarem guardadas de forma organizada, criei um diretório
+chamado keys no meu home e gerei o par de chaves, com o algoritmo RSA:
+
+    # mkdir keys
+
+    # cd keys
+
+    # ssh-keygen -t rsa
+    Generating public/private rsa key pair.
+    Enter file in which to save the key (/root/.ssh/id_rsa): /root/keys/id_rsa
+    Enter passphrase (empty for no passphrase):
+    Enter same passphrase again:
+    Your identification has been saved in /root/keys/id_rsa.
+    Your public key has been saved in /root/keys/id_rsa.pub.
+    The key fingerprint is:
+    a8:e1:d9:5e:1c:b7:9e:d9:b6:fe:bd:23:39:65:7d:72 root@ldap
+    The key’s randomart image is:
+    +–[ RSA 2048]—-+
+    |                 |
+    |                 |
+    |                 |
+    |       .         |
+    |    . . S .     .|
+    |   . = . o .  .oE|
+    |    + . o .   +o.|
+    |     . . . +.+ o |
+    |      .   +o+o+.+|
+    +—————–+
+
+Vejam que acima ele solicita uma passphrase; você pode optar por não digitar
+uma senha, ou para garantir mais segurança (sempre!) escolha uma senha forte…
+rs e não esqueça ela, pois será usada quando fizer o acesso ao servidor!
+
+Verificando as chaves criadas:
+
+    # ls -ltr
+    total 8
+    -rw-r–r– 1 root root  391 Mai  8 08:44 id_rsa.pub
+    -rw——- 1 root root 1743 Mai  8 08:44 id_rsa
+
+2) Enviar a chave pública para a máquina que desejo acessar. Existem várias
+formas de se mandar a chave pública: email, scp, copiar e colar…
+
+Aqui, loguei na máquina que desejo acessar (servidor) e executei os comandos
+abaixo:
+
+    # cd /home/ivani/.ssh
+
+    # pwd
+    /home/ivani/.ssh
+
+    # ssh root@192.168.0.104 ‘cat ~/keys/id_rsa.pub’ > authorized_keys
+    root@192.168.0.104′s password:
+
+A máquina 192.168.0.104 é onde foi gerado as chaves.
+
+    # ls -ltr
+    total 12
+    -rw-r–r– 1 ivani ivani 4438 2010-04-04 15:07 known_hosts
+    -rw-r–r– 1 ivani ivani  391 2010-05-08 08:55 authorized_keys
+
+    # cat authorized_keys
+    ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAo/
+    dAZlAIs+2V09SUXJcx+Qfeiv2kU5C66s1ofJW8qeWplMY3JkryNrJrdVoMy+9jNAC/
+    FjtGgGg7HrvX0Ip8yB6EG/78ETJ0NVHwRbwYuWzlIiLrkeD4B7fQ70fjH5FAlrjBvR9j/
+    puiB3I0FCk0Jph2lBO2v5L59B67JvSuqsNhaCfiRixnEnplLdXG8I1WjCjyH7yIEk2XFOsvZ3CkerCj9VJbby9d2tEB0NQA9wxlI7oGCug0tMAxNGBXKBAGiTOkmWbKcH4vchX5lmCCdRkfeQFXLiUrjUoPKEJB7v+JXASt9wRPcUU5bYi0KgRWus8s0+KuWsguO1jj
+    /N/WZw==
+
+3) Na máquina local (onde gerei as chaves) testei o acesso:
+
+a) Sem informar a chave privada – ele irá solicitar a senha do servidor:
+
+    # ssh ivani@192.168.0.103
+    ivani@192.168.0.103′s password:
+
+b) Informando a chave privada; ele irá solicitar a passphrase que foi criada no
+momento em que a chave foi gerada; caso não tenha informado nenhuma passphrase,
+ele irá conectar direto:
+
+    # ssh -i /root/keys/id_rsa ivani@192.168.0.103
+    Enter passphrase for key ‘/root/keys/id_rsa’:
+    Linux nix 2.6.31-21-generic #59-Ubuntu SMP Wed Mar 24 07:28:56 UTC 2010
+    i686
+    You have new mail.
+    [ivani@nix ~]$
+
+Bem, isso é prático no sentido de que não preciso ficar digitando a senha do
+servidor em si… só a senha da chave (passphrase). Mas vamos melhorar o
+procedimento com os utilitários ssh-agent e ssh-add do pacote openssh-client.
+
+O ssh-agent, é uma espécie de banco de chaves privadas que serão utilizadas em
+conjunto com as chaves públicas (tanto DSA quanto RSA); já o ssh-add
+disponibiliza as chaves (RSA ou DSA) para uso do ssh-agent. Ou seja, adiciono
+minha chave privada com o comando ssh-add no banco de chaves do ssh-agent.
+
+Para iniciar o ssh-agent, fazemos:
+
+    # ssh-agent
+    SSH_AUTH_SOCK=/tmp/ssh-zSLyJQ2753/agent.2753; export SSH_AUTH_SOCK;
+    SSH_AGENT_PID=2754; export SSH_AGENT_PID;
+    echo Agent pid 2754;
+
+A saída do comando ssh-agent, exporta um par de variáveis de ambiente: 
+SSH_AUTH_SOCK e SSH_AGENT_PID, que ficam disponíveis para os comandos
+adicionais que serão executados mais tarde. Porém, na forma como o comando foi
+executado, ele apenas imprimiu as variáveis na saída padrão. Para que essas
+variáveis sejam realmente lidas pelo shell, podemos usar o ssh-agent da
+seguinte forma:
+
+    # eval $(ssh-agent)
+    Agent pid 2749
+
+O comando acima, informa ao shell para ler os argumentos do ssh-agent (as
+variáveis SSH_AUTH_SOCK e SSH_AGENT_PID) e executá-los; isto é, o comando eval
+irá rodar o ssh-agent e em seguida exportar as variáveis, tornando-as
+disponíveis para qualquer novo processo iniciado.
+
+Em seguida, podemos disponibilizar as chaves privadas para o ssh-agent, com o
+comando ssh-add:
+
+    # ssh-add keys/id_rsa
+    Enter passphrase for keys/id_rsa:
+    Identity added: keys/id_rsa (keys/id_rsa)
+
+O comando ssh-add solicita a senha para que minha chave privada possa ser
+descriptografada e armazenada no cache do ssh-agent. Assim, posso utilizar o
+ssh ou o scp sem fornecer minha senha; lembrando que as variáveis do ssh-agent,
+estão disponíveis apenas para o shell atual (não está exportado globalmente):
+
+    # ssh ivani@192.168.0.103
+    Linux nix 2.6.31-21-generic #59-Ubuntu SMP Wed Mar 24 07:28:56 UTC 2010
+    i686
+    [ivani@nix ~]$
+
+Vejam que dessa vez, não foi preciso nem digitar minha chave; efetuei a conexão
+diretamente :) .
+
+Para saber mais:
+
+    # man ssh-agent
+
+    # man ssh-add
+
+E eu recomendo a leitura dos papers do IBM Developers ;) . É isso aí, até o
+próximo post.
+
+[1] IBM Developers:
+
+http://www.ibm.com/developerworks/linux/library/l-keyc.html
+
+http://www.ibm.com/developerworks/library/l-keyc2/
+
+http://www.ibm.com/developerworks/library/l-keyc3/
+
+Página oficial do OpenSSH:
+
+http://www.openssh.org/

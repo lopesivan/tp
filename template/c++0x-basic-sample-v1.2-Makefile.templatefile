@@ -1,0 +1,9 @@
+# Makefile: A standard Makefile for hello.cp
+CXX     = /usr/lib/gcc-snapshot/bin/g++
+CXXFLAGS= -Wall -std=c++0x
+LDFLAGS = -lpthread -L /usr/lib/gcc-snapshot/lib/ -static-libgcc -static-libstdc++
+
+all  : hello
+clean:
+	/bin/rm -rf hello hello.o p
+# END OF FILE

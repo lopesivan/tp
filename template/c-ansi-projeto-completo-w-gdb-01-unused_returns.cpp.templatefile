@@ -1,0 +1,46 @@
+// vi:set nu nowrap:
+// $Id:$
+// Federal University of Rio de Janeiro
+//      Author: Ivan carlos da Silva Lopes
+//        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+//     License: gpl
+//    Language: Cpp
+//        File: unused_returns.cpp
+//        Date: Sun 06 Apr 2008 07:09:27 PM BRT
+// Description:
+//
+
+#include <iostream>
+using namespace std;
+
+//////////////////////////////////////////////////////////////////////////////
+//                                                                           /
+// -------------------------------- plus_3 --------------------------------- /
+//                                                                           /
+//////////////////////////////////////////////////////////////////////////////
+
+int plus_3(int n)
+{
+	return 3 + n;
+}
+
+//
+// main
+//
+
+int main()
+{
+	int a, b, c;
+
+	a = b = c = plus_3(5);
+
+	plus_3(3);
+
+	10;
+
+	cout << "a = " << a << endl
+	     << "b = " << b << endl
+	     << "c = " << c << endl;
+
+	return 0; // success return
+}

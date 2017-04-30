@@ -1,0 +1,7 @@
+all: test.png
+test.png:
+	ccomps -Cx test.gv | dot | gvpack -array_c | neato -n2 -Tpng > test.png
+show:
+	eog test.png
+clean:
+	rm test.png

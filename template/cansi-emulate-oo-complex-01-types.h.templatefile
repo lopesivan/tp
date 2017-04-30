@@ -1,0 +1,35 @@
+/* vi:set nu ts=4 sts=4 sw=4 tw=78 nowrap:
+ * $Id:$
+ * Federal University of Rio de Janeiro
+ *      Author: Ivan carlos da Silva Lopes
+ *        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+ *     License:
+ *    Language: C ansi
+ *        File: |;n|
+ *        Date: 2007 01:49:26
+ * Description:
+ * SPML - Signal Porcessing Math Library by Ivan Carlos Da Silva Lopes
+ */
+
+/*
+ * SML - Signal Math Library by Ivan Carlos Da Silva Lopes
+ */
+
+#ifndef TYPES_H
+#define TYPES_H
+
+typedef float            Real;
+#define real_fmt         "%6.3f"
+
+/*
+typedef double            Real;
+*/
+
+/*
+ * Boolean constants
+ */
+typedef enum {FALSE=0, TRUE} boolean;
+
+typedef boolean              binary;
+
+#endif /* TYPES_H */

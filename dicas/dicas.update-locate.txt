@@ -1,0 +1,4 @@
+update locate db?
+how do i update the database the command 'locate' uses?
+
+$ sudo updatedb

@@ -1,0 +1,26 @@
+$ gnucap npn.ckt
+Gnucap 0.35
+The Gnu Circuit Analysis Package
+Never trust any version less than 1.0
+Copyright 1982-2006, Albert Davis
+Gnucap comes with ABSOLUTELY NO WARRANTY
+This is free software, and you are welcome
+to redistribute it under certain conditions
+according to the GNU General Public License.
+See the file "COPYING" for details.
+** Bipolar junction transistor **
+gnucap> param vcc=15 beta=100 rc=5k re=3k rb1=100k rb2=50k
+
+gnucap> print op v(nodes)
+
+gnucap> op
+
+#           v(b)       v(c)       v(e)       v(in)      v(vcc)
+27.        4.5818     8.7266     3.8017     0.         15.
+gnucap> print dc IC(Q1) IB(Q1) IC(Q1)
+
+gnucap> dc
+
+#           IC(Q1)     IB(Q1)     IC(Q1)
+0.         0.0012547  12.547u    0.0012547
+gnucap> quit

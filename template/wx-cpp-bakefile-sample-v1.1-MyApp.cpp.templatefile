@@ -1,0 +1,13 @@
+#include "MyApp.h"
+
+bool MyApp::OnInit()
+{
+
+	wxMessageBox(
+	    wxT("Hello	wxCpp"),
+	    wxT("wxApp"),
+	    wxOK | wxICON_INFORMATION
+	);
+
+	return true;
+}

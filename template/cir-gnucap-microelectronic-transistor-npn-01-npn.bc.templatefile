@@ -1,0 +1,64 @@
+/*
+ * UNIVERSIDADE FEDERAL DO RIO DE JANEIRO
+ * Ivan Carlos da Silva Lopes
+ * echo lopesivan-SPAN-poli.ufrj.br| sed 's/-SPAN-/@/'
+ */
+
+ /* Bipolar junction transistor */
+
+define bjt_print(ic, ib, ie, vc, ve, vb) {
+
+	print "Kirchhoff's Current Law (KCL)", "\n"
+	print "i(c) = ", ic, "\n"
+	print "i(b) = ", ib, "\n"
+	print "i(e) = ", ie, "\n\n"
+
+	print "Kirchhoff's Voltage Law (KVL)", "\n"
+	print "v(c) = ", vc, "\n"
+	print "v(b) = ", vb, "\n"
+	print "v(e) = ", ve, "\n"
+}
+
+define thevenin(v, r1, r2) {
+	/* Thevenin's Theorem */
+	vbb = v * r2/(r1 + r2)
+	rbb = (r1*r2)/(r1 + r2)
+}
+
+define bjt (vcc, rb1, rb2, rc, re, vbe, beta) {
+
+	auto ic, ib, ie, vc, ve, vb
+
+	silent = thevenin(vcc, rb1, rb2)
+
+	/* Kirchhoff's Current Law (KCL) */
+	ie = (vbb - vbe)/(re + (rbb/(beta+1)))
+	print "ie = ", ie, "\n"
+	ib = ie/(beta+1)
+	ic = ib * beta
+
+	/* Kirchhoff's Voltage Law (KVL) */
+	vc = vcc - rc*ic
+	ve = re*ie
+	vb = vbb - rbb*ib
+
+	silent = bjt_print(ic, ib, ie, vc, ve, vb)
+}
+
+/* ------------------------------------------------------------------------ */
+
+	scale = 8
+
+	k = 1000
+
+/* ------------------------------------------------------------------------ */
+
+vcc  = 15
+rb1  = 100*k
+rb2  = 50*k
+rc   = 5*k
+re   = 3*k
+vbe  = .7
+beta = 100
+
+silent = bjt (vcc, rb1, rb2, rc, re, vbe, beta)

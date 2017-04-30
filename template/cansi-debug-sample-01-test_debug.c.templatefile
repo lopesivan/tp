@@ -1,0 +1,30 @@
+/* vi:set nu nowrap:
+ * $Id:$
+ * Federal University of Rio de Janeiro
+ *      Author: Ivan carlos da Silva Lopes
+ *        Mail: lopesivan (dot) ufrj (at) gmail (dot) com
+ *     License: gpl
+ *    Language: C ansi
+ *        File: test-debug.c
+ *        Date: Ter 12 Out 2010 06:19:24 BRT
+ * Description:
+ */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include "debug.h"
+
+/*****************************************************************************
+ *                                                                           *
+ *  --------------------------------- main --------------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+int
+main (int argc, char *argv[]) {
+
+	D("%s\n","Message *with* debug!");
+	printf("%s\n","Message *without* debug!");
+
+	return EXIT_SUCCESS;
+}

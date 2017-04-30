@@ -1,0 +1,5 @@
+#! /bin/bash
+
+TARGET=`pwd`
+source ${TARGET}/draw.box
+draw.box 78 $1 '//' ' ' ' ' ' ' ' ' '//'

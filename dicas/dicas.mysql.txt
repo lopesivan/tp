@@ -1,0 +1,8 @@
+criar um database:
+- usando mysql
+
+- usando mysqladmin:
+
+
+- ver tabelas presentes em nosso banco de dados:
+

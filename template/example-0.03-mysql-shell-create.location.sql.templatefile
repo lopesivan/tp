@@ -1,0 +1,8 @@
+create table location
+(
+	id bigint not null auto_increment, -- "serial" per 4.1
+	longitude int,
+	latitude  int,
+	place     int,
+	primary key(id, longitude, latitude, place)
+)

@@ -1,0 +1,11 @@
+checkfile=.pipeline_up_to_date
+
+$(checkfile):
+	touch $(checkfile)
+	echo "Launching some commands now."
+	@make db
+
+default: $(checkfile)
+
+include postgres.mk
+

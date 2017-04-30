@@ -1,0 +1,25 @@
+/*@ <FileComment ID=1298622660511> @*/
+/**********************************************************************
+* Class          : Person
+* File           : Person_fdef.h
+* Generated with : Poseidon for UML EmbEd 6.0
+* Last generation: Fri Feb 25 05:31:00 BRT 2011
+**********************************************************************/
+/*@ </FileComment ID=1298622660511> @*/
+
+
+/*@ <IncludeGuard> @*/
+#ifndef Person_I483cd7cem12e5ba4dbd9m4b29_H_FDEF_H
+#define Person_I483cd7cem12e5ba4dbd9m4b29_H_FDEF_H
+/*@ </IncludeGuard> @*/
+
+
+/*@ <Definitions> @*/
+struct _PE_Person;
+#define Person struct _PE_Person
+/*@ </Definitions> @*/
+
+
+/*@ <IncludeGuardEnd> @*/
+#endif  /* Person_I483cd7cem12e5ba4dbd9m4b29_H_FDEF_H */
+/*@ </IncludeGuardEnd> @*/

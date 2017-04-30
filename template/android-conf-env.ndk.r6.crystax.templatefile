@@ -1,0 +1,5 @@
+# android-ndk-r6-crystax
+# ======================
+
+export PATH=${PATH}:/home/ivan/android-ndk-r6-crystax
+export ANDROID_NDK_ROOT=/home/ivan/android-ndk-r6-crystax

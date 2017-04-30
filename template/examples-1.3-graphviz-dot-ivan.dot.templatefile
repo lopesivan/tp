@@ -1,0 +1,8 @@
+digraph structs {
+
+	"Ivan Carlos" -> "Trabalho"
+
+	"Trabalho"    -> "engenharia"
+	"Trabalho"    -> "matematica"
+	"Trabalho"    -> "computador"
+}

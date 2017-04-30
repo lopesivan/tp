@@ -1,0 +1,37 @@
+#ifndef __MATRIX_H__
+#define __MATRIX_H__
+
+#include "array.h"
+
+typedef const unsigned long Row;
+typedef const unsigned long Column;
+typedef const unsigned long Line;
+
+typedef data_t            **Matrix;
+
+Matrix _new_matrix  ( Row, Column, void *(*)( size_t)          );
+void _delete_matrix ( Matrix, Row, Column, void  (*) (void *)  );
+
+/*****************************************************************************
+ *                                                                           *
+ *  --------------------------- Public Interface --------------------------- *
+ *                                                                           *
+ *****************************************************************************/
+
+# define delete_matrix(matrix, row, column)\
+	_delete_matrix ((matrix), (row), (column), free)
+
+Matrix zeros        ( Row, Column         );
+
+void print_matrix   ( Matrix, Row, Column );
+
+void matrix_zero    ( Matrix, Row, Column );
+void matrix_one     ( Matrix, Row, Column );
+void matrix_two     ( Matrix, Row, Column );
+void matrix_three   ( Matrix, Row, Column );
+void matrix_grand   ( Matrix, Row, Column );
+
+# define new_matrix(row, column) \
+	_new_matrix((row), (column), malloc)
+
+#endif /* MATRIX_H */
